@@ -1,0 +1,18 @@
+<project name="topics-bot" xmlns:ivy="antlib:org.apache.ivy.ant" basedir="." >
+  <property name="build.dir" value="${basedir}/.build"/>
+  <property name="distr.dir" value="${basedir}/.build/distr"/>
+  <property name="test.dir" value=".${basedir}/build/test"/>
+
+  <target name="retrieve">
+    <delete dir="model/lib" failonerror="false"/>
+    <delete dir="model/libdev" failonerror="false"/>
+
+    <mkdir dir="model/lib"/>
+    <mkdir dir="model/libdev"/>
+
+    <ivy:settings file="${user.home}/.ivy2/ivysettings.xml"/>
+    <ivy:resolve file="ivy.xml"/>
+    <ivy:retrieve type="jar,bundle" pattern="model/lib/[artifact]-[revision].[ext]" conf="model-prod" haltonfailure="true"/>
+    <ivy:retrieve type="jar,bundle" pattern="model/libdev/[artifact]-[revision].[ext]" conf="model-dev" haltonfailure="true"/>
+  </target>
+</project>

@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+  <session-factory>
+
+    <mapping class="com.topicsbot.model.user.User"/>
+    <mapping class="com.topicsbot.model.chat.Chat"/>
+    <mapping class="com.topicsbot.model.topic.Topic"/>
+    <mapping class="com.topicsbot.model.statistics.Statistics"/>
+    <mapping class="com.topicsbot.model.statistics.ChatDayStatistics"/>
+    <mapping class="com.topicsbot.model.statistics.UserDayStatistics"/>
+
+  </session-factory>
+
+</hibernate-configuration>
