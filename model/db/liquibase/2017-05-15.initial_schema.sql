@@ -1,112 +1,102 @@
--- noinspection SqlNoDataSourceInspectionForFile
-
 -- liquibase formatted sql
 -- changeset voronov:1
 
-  create schema if not exists topics_bot
-    character set utf8mb4
-    collate utf8mb4_unicode_ci;
+create schema if not exists topics_bot
+  character set utf8mb4
+  collate utf8mb4_unicode_ci;
 
-    create table chat_day_statistics (
-        id integer not null unique,
-        add_topic_command_counter integer not null,
-        date date,
-        flood_size integer not null,
-        help_command_counter integer not null,
-        message_counter integer not null,
-        rate_command_counter integer not null,
-        settings_command_counter integer not null,
-        start_command_counter integer not null,
-        statistics_command_counter integer not null,
-        topics_command_counter integer not null,
-        word_counter integer not null,
-        world_topics_command_counter integer not null,
-        chat_id integer not null,
-        primary key (id)
-    ) ENGINE=InnoDB default CHARSET=utf8;
+create table chat_day_statistics (
+  id integer not null auto_increment,
+  add_topic_command_counter integer not null,
+  date date,
+  flood_size integer not null,
+  help_command_counter integer not null,
+  message_counter integer not null,
+  rate_command_counter integer not null,
+  settings_command_counter integer not null,
+  start_command_counter integer not null,
+  statistics_command_counter integer not null,
+  topics_command_counter integer not null,
+  word_counter integer not null,
+  world_topics_command_counter integer not null,
+  chat_id integer not null,
+  primary key (id)
+) ENGINE=InnoDB default CHARSET=utf8;
 
-    create table chats (
-        id integer not null auto_increment,
-        chat_members_count integer not null,
-        external_id varchar(500) not null,
-        language varchar(255) not null,
-        rebirth_date date not null,
-        size varchar(255) not null,
-        timezone varchar(255) not null,
-        title varchar(400),
-        type varchar(255) not null,
-        primary key (id)
-    ) ENGINE=InnoDB default CHARSET=utf8;
+create table chats (
+  id integer not null auto_increment,
+  chat_members_count integer not null,
+  external_id varchar(500) not null,
+  language varchar(255) not null,
+  rebirth_date date not null,
+  size varchar(255) not null,
+  timezone varchar(255) not null,
+  title varchar(400),
+  type varchar(255) not null,
+  primary key (id)
+) ENGINE=InnoDB default CHARSET=utf8;
 
-    create table topics (
-        id integer not null auto_increment,
-        create_date date not null,
-        text varchar(400),
-        author_id integer not null,
-        chat_id integer not null,
-        primary key (id)
-    ) ENGINE=InnoDB default CHARSET=utf8;
+create table topics (
+  id integer not null auto_increment,
+  create_date date not null,
+  text varchar(400),
+  author_id integer not null,
+  chat_id integer not null,
+  primary key (id)
+) ENGINE=InnoDB default CHARSET=utf8;
 
-    create table user_day_statistics (
-        id integer not null unique,
-        add_topic_command_counter integer not null,
-        date date,
-        flood_size integer not null,
-        help_command_counter integer not null,
-        message_counter integer not null,
-        rate_command_counter integer not null,
-        settings_command_counter integer not null,
-        start_command_counter integer not null,
-        statistics_command_counter integer not null,
-        topics_command_counter integer not null,
-        word_counter integer not null,
-        world_topics_command_counter integer not null,
-        chat_id integer not null,
-        user_id integer not null,
-        primary key (id)
-    ) ENGINE=InnoDB default CHARSET=utf8;
+create table user_day_statistics (
+  id integer not null auto_increment,
+  add_topic_command_counter integer not null,
+  date date,
+  flood_size integer not null,
+  help_command_counter integer not null,
+  message_counter integer not null,
+  rate_command_counter integer not null,
+  settings_command_counter integer not null,
+  start_command_counter integer not null,
+  statistics_command_counter integer not null,
+  topics_command_counter integer not null,
+  word_counter integer not null,
+  world_topics_command_counter integer not null,
+  chat_id integer not null,
+  user_id integer not null,
+  primary key (id)
+) ENGINE=InnoDB default CHARSET=utf8;
 
-    create table users (
-        id integer not null auto_increment,
-        external_id varchar(500) not null,
-        name varchar(300) not null,
-        type varchar(255) not null,
-        primary key (id)
-    ) ENGINE=InnoDB default CHARSET=utf8;
-
-
-    alter table chat_day_statistics
-        add constraint FK_s8u97llr77noj08ellgixo2x1
-        foreign key (chat_id)
-        references chats (id);
-
-    alter table topics
-        add constraint FK_hjticaks4ayit8nwchseme2f5
-        foreign key (author_id)
-        references users (id);
-
-    alter table topics
-        add constraint FK_kixu2lxrfuvbblnd3ibk7qlq4
-        foreign key (chat_id)
-        references chats (id);
-
-    alter table user_day_statistics
-        add constraint FK_1u5wm6kcyf0kep1gcua5mipk8
-        foreign key (user_id)
-        references users (id);
-
-    alter table user_day_statistics
-        add constraint FK_f4jdn1tc4lc4466d8aqislrm4
-        foreign key (chat_id)
-        references chats (id);
-
-    create table hibernate_sequences (
-         sequence_name varchar(255),
-         sequence_next_hi_value integer
-    ) ENGINE=InnoDB default CHARSET=utf8;
+create table users (
+  id integer not null auto_increment,
+  external_id varchar(500) not null,
+  name varchar(300) not null,
+  type varchar(255) not null,
+  primary key (id)
+) ENGINE=InnoDB default CHARSET=utf8;
 
 
--- rollback DROP TABLE hibernate_sequences;
+alter table chat_day_statistics
+  add constraint FK_s8u97llr77noj08ellgixo2x1
+foreign key (chat_id)
+references chats (id);
+
+alter table topics
+  add constraint FK_hjticaks4ayit8nwchseme2f5
+foreign key (author_id)
+references users (id);
+
+alter table topics
+  add constraint FK_kixu2lxrfuvbblnd3ibk7qlq4
+foreign key (chat_id)
+references chats (id);
+
+alter table user_day_statistics
+  add constraint FK_1u5wm6kcyf0kep1gcua5mipk8
+foreign key (user_id)
+references users (id);
+
+alter table user_day_statistics
+  add constraint FK_f4jdn1tc4lc4466d8aqislrm4
+foreign key (chat_id)
+references chats (id);
 
 -- rollback ALTER TABLE user_day_statistics DROP FOREIGN KEY FK_f4jdn1tc4lc4466d8aqislrm4;
 -- rollback ALTER TABLE user_day_statistics DROP FOREIGN KEY FK_1u5wm6kcyf0kep1gcua5mipk8;

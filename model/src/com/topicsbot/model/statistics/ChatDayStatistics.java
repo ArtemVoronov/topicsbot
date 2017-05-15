@@ -11,4 +11,12 @@ import javax.persistence.*;
 @Table(name ="chat_day_statistics")
 public class ChatDayStatistics extends Statistics {
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id", unique = true, nullable = false)
+  private Integer id;
+
+  public Integer getId() {
+    return id;
+  }
 }

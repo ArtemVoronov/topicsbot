@@ -15,11 +15,6 @@ import java.time.LocalDate;
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class Statistics {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.TABLE)
-  @Column(name = "id", unique = true, nullable = false)
-  private Integer id;
-
   @OneToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "chat_id", unique = false, nullable = false)
   private Chat chat;
@@ -71,10 +66,6 @@ public abstract class Statistics {
   @Column(name = "world_topics_command_counter", unique = false, nullable = false)
   @NotNull(message = "World topics command counter is null")
   private Integer worldTopicsCommandCounter;
-
-  public Integer getId() {
-    return id;
-  }
 
   public Chat getChat() {
     return chat;
