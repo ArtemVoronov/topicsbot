@@ -6,13 +6,19 @@
   <target name="retrieve">
     <delete dir="model/lib" failonerror="false"/>
     <delete dir="model/libdev" failonerror="false"/>
+    <delete dir="bot/lib" failonerror="false"/>
+    <delete dir="bot/libdev" failonerror="false"/>
 
     <mkdir dir="model/lib"/>
     <mkdir dir="model/libdev"/>
+    <mkdir dir="bot/lib"/>
+    <mkdir dir="bot/libdev"/>
 
     <ivy:settings file="${user.home}/.ivy2/ivysettings.xml"/>
     <ivy:resolve file="ivy.xml"/>
     <ivy:retrieve type="jar,bundle" pattern="model/lib/[artifact]-[revision].[ext]" conf="model-prod" haltonfailure="true"/>
     <ivy:retrieve type="jar,bundle" pattern="model/libdev/[artifact]-[revision].[ext]" conf="model-dev" haltonfailure="true"/>
+    <ivy:retrieve type="jar,bundle" pattern="bot/lib/[artifact]-[revision].[ext]" conf="bot-prod" haltonfailure="true"/>
+    <ivy:retrieve type="jar,bundle" pattern="bot/libdev/[artifact]-[revision].[ext]" conf="bot-dev" haltonfailure="true"/>
   </target>
 </project>
