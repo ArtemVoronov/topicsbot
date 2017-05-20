@@ -17,9 +17,9 @@ import javax.ws.rs.core.Response;
 /**
  * Author: Artem Voronov
  */
-public class TelegramApiClient implements TelegramApiProvider {
+class TelegramApiClient {
 
-  private static final Logger logger = Logger.getLogger("TELEGRAM_API_CLIENT");
+  private static final Logger logger = Logger.getLogger("TELEGRAM_API_SERVICE");
   private static final ObjectMapper mapper = new ObjectMapper();
   private final Client client;
 
@@ -32,7 +32,7 @@ public class TelegramApiClient implements TelegramApiProvider {
     this.client = ClientBuilder.newBuilder().withConfig(config).build();
   }
 
-  public <T> T makeRequest(String endpoint, String json, Class<T> clazz) {
+  <T> T makeRequest(String endpoint, String json, Class<T> clazz) {
     if(logger.isDebugEnabled()) {
       logger.debug("Request to: " + endpoint + ". Params: " + json);
     }

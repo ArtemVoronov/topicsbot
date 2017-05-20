@@ -1,9 +1,23 @@
 package com.topicsbot.services.api.telegram;
 
-import com.topicsbot.services.api.telegram.model.Update;
-import com.topicsbot.services.api.telegram.model.Updates;
+import com.topicsbot.model.ChannelType;
+import com.topicsbot.model.chat.*;
+import com.topicsbot.model.chat.ChatType;
+import com.topicsbot.services.api.telegram.handlers.UpdateHandler;
+import com.topicsbot.services.api.telegram.handlers.UpdateProcessor;
+import com.topicsbot.services.api.telegram.handlers.UpdateType;
+import com.topicsbot.services.api.telegram.handlers.user.StartCommandHandler;
+import com.topicsbot.services.api.telegram.model.*;
+import com.topicsbot.services.api.telegram.model.Chat;
+import com.topicsbot.services.db.DBService;
+import com.topicsbot.services.db.dao.ChatController;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Queue;
+import java.util.TimeZone;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -15,17 +29,35 @@ public class TelegramApiService implements TelegramApiProvider {
 
   private final TelegramApiClient client;
   private final ScheduledExecutorService scheduledExecutorService;
+  private final String sendMessageUrl;
+  private final String getChatMembersCountUrl;
 
   private Queue<Runnable> sendMessageRequestsQueue = new ConcurrentLinkedQueue<>();
   private Queue<Update> updatesQueue = new ConcurrentLinkedQueue<>();
 
-  public TelegramApiService(ScheduledExecutorService scheduledExecutorService, int connectTimeout, int requestTimeout, String botToken) {
+  public TelegramApiService(DBService dbService, ScheduledExecutorService scheduledExecutorService, int connectTimeout, int requestTimeout, String botToken, String botUserName) {
     this.client = new TelegramApiClient(connectTimeout, requestTimeout);
     this.scheduledExecutorService = scheduledExecutorService;
+    final String apiTelegramUrl = "https://api.telegram.org/bot"+botToken;
+    this.sendMessageUrl = apiTelegramUrl+"/sendMessage";
+    this.getChatMembersCountUrl = apiTelegramUrl+"/getChatMembersCount";
 
     scheduledExecutorService.scheduleWithFixedDelay(new GetUpdatesDaemon(botToken), 10000L, 15L, TimeUnit.MILLISECONDS);
-    scheduledExecutorService.scheduleWithFixedDelay(new ProcessUpdatesDaemon(), 10000L, 15L, TimeUnit.MILLISECONDS);
+    scheduledExecutorService.scheduleWithFixedDelay(new ProcessUpdatesDaemon(dbService, botUserName), 10000L, 15L, TimeUnit.MILLISECONDS);
     scheduledExecutorService.scheduleAtFixedRate(new SendMessageDaemon(), 10000L, 34L, TimeUnit.MILLISECONDS);
+  }
+
+  @Override
+  public void sendMessage(Chat chat, String text) {
+    final String jsonParams = "{\"chat_id\":\"" + chat.getId() + "\",\"text\":\"" + text + "\"}";
+    sendMessageRequestsQueue.add(() -> client.makeRequest(sendMessageUrl, jsonParams, Message.class));
+  }
+
+  @Override
+  public int getChatMembersCount(Chat chat) {
+    final String jsonParams = "{\"chat_id\":\"" + chat.getId() + "}";
+    ChatMembersCount result = client.makeRequest(getChatMembersCountUrl, jsonParams, ChatMembersCount.class);
+    return result.getCount();
   }
 
   private class SendMessageDaemon implements Runnable {
@@ -38,11 +70,58 @@ public class TelegramApiService implements TelegramApiProvider {
   }
 
   private class ProcessUpdatesDaemon implements Runnable {
+
+    private final UpdateProcessor updateProcessor;
+    private final ChatController chatController;
+
+    ProcessUpdatesDaemon(DBService db, String botUserName) {
+      Map<UpdateType, UpdateHandler> handlers = new HashMap<>(UpdateType.values().length);
+      handlers.put(UpdateType.START, new StartCommandHandler());
+      this.updateProcessor = new UpdateProcessor(botUserName, handlers);
+      this.chatController = new ChatController(db);
+    }
+
     @Override
     public void run() {
       Update next = updatesQueue.poll();
+
+      if (isDeprecated(next))
+        return;
+
+      checkOrRegisterChat(next);
+
       if (next != null)
-        System.out.println(next.getMessage().getText());//TODO
+        updateProcessor.process(next);
+    }
+
+    private boolean isDeprecated(Update update) {
+      Message message = update.getMessage();
+
+      if (message == null)
+        return false;
+
+      long message_time = message.getDate() * 1000;
+      long system_time = System.currentTimeMillis();
+      long diff = system_time - message_time;
+      return diff > 120_000L; //if older than 2 min -> ignore message
+    }
+
+    private void checkOrRegisterChat(Update update) {
+      Message message = update.getMessage();
+
+      if (message == null)
+        return;
+
+      Chat apiChat = message.getChat();
+      String externalId = Long.toString(apiChat.getId());
+      com.topicsbot.model.chat.Chat modelChat = chatController.find(externalId);
+
+      if (modelChat == null) {
+        com.topicsbot.model.chat.ChatType type = Converter.convert(apiChat.getType());
+        int size = type == ChatType.PRIVATE ? 1 : getChatMembersCount(apiChat);
+        ZoneId UTC = TimeZone.getTimeZone("Etc/GMT0").toZoneId();
+        chatController.create(externalId, apiChat.getTitle(), ChannelType.TELEGRAM, type, ChatLanguage.EN, size, UTC, LocalDate.now(UTC));
+      }
     }
   }
 
@@ -51,7 +130,7 @@ public class TelegramApiService implements TelegramApiProvider {
     private Integer lastUpdateId = null;
 
     GetUpdatesDaemon(String botToken) {
-      this.getUpdatesUrl = "https://api.telegram.org/bot"+botToken+"/getUpdates";;
+      this.getUpdatesUrl = "https://api.telegram.org/bot"+botToken+"/getUpdates";
     }
 
     @Override

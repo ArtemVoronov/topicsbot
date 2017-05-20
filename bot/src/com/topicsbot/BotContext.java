@@ -1,6 +1,7 @@
 package com.topicsbot;
 
 import com.topicsbot.services.Services;
+import com.topicsbot.services.api.telegram.TelegramApiProvider;
 import com.topicsbot.services.db.DBService;
 import org.apache.commons.configuration2.Configuration;
 
@@ -49,5 +50,10 @@ public class BotContext {
   @Produces
   public DBService getDBService() {
     return services.getDbService();
+  }
+
+  @Produces
+  public TelegramApiProvider getTelegramApiProvider() {
+    return services.getTelegramApiProvider();
   }
 }

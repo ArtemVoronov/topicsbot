@@ -20,25 +20,25 @@ public class Services {
   public Services(Configuration config) throws ServicesException {
     this.dbService = initDBService(config);
     this.scheduledExecutorService = initScheduledExecutorService(config);
-    this.telegramApiProvider = initTelegramApiProvider(config, scheduledExecutorService);
+    this.telegramApiProvider = initTelegramApiProvider(config, dbService, scheduledExecutorService);
   }
 
   private DBService initDBService(Configuration config) throws ServicesException {
     try {
       Properties hibernateProperties = new Properties();
-      hibernateProperties.put("hibernate.connection.url", config.getString("hibernate.connection.url"));
-      hibernateProperties.put("hibernate.connection.username", config.getString("hibernate.connection.username"));
-      hibernateProperties.put("hibernate.connection.password", config.getString("hibernate.connection.password"));
-      hibernateProperties.put("hibernate.dialect", config.getString("hibernate.dialect"));
-      hibernateProperties.put("hibernate.connection.driver_class", config.getString("hibernate.connection.driver_class"));
-      hibernateProperties.put("hibernate.hbm2ddl.auto", config.getString("hibernate.hbm2ddl.auto"));
-      hibernateProperties.put("hibernate.connection.provider_class", config.getString("hibernate.connection.provider_class"));
-      hibernateProperties.put("hibernate.c3p0.timeout", config.getString("hibernate.c3p0.timeout"));
-      hibernateProperties.put("hibernate.c3p0.max_statements", config.getString("hibernate.c3p0.max_statements"));
-      hibernateProperties.put("hibernate.c3p0.idle_test_period", config.getString("hibernate.c3p0.idle_test_period"));
-      hibernateProperties.put("hibernate.c3p0.preferredTestQuery", config.getString("hibernate.c3p0.preferredTestQuery"));
-      hibernateProperties.put("hibernate.c3p0.testConnectionOnCheckout", config.getString("hibernate.c3p0.testConnectionOnCheckout"));
-      hibernateProperties.put("application.id", config.getString("application.id"));
+      hibernateProperties.put("hibernate.connection.url", config.getString("db.hibernate.connection.url"));
+      hibernateProperties.put("hibernate.connection.username", config.getString("db.hibernate.connection.username"));
+      hibernateProperties.put("hibernate.connection.password", config.getString("db.hibernate.connection.password"));
+      hibernateProperties.put("hibernate.dialect", config.getString("db.hibernate.dialect"));
+      hibernateProperties.put("hibernate.connection.driver_class", config.getString("db.hibernate.connection.driver_class"));
+      hibernateProperties.put("hibernate.hbm2ddl.auto", config.getString("db.hibernate.hbm2ddl.auto"));
+      hibernateProperties.put("hibernate.connection.provider_class", config.getString("db.hibernate.connection.provider_class"));
+      hibernateProperties.put("hibernate.c3p0.timeout", config.getString("db.hibernate.c3p0.timeout"));
+      hibernateProperties.put("hibernate.c3p0.max_statements", config.getString("db.hibernate.c3p0.max_statements"));
+      hibernateProperties.put("hibernate.c3p0.idle_test_period", config.getString("db.hibernate.c3p0.idle_test_period"));
+      hibernateProperties.put("hibernate.c3p0.preferredTestQuery", config.getString("db.hibernate.c3p0.preferredTestQuery"));
+      hibernateProperties.put("hibernate.c3p0.testConnectionOnCheckout", config.getString("db.hibernate.c3p0.testConnectionOnCheckout"));
+      hibernateProperties.put("application.id", config.getString("db.application.id"));
       return new DBService(hibernateProperties);
     } catch(Exception e) {
       throw new ServicesException("Error during DBService initialization.", e);
@@ -61,13 +61,14 @@ public class Services {
     }
   }
 
-  private TelegramApiProvider initTelegramApiProvider(Configuration config, ScheduledExecutorService scheduledExecutorService) throws ServicesException {
+  private TelegramApiProvider initTelegramApiProvider(Configuration config, DBService db, ScheduledExecutorService scheduledExecutorService) throws ServicesException {
     try {
       boolean testMode = config.getBoolean("test.mode", false);
       int connectTimeout = config.getInt("telegram.api.client.connect.timeout.millis");
       int requestTimeout = config.getInt("telegram.api.client.request.timeout.millis");
       String botToken = config.getString(testMode ? "test.bot.token" : "bot.token");
-      return new TelegramApiService(scheduledExecutorService, connectTimeout, requestTimeout, botToken);
+      String botUserName = config.getString(testMode ? "test.bot.username" : "bot.username");
+      return new TelegramApiService(db, scheduledExecutorService, connectTimeout, requestTimeout, botToken, botUserName);
     } catch (Exception e) {
       throw new ServicesException("Error during TelegramApiProvider initialization", e);
     }
@@ -75,6 +76,10 @@ public class Services {
 
   public DBService getDbService() {
     return dbService;
+  }
+
+  public TelegramApiProvider getTelegramApiProvider() {
+    return telegramApiProvider;
   }
 
   public void shutdown() {

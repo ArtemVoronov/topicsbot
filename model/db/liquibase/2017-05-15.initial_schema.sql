@@ -25,14 +25,14 @@ create table chat_day_statistics (
 
 create table chats (
   id integer not null auto_increment,
-  chat_members_count integer not null,
-  external_id varchar(500) not null,
+  size integer not null,
+  external_id varchar(500) not null unique,
   language varchar(255) not null,
   rebirth_date date not null,
-  size varchar(255) not null,
+  type varchar(255) not null,
   timezone varchar(255) not null,
   title varchar(400),
-  type varchar(255) not null,
+  channel varchar(255) not null,
   primary key (id)
 ) ENGINE=InnoDB default CHARSET=utf8;
 

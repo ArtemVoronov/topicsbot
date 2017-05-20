@@ -18,7 +18,7 @@ class ChatTest extends DBTestBase {
       externalId        : '-630123892091',
       title             : 'some title',
       type              : ChannelType.TELEGRAM,
-      size              : ChatSize.PRIVATE,
+      size              : ChatType.PRIVATE,
       language          : ChatLanguage.EN,
       chatMembersCount  : 1,
       timezone          : ZoneId.of(TimeZones.GMT_0.name),

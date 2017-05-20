@@ -21,30 +21,30 @@ public class Chat {
   @Column(name = "id", unique = true, nullable = false)
   private Integer id;
 
-  @Column(name = "external_id", unique = false, nullable = false, length = 500)
+  @Column(name = "external_id", unique = true, nullable = false, length = 500)
   private String externalId;
 
   @Column(name = "title", unique = false, nullable = true, length = 400)
   private String title;
 
   @Enumerated(EnumType.STRING)
-  @Column(name="type", unique = false, nullable = false)
-  @NotNull(message = "Chat type is null")
-  private ChannelType type;
+  @Column(name="channel", unique = false, nullable = false)
+  @NotNull(message = "Channel type is null")
+  private ChannelType channel;
 
   @Enumerated(EnumType.STRING)
-  @Column(name="size", unique = false, nullable = false)
-  @NotNull(message = "Chat size is null")
-  private ChatSize size;
+  @Column(name="type", unique = false, nullable = false)
+  @NotNull(message = "Chat type is null")
+  private ChatType type;
 
   @Enumerated(EnumType.STRING)
   @Column(name="language", unique = false, nullable = false)
   @NotNull(message = "Chat language is null")
   private ChatLanguage language;
 
-  @Column(name = "chat_members_count", unique = false, nullable = false)
-  @NotNull(message = "Chat members count is null")
-  private Integer chatMembersCount;
+  @Column(name = "size", unique = false, nullable = false)
+  @NotNull(message = "Chat size is null")
+  private Integer size;
 
   @Convert(converter = ZoneIdConverter.class)
   @Column(name = "timezone", unique = false, nullable = false)
@@ -74,20 +74,20 @@ public class Chat {
     this.title = title;
   }
 
-  public ChannelType getType() {
+  public ChannelType getChannel() {
+    return channel;
+  }
+
+  public void setChannel(ChannelType channel) {
+    this.channel = channel;
+  }
+
+  public ChatType getType() {
     return type;
   }
 
-  public void setType(ChannelType type) {
+  public void setType(ChatType type) {
     this.type = type;
-  }
-
-  public ChatSize getSize() {
-    return size;
-  }
-
-  public void setSize(ChatSize size) {
-    this.size = size;
   }
 
   public ChatLanguage getLanguage() {
@@ -98,12 +98,12 @@ public class Chat {
     this.language = language;
   }
 
-  public Integer getChatMembersCount() {
-    return chatMembersCount;
+  public Integer getSize() {
+    return size;
   }
 
-  public void setChatMembersCount(Integer chatMembersCount) {
-    this.chatMembersCount = chatMembersCount;
+  public void setSize(Integer size) {
+    this.size = size;
   }
 
   public ZoneId getTimezone() {
@@ -114,6 +114,11 @@ public class Chat {
     this.timezone = timezone;
   }
 
+  public LocalDate getRebirthDate() {
+    return rebirthDate;
+  }
 
-
+  public void setRebirthDate(LocalDate rebirthDate) {
+    this.rebirthDate = rebirthDate;
+  }
 }

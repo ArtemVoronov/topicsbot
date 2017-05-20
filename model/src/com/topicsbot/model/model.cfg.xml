@@ -10,7 +10,6 @@
     <mapping class="com.topicsbot.model.user.User"/>
     <mapping class="com.topicsbot.model.chat.Chat"/>
     <mapping class="com.topicsbot.model.topic.Topic"/>
-    <mapping class="com.topicsbot.model.statistics.Statistics"/>
     <mapping class="com.topicsbot.model.statistics.ChatDayStatistics"/>
     <mapping class="com.topicsbot.model.statistics.UserDayStatistics"/>
 
