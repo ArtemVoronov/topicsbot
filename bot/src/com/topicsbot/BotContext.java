@@ -17,15 +17,17 @@ public class BotContext {
   private static BotContext instance;
 
   private final Services services;
+  private final String version;
 
 
-  private BotContext(Configuration config) throws Exception {
+  private BotContext(Configuration config, String version) throws Exception {
     this.services = new Services(config);
+    this.version = version;
   }
 
-  static void init(Configuration config) throws Exception {
+  static void init(Configuration config, String version) throws Exception {
     if(instance == null) {
-      instance = new BotContext(config);
+      instance = new BotContext(config, version);
       initLatch.countDown();
     }
   }
@@ -46,6 +48,10 @@ public class BotContext {
 
   public Services getServices() {
     return services;
+  }
+
+  public String getVersion() {
+    return version;
   }
 
   @Produces

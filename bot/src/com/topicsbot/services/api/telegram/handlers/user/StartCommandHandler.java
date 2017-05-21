@@ -1,5 +1,6 @@
 package com.topicsbot.services.api.telegram.handlers.user;
 
+import com.topicsbot.BotContext;
 import com.topicsbot.model.chat.Chat;
 import com.topicsbot.model.chat.ChatLanguage;
 import com.topicsbot.services.api.telegram.TelegramApiProvider;
@@ -29,7 +30,10 @@ public class StartCommandHandler implements UpdateHandler {
     Message message = update.getMessage();
     Chat chat = chatController.find(message.getChatId());
     ChatLanguage language = chat.getLanguage();
-    String text = resourceBundleService.getMessage(language.name().toLowerCase(), "build.note");//TODO
-    telegramApiProvider.sendMessage(message.getChat(), text);
+    String build = resourceBundleService.getMessage(language.name().toLowerCase(), "build.note");
+    String help = resourceBundleService.getMessage(language.name().toLowerCase(), "help.message");
+    String startMessageTemplate = resourceBundleService.getMessage(language.name().toLowerCase(), "start.message");
+    String result = String.format(startMessageTemplate, "http://topicsbot.com", BotContext.getInstance().getVersion(), build, help);
+    telegramApiProvider.sendMessage(message.getChat(), result);
   }
 }

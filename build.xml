@@ -2,6 +2,7 @@
   <property name="build.dir" value="${basedir}/.build"/>
   <property name="distr.dir" value="${basedir}/.build/distr"/>
   <property name="test.dir" value=".${basedir}/build/test"/>
+  <property name="release.version" value="dev"/>
 
   <target name="retrieve">
     <delete dir="model/lib" failonerror="false"/>

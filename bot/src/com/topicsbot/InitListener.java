@@ -26,7 +26,8 @@ public class InitListener implements ServletContextListener {
       final Configurations configs = new Configurations();
       final Configuration config = configs.properties(new File(configDir.getAbsolutePath() + File.separator + PROPERTIES_FILE_NAME));
       initLog4j(configDir);
-      initBotContext(config);
+      String appVersion = getAppVersion(config);
+      initBotContext(config, appVersion);
     } catch (ConfigurationException cex) {
       throw new RuntimeException("Unable to read config");
     }
@@ -52,15 +53,24 @@ public class InitListener implements ServletContextListener {
     return cfgDir;
   }
 
+  private String getAppVersion(Configuration config) {
+    try {
+      return config.getString("version");
+    }
+    catch(Exception ex) {
+      throw new RuntimeException("Parameter version is not found.", ex);
+    }
+  }
+
   private void initLog4j(File configDir) {
     final File log4jProps = new File(configDir, "log4j.properties");
     System.out.println("Log4j conf file: " + log4jProps.getAbsolutePath() + ", exists: " + log4jProps.exists());
     PropertyConfigurator.configureAndWatch(log4jProps.getAbsolutePath(), TimeUnit.MINUTES.toMillis(1));
   }
 
-  private void initBotContext(Configuration config) {
+  private void initBotContext(Configuration config, String version) {
     try {
-      BotContext.init(config);
+      BotContext.init(config, version);
     }
     catch(Exception e) {
       e.printStackTrace();
