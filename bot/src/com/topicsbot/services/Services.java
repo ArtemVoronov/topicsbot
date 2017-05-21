@@ -3,6 +3,7 @@ package com.topicsbot.services;
 import com.topicsbot.services.api.telegram.TelegramApiService;
 import com.topicsbot.services.api.telegram.TelegramApiProvider;
 import com.topicsbot.services.db.DBService;
+import com.topicsbot.services.i18n.ResourceBundleService;
 import org.apache.commons.configuration2.Configuration;
 
 import java.util.Properties;
@@ -16,11 +17,13 @@ public class Services {
   private final DBService dbService;
   private final ScheduledExecutorService scheduledExecutorService;
   private final TelegramApiProvider telegramApiProvider;
+  private final ResourceBundleService resourceBundleService;
 
   public Services(Configuration config) throws ServicesException {
+    this.resourceBundleService = new ResourceBundleService();
     this.dbService = initDBService(config);
     this.scheduledExecutorService = initScheduledExecutorService(config);
-    this.telegramApiProvider = initTelegramApiProvider(config, dbService, scheduledExecutorService);
+    this.telegramApiProvider = initTelegramApiProvider(config, dbService, scheduledExecutorService, resourceBundleService);
   }
 
   private DBService initDBService(Configuration config) throws ServicesException {
@@ -61,14 +64,14 @@ public class Services {
     }
   }
 
-  private TelegramApiProvider initTelegramApiProvider(Configuration config, DBService db, ScheduledExecutorService scheduledExecutorService) throws ServicesException {
+  private TelegramApiProvider initTelegramApiProvider(Configuration config, DBService db, ScheduledExecutorService scheduledExecutorService, ResourceBundleService resourceBundleService) throws ServicesException {
     try {
       boolean testMode = config.getBoolean("test.mode", false);
       int connectTimeout = config.getInt("telegram.api.client.connect.timeout.millis");
       int requestTimeout = config.getInt("telegram.api.client.request.timeout.millis");
       String botToken = config.getString(testMode ? "test.bot.token" : "bot.token");
       String botUserName = config.getString(testMode ? "test.bot.username" : "bot.username");
-      return new TelegramApiService(db, scheduledExecutorService, connectTimeout, requestTimeout, botToken, botUserName);
+      return new TelegramApiService(db, scheduledExecutorService, resourceBundleService, connectTimeout, requestTimeout, botToken, botUserName);
     } catch (Exception e) {
       throw new ServicesException("Error during TelegramApiProvider initialization", e);
     }
@@ -80,6 +83,10 @@ public class Services {
 
   public TelegramApiProvider getTelegramApiProvider() {
     return telegramApiProvider;
+  }
+
+  public ResourceBundleService getResourceBundleService() {
+    return resourceBundleService;
   }
 
   public void shutdown() {

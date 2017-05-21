@@ -49,4 +49,8 @@ public class Message {
   public void setText(String text) {
     this.text = text;
   }
+
+  public String getChatId() {
+    return Long.toString(chat.getId());
+  }
 }

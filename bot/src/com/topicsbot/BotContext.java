@@ -3,6 +3,7 @@ package com.topicsbot;
 import com.topicsbot.services.Services;
 import com.topicsbot.services.api.telegram.TelegramApiProvider;
 import com.topicsbot.services.db.DBService;
+import com.topicsbot.services.i18n.ResourceBundleService;
 import org.apache.commons.configuration2.Configuration;
 
 import javax.ws.rs.Produces;
@@ -55,5 +56,10 @@ public class BotContext {
   @Produces
   public TelegramApiProvider getTelegramApiProvider() {
     return services.getTelegramApiProvider();
+  }
+
+  @Produces
+  public ResourceBundleService getResourceBundleService() {
+    return services.getResourceBundleService();
   }
 }
