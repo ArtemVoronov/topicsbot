@@ -6,6 +6,7 @@ package com.topicsbot.services.api.telegram.handlers;
 public enum UpdateType {
   //user commands
   START("start"),
+  TOPICS("topics"),
   HELP("help"),
   ADD("add"),
   STATISTICS("statistics"),

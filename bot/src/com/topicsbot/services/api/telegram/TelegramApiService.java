@@ -3,10 +3,13 @@ package com.topicsbot.services.api.telegram;
 import com.topicsbot.model.ChannelType;
 import com.topicsbot.model.chat.*;
 import com.topicsbot.model.chat.ChatType;
+import com.topicsbot.services.analysis.AnalysisService;
 import com.topicsbot.services.api.telegram.handlers.UpdateHandler;
 import com.topicsbot.services.api.telegram.handlers.UpdateProcessor;
 import com.topicsbot.services.api.telegram.handlers.UpdateType;
+import com.topicsbot.services.api.telegram.handlers.user.GetTopicsHandler;
 import com.topicsbot.services.api.telegram.handlers.user.StartCommandHandler;
+import com.topicsbot.services.api.telegram.handlers.user.ToStatisticsHandler;
 import com.topicsbot.services.api.telegram.model.*;
 import com.topicsbot.services.api.telegram.model.Chat;
 import com.topicsbot.services.db.DBService;
@@ -38,7 +41,10 @@ public class TelegramApiService implements TelegramApiProvider {
   private Queue<Runnable> sendMessageRequestsQueue = new ConcurrentLinkedQueue<>();
   private Queue<Update> updatesQueue = new ConcurrentLinkedQueue<>();
 
-  public TelegramApiService(DBService dbService, ScheduledExecutorService scheduledExecutorService, ResourceBundleService resourceBundleService, int connectTimeout, int requestTimeout, String botToken, String botUserName) {
+  public TelegramApiService(DBService dbService, ScheduledExecutorService scheduledExecutorService,
+                            ResourceBundleService resourceBundleService, AnalysisService analysisService,
+                            int connectTimeout, int requestTimeout,
+                            String botToken, String botUserName) {
     this.client = new TelegramApiClient(connectTimeout, requestTimeout);
     this.scheduledExecutorService = scheduledExecutorService;
     final String apiTelegramUrl = "https://api.telegram.org/bot"+botToken;
@@ -46,7 +52,7 @@ public class TelegramApiService implements TelegramApiProvider {
     this.getChatMembersCountUrl = apiTelegramUrl+"/getChatMembersCount";
 
     scheduledExecutorService.scheduleWithFixedDelay(new GetUpdatesDaemon(botToken), 10000L, 15L, TimeUnit.MILLISECONDS);
-    scheduledExecutorService.scheduleWithFixedDelay(new ProcessUpdatesDaemon(this, dbService, resourceBundleService, botUserName), 10000L, 15L, TimeUnit.MILLISECONDS);
+    scheduledExecutorService.scheduleWithFixedDelay(new ProcessUpdatesDaemon(analysisService, this, dbService, resourceBundleService, botUserName), 10000L, 15L, TimeUnit.MILLISECONDS);
     scheduledExecutorService.scheduleAtFixedRate(new SendMessageDaemon(), 10000L, 34L, TimeUnit.MILLISECONDS);
   }
 
@@ -81,10 +87,12 @@ public class TelegramApiService implements TelegramApiProvider {
     private final UpdateProcessor updateProcessor;
     private final ChatController chatController;
 
-    ProcessUpdatesDaemon(TelegramApiService telegramApiService, DBService db, ResourceBundleService resourceBundleService, String botUserName) {
+    ProcessUpdatesDaemon(AnalysisService analysisService, TelegramApiService telegramApiService, DBService db, ResourceBundleService resourceBundleService, String botUserName) {
       this.chatController = new ChatController(db);
       Map<UpdateType, UpdateHandler> handlers = new HashMap<>(UpdateType.values().length);
       handlers.put(UpdateType.START, new StartCommandHandler(telegramApiService, resourceBundleService, chatController));
+      handlers.put(UpdateType.TO_STATISTICS, new ToStatisticsHandler(analysisService, chatController));
+      handlers.put(UpdateType.TOPICS, new GetTopicsHandler(analysisService, telegramApiService, chatController, resourceBundleService));
       this.updateProcessor = new UpdateProcessor(botUserName, handlers);
     }
 
