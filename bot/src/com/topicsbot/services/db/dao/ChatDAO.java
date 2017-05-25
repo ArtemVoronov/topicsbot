@@ -13,11 +13,11 @@ import java.time.ZoneId;
 /**
  * author: Artem Voronov
  */
-public class ChatController {
+public class ChatDAO {
 
   private DBService db;
 
-  public ChatController(DBService db) {
+  public ChatDAO(DBService db) {
     this.db = db;
   }
 

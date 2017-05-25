@@ -6,7 +6,7 @@ import com.topicsbot.services.api.telegram.TelegramApiProvider;
 import com.topicsbot.services.api.telegram.handlers.UpdateHandler;
 import com.topicsbot.services.api.telegram.model.Message;
 import com.topicsbot.services.api.telegram.model.Update;
-import com.topicsbot.services.db.dao.ChatController;
+import com.topicsbot.services.db.dao.ChatDAO;
 import com.topicsbot.services.i18n.ResourceBundleService;
 
 import java.util.List;
@@ -18,14 +18,14 @@ import java.util.Set;
 public class GetTopicsHandler implements UpdateHandler {
   private final AnalysisService analysisService;
   private final TelegramApiProvider telegramApiProvider;
-  private final ChatController chatController;
+  private final ChatDAO chatDAO;
   private final ResourceBundleService resourceBundleService;
 
   public GetTopicsHandler(AnalysisService analysisService, TelegramApiProvider telegramApiProvider,
-                          ChatController chatController, ResourceBundleService resourceBundleService) {
+                          ChatDAO chatDAO, ResourceBundleService resourceBundleService) {
     this.analysisService = analysisService;
     this.telegramApiProvider = telegramApiProvider;
-    this.chatController = chatController;
+    this.chatDAO = chatDAO;
     this.resourceBundleService = resourceBundleService;
   }
 
@@ -36,7 +36,7 @@ public class GetTopicsHandler implements UpdateHandler {
     if (message == null)
       return;
 
-    Chat chat = chatController.find(message.getChatId());
+    Chat chat = chatDAO.find(message.getChatId());
     List<String> keywords = analysisService.getKeywords(chat);
     Set<String> topics = analysisService.getTopics(keywords, chat.getLanguage());
 

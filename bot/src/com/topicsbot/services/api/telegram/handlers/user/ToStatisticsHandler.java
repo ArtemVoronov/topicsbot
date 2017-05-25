@@ -5,7 +5,7 @@ import com.topicsbot.services.analysis.AnalysisService;
 import com.topicsbot.services.api.telegram.handlers.UpdateHandler;
 import com.topicsbot.services.api.telegram.model.Message;
 import com.topicsbot.services.api.telegram.model.Update;
-import com.topicsbot.services.db.dao.ChatController;
+import com.topicsbot.services.db.dao.ChatDAO;
 
 /**
  * Author: Artem Voronov
@@ -13,11 +13,11 @@ import com.topicsbot.services.db.dao.ChatController;
 public class ToStatisticsHandler implements UpdateHandler {
 
   private final AnalysisService analysisService;
-  private final ChatController chatController;
+  private final ChatDAO chatDAO;
 
-  public ToStatisticsHandler(AnalysisService analysisService, ChatController chatController) {
+  public ToStatisticsHandler(AnalysisService analysisService, ChatDAO chatDAO) {
     this.analysisService = analysisService;
-    this.chatController = chatController;
+    this.chatDAO = chatDAO;
   }
 
   @Override
@@ -27,7 +27,7 @@ public class ToStatisticsHandler implements UpdateHandler {
     if (message == null)
       return;
 
-    Chat chat = chatController.find(message.getChatId());
+    Chat chat = chatDAO.find(message.getChatId());
     String text = message.getText().trim();
     analysisService.index(text, chat);
   }

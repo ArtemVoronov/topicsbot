@@ -29,7 +29,7 @@ create table chats (
   external_id varchar(500) not null unique,
   language varchar(255) not null,
   rebirth_date date not null,
-  type varchar(255) not null,
+  channel varchar(255) not null,
   timezone varchar(255) not null,
   title varchar(400),
   channel varchar(255) not null,
@@ -68,7 +68,7 @@ create table users (
   id integer not null auto_increment,
   external_id varchar(500) not null,
   name varchar(300) not null,
-  type varchar(255) not null,
+  channel varchar(255) not null,
   primary key (id)
 ) ENGINE=InnoDB default CHARSET=utf8;
 

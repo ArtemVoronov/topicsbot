@@ -2,6 +2,7 @@ package com.topicsbot.services.api.telegram.handlers;
 
 import com.topicsbot.services.api.telegram.model.Message;
 import com.topicsbot.services.api.telegram.model.Update;
+import com.topicsbot.services.cache.CacheService;
 import org.apache.log4j.Logger;
 
 import java.util.Map;
@@ -13,10 +14,12 @@ public class UpdateProcessor {
   private static final Logger logger = Logger.getLogger("TELEGRAM_API_SERVICE");
   private final Map<UpdateType, UpdateHandler> handlers;
   private final String botUserName;
+  private final CacheService cacheService;
 
-  public UpdateProcessor(String botUserName, Map<UpdateType, UpdateHandler> handlers) {
+  public UpdateProcessor(String botUserName, Map<UpdateType, UpdateHandler> handlers, CacheService cacheService) {
     this.botUserName = botUserName.toUpperCase();
     this.handlers = handlers;
+    this.cacheService = cacheService;
   }
 
   public void process(Update update) {
@@ -80,11 +83,18 @@ public class UpdateProcessor {
     }
   }
 
-  private static boolean isTopicsAdding(Update update) {
-    return false;//TODO
+  private boolean isTopicsAdding(Update update) {
+    Message message = update.getMessage();
+    return message != null && cacheService.hasWaiter(message.getChatId(), message.getUserId());
+
   }
 
-  private static void cleanTopicsAdding(Update update) {
-    //TODO
+  private void cleanTopicsAdding(Update update) {
+    Message message = update.getMessage();
+
+    if (message == null)
+      return;
+
+    cacheService.removeWaiter(message.getChatId(), message.getUserId());
   }
 }

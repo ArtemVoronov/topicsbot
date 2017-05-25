@@ -121,4 +121,9 @@ public class Chat {
   public void setRebirthDate(LocalDate rebirthDate) {
     this.rebirthDate = rebirthDate;
   }
+
+  @Transient
+  public String getLanguageShort() {
+    return language.name().toLowerCase();
+  }
 }

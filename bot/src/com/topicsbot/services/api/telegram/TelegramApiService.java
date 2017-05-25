@@ -12,8 +12,9 @@ import com.topicsbot.services.api.telegram.handlers.user.StartCommandHandler;
 import com.topicsbot.services.api.telegram.handlers.user.ToStatisticsHandler;
 import com.topicsbot.services.api.telegram.model.*;
 import com.topicsbot.services.api.telegram.model.Chat;
+import com.topicsbot.services.cache.CacheService;
 import com.topicsbot.services.db.DBService;
-import com.topicsbot.services.db.dao.ChatController;
+import com.topicsbot.services.db.dao.ChatDAO;
 import com.topicsbot.services.i18n.ResourceBundleService;
 import org.apache.log4j.Logger;
 
@@ -43,6 +44,7 @@ public class TelegramApiService implements TelegramApiProvider {
 
   public TelegramApiService(DBService dbService, ScheduledExecutorService scheduledExecutorService,
                             ResourceBundleService resourceBundleService, AnalysisService analysisService,
+                            CacheService cacheService,
                             int connectTimeout, int requestTimeout,
                             String botToken, String botUserName) {
     this.client = new TelegramApiClient(connectTimeout, requestTimeout);
@@ -52,13 +54,19 @@ public class TelegramApiService implements TelegramApiProvider {
     this.getChatMembersCountUrl = apiTelegramUrl+"/getChatMembersCount";
 
     scheduledExecutorService.scheduleWithFixedDelay(new GetUpdatesDaemon(botToken), 10000L, 15L, TimeUnit.MILLISECONDS);
-    scheduledExecutorService.scheduleWithFixedDelay(new ProcessUpdatesDaemon(analysisService, this, dbService, resourceBundleService, botUserName), 10000L, 15L, TimeUnit.MILLISECONDS);
+    scheduledExecutorService.scheduleWithFixedDelay(new ProcessUpdatesDaemon(cacheService, analysisService, this, dbService, resourceBundleService, botUserName), 10000L, 15L, TimeUnit.MILLISECONDS);
     scheduledExecutorService.scheduleAtFixedRate(new SendMessageDaemon(), 10000L, 34L, TimeUnit.MILLISECONDS);
   }
 
   @Override
   public void sendMessage(Chat chat, String text) {
     final String jsonParams = "{\"chat_id\":\"" + chat.getId() + "\",\"text\":\"" + text + "\"}";
+    sendMessageRequestsQueue.add(() -> client.makeRequest(sendMessageUrl, jsonParams, Message.class));
+  }
+
+  @Override
+  public void replyToMessage(Chat chat, String text, Message message) {
+    final String jsonParams = "{\"chat_id\":\"" + chat.getId() + "\",\"text\":\"" + text + "\",\"reply_to_message_id\":\"" + message.getId() + "\"}";
     sendMessageRequestsQueue.add(() -> client.makeRequest(sendMessageUrl, jsonParams, Message.class));
   }
 
@@ -85,15 +93,15 @@ public class TelegramApiService implements TelegramApiProvider {
   private class ProcessUpdatesDaemon implements Runnable {
 
     private final UpdateProcessor updateProcessor;
-    private final ChatController chatController;
+    private final ChatDAO chatDAO;
 
-    ProcessUpdatesDaemon(AnalysisService analysisService, TelegramApiService telegramApiService, DBService db, ResourceBundleService resourceBundleService, String botUserName) {
-      this.chatController = new ChatController(db);
+    ProcessUpdatesDaemon(CacheService cacheService, AnalysisService analysisService, TelegramApiService telegramApiService, DBService db, ResourceBundleService resourceBundleService, String botUserName) {
+      this.chatDAO = new ChatDAO(db);
       Map<UpdateType, UpdateHandler> handlers = new HashMap<>(UpdateType.values().length);
-      handlers.put(UpdateType.START, new StartCommandHandler(telegramApiService, resourceBundleService, chatController));
-      handlers.put(UpdateType.TO_STATISTICS, new ToStatisticsHandler(analysisService, chatController));
-      handlers.put(UpdateType.TOPICS, new GetTopicsHandler(analysisService, telegramApiService, chatController, resourceBundleService));
-      this.updateProcessor = new UpdateProcessor(botUserName, handlers);
+      handlers.put(UpdateType.START, new StartCommandHandler(telegramApiService, resourceBundleService, chatDAO));
+      handlers.put(UpdateType.TO_STATISTICS, new ToStatisticsHandler(analysisService, chatDAO));
+      handlers.put(UpdateType.TOPICS, new GetTopicsHandler(analysisService, telegramApiService, chatDAO, resourceBundleService));
+      this.updateProcessor = new UpdateProcessor(botUserName, handlers, cacheService);
     }
 
     @Override
@@ -134,14 +142,14 @@ public class TelegramApiService implements TelegramApiProvider {
         return;
 
       String externalId = message.getChatId();
-      com.topicsbot.model.chat.Chat modelChat = chatController.find(externalId);
+      com.topicsbot.model.chat.Chat modelChat = chatDAO.find(externalId);
 
       if (modelChat == null) {
         Chat apiChat = message.getChat();
         com.topicsbot.model.chat.ChatType type = Converter.convert(apiChat.getType());
         int size = type == ChatType.PRIVATE ? 1 : getChatMembersCount(apiChat);
         ZoneId UTC = TimeZone.getTimeZone("Etc/GMT0").toZoneId();
-        chatController.create(externalId, apiChat.getTitle(), ChannelType.TELEGRAM, type, ChatLanguage.EN, size, UTC, LocalDate.now(UTC));
+        chatDAO.create(externalId, apiChat.getTitle(), ChannelType.TELEGRAM, type, ChatLanguage.EN, size, UTC, LocalDate.now(UTC));
       }
     }
   }

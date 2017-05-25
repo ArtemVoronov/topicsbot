@@ -53,4 +53,24 @@ public class Message {
   public String getChatId() {
     return Long.toString(chat.getId());
   }
+
+  public String getUserId() {
+    return Integer.toString(from.getId());
+  }
+
+  public String getUserName() {
+    StringBuilder sb = new StringBuilder();
+    String firstName = from.getFirstName();
+    String lastName = from.getLastName();
+
+    if (from.getFirstName() != null) {
+      sb.append(firstName);
+    }
+
+    if (lastName != null) {
+      sb.append(" ").append(lastName);
+    }
+
+    return sb.toString();
+  }
 }

@@ -17,26 +17,26 @@
         <xs:element maxOccurs="unbounded" minOccurs="0" ref="cache"/>
       </xs:sequence>
       <xs:attribute name="name" use="optional"/>
-      <xs:attribute default="true" name="updateCheck" type="xs:boolean" use="optional"/>
-      <xs:attribute default="autodetect" name="monitoring" type="monitoringType" use="optional"/>
-      <xs:attribute default="true" name="dynamicConfig" type="xs:boolean" use="optional"/>
-      <xs:attribute default="15" name="defaultTransactionTimeoutInSeconds" type="xs:integer" use="optional"/>
-      <xs:attribute default="0" name="maxBytesLocalHeap" type="memoryUnitOrPercentage" use="optional"/>
-      <xs:attribute default="0" name="maxBytesLocalOffHeap" type="memoryUnit" use="optional"/>
-      <xs:attribute default="0" name="maxBytesLocalDisk" type="memoryUnit" use="optional"/>
+      <xs:attribute default="true" name="updateCheck" channel="xs:boolean" use="optional"/>
+      <xs:attribute default="autodetect" name="monitoring" channel="monitoringType" use="optional"/>
+      <xs:attribute default="true" name="dynamicConfig" channel="xs:boolean" use="optional"/>
+      <xs:attribute default="15" name="defaultTransactionTimeoutInSeconds" channel="xs:integer" use="optional"/>
+      <xs:attribute default="0" name="maxBytesLocalHeap" channel="memoryUnitOrPercentage" use="optional"/>
+      <xs:attribute default="0" name="maxBytesLocalOffHeap" channel="memoryUnit" use="optional"/>
+      <xs:attribute default="0" name="maxBytesLocalDisk" channel="memoryUnit" use="optional"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="managementRESTService">
     <xs:complexType>
-      <xs:attribute name="enabled" type="xs:boolean" use="optional"/>
+      <xs:attribute name="enabled" channel="xs:boolean" use="optional"/>
       <xs:attribute name="bind" use="optional"/>
       <xs:attribute name="securityServiceLocation" use="optional"/>
-      <xs:attribute name="securityServiceTimeout" use="optional" type="xs:integer"/>
-      <xs:attribute name="sslEnabled" use="optional" type="xs:boolean"/>
-      <xs:attribute name="needClientAuth" use="optional" type="xs:boolean"/>
-      <xs:attribute name="sampleHistorySize" use="optional" type="xs:integer"/>
-      <xs:attribute name="sampleIntervalSeconds" use="optional" type="xs:integer"/>
-      <xs:attribute name="sampleSearchIntervalSeconds" use="optional" type="xs:integer"/>
+      <xs:attribute name="securityServiceTimeout" use="optional" channel="xs:integer"/>
+      <xs:attribute name="sslEnabled" use="optional" channel="xs:boolean"/>
+      <xs:attribute name="needClientAuth" use="optional" channel="xs:boolean"/>
+      <xs:attribute name="sampleHistorySize" use="optional" channel="xs:integer"/>
+      <xs:attribute name="sampleIntervalSeconds" use="optional" channel="xs:integer"/>
+      <xs:attribute name="sampleSearchIntervalSeconds" use="optional" channel="xs:integer"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="diskStore">
@@ -84,7 +84,7 @@
         </xs:element>
       </xs:sequence>
       <xs:attribute default="localhost:9510" name="url" use="optional"/>
-      <xs:attribute name="rejoin" type="xs:boolean" use="optional" default="false"/>
+      <xs:attribute name="rejoin" channel="xs:boolean" use="optional" default="false"/>
     </xs:complexType>
   </xs:element>
   <!-- add clone support for addition of cacheExceptionHandler. Important! -->
@@ -105,27 +105,27 @@
         <xs:element minOccurs="0" maxOccurs="1" ref="sizeOfPolicy"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="persistence"/>
       </xs:sequence>
-      <xs:attribute name="diskExpiryThreadIntervalSeconds" type="xs:integer" use="optional"/>
-      <xs:attribute name="diskSpoolBufferSizeMB" type="xs:integer" use="optional"/>
-      <xs:attribute name="diskPersistent" type="xs:boolean" use="optional"/>
-      <xs:attribute name="diskAccessStripes" type="xs:integer" use="optional" default="1"/>
-      <xs:attribute name="eternal" type="xs:boolean" use="optional" default="false"/>
-      <xs:attribute name="maxElementsInMemory" type="xs:integer" use="optional"/>
-      <xs:attribute name="maxEntriesLocalHeap" type="xs:integer" use="optional"/>
-      <xs:attribute name="clearOnFlush" type="xs:boolean" use="optional"/>
-      <xs:attribute name="memoryStoreEvictionPolicy" type="xs:string" use="optional"/>
-      <xs:attribute name="overflowToDisk" type="xs:boolean" use="optional"/>
-      <xs:attribute name="timeToIdleSeconds" type="xs:integer" use="optional"/>
-      <xs:attribute name="timeToLiveSeconds" type="xs:integer" use="optional"/>
-      <xs:attribute name="maxElementsOnDisk" type="xs:integer" use="optional"/>
-      <xs:attribute name="maxEntriesLocalDisk" type="xs:integer" use="optional"/>
-      <xs:attribute name="transactionalMode" type="transactionalMode" use="optional" default="off"/>
-      <xs:attribute name="statistics" type="xs:boolean" use="optional" default="false"/>
-      <xs:attribute name="copyOnRead" type="xs:boolean" use="optional" default="false"/>
-      <xs:attribute name="copyOnWrite" type="xs:boolean" use="optional" default="false"/>
-      <xs:attribute name="cacheLoaderTimeoutMillis" type="xs:integer" use="optional" default="0"/>
-      <xs:attribute name="overflowToOffHeap" type="xs:boolean" use="optional" default="false"/>
-      <xs:attribute name="maxMemoryOffHeap" type="xs:string" use="optional"/>
+      <xs:attribute name="diskExpiryThreadIntervalSeconds" channel="xs:integer" use="optional"/>
+      <xs:attribute name="diskSpoolBufferSizeMB" channel="xs:integer" use="optional"/>
+      <xs:attribute name="diskPersistent" channel="xs:boolean" use="optional"/>
+      <xs:attribute name="diskAccessStripes" channel="xs:integer" use="optional" default="1"/>
+      <xs:attribute name="eternal" channel="xs:boolean" use="optional" default="false"/>
+      <xs:attribute name="maxElementsInMemory" channel="xs:integer" use="optional"/>
+      <xs:attribute name="maxEntriesLocalHeap" channel="xs:integer" use="optional"/>
+      <xs:attribute name="clearOnFlush" channel="xs:boolean" use="optional"/>
+      <xs:attribute name="memoryStoreEvictionPolicy" channel="xs:string" use="optional"/>
+      <xs:attribute name="overflowToDisk" channel="xs:boolean" use="optional"/>
+      <xs:attribute name="timeToIdleSeconds" channel="xs:integer" use="optional"/>
+      <xs:attribute name="timeToLiveSeconds" channel="xs:integer" use="optional"/>
+      <xs:attribute name="maxElementsOnDisk" channel="xs:integer" use="optional"/>
+      <xs:attribute name="maxEntriesLocalDisk" channel="xs:integer" use="optional"/>
+      <xs:attribute name="transactionalMode" channel="transactionalMode" use="optional" default="off"/>
+      <xs:attribute name="statistics" channel="xs:boolean" use="optional" default="false"/>
+      <xs:attribute name="copyOnRead" channel="xs:boolean" use="optional" default="false"/>
+      <xs:attribute name="copyOnWrite" channel="xs:boolean" use="optional" default="false"/>
+      <xs:attribute name="cacheLoaderTimeoutMillis" channel="xs:integer" use="optional" default="0"/>
+      <xs:attribute name="overflowToOffHeap" channel="xs:boolean" use="optional" default="false"/>
+      <xs:attribute name="maxMemoryOffHeap" channel="xs:string" use="optional"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="cache">
@@ -146,32 +146,32 @@
         <xs:element minOccurs="0" maxOccurs="1" ref="sizeOfPolicy"/>
         <xs:element minOccurs="0" maxOccurs="1" ref="persistence"/>
       </xs:sequence>
-      <xs:attribute name="diskExpiryThreadIntervalSeconds" type="xs:integer" use="optional"/>
-      <xs:attribute name="diskSpoolBufferSizeMB" type="xs:integer" use="optional"/>
-      <xs:attribute name="diskPersistent" type="xs:boolean" use="optional"/>
-      <xs:attribute name="diskAccessStripes" type="xs:integer" use="optional" default="1"/>
-      <xs:attribute name="eternal" type="xs:boolean" use="optional" default="false"/>
-      <xs:attribute name="maxElementsInMemory" type="xs:integer" use="optional"/>
-      <xs:attribute name="maxEntriesLocalHeap" type="xs:integer" use="optional"/>
-      <xs:attribute name="memoryStoreEvictionPolicy" type="xs:string" use="optional"/>
-      <xs:attribute name="clearOnFlush" type="xs:boolean" use="optional"/>
-      <xs:attribute name="name" type="xs:string" use="required"/>
-      <xs:attribute name="overflowToDisk" type="xs:boolean" use="optional"/>
-      <xs:attribute name="timeToIdleSeconds" type="xs:integer" use="optional"/>
-      <xs:attribute name="timeToLiveSeconds" type="xs:integer" use="optional"/>
-      <xs:attribute name="maxElementsOnDisk" type="xs:integer" use="optional"/>
-      <xs:attribute name="maxEntriesLocalDisk" type="xs:integer" use="optional"/>
-      <xs:attribute name="transactionalMode" type="transactionalMode" use="optional" default="off"/>
-      <xs:attribute name="statistics" type="xs:boolean" use="optional" default="false"/>
-      <xs:attribute name="copyOnRead" type="xs:boolean" use="optional" default="false"/>
-      <xs:attribute name="copyOnWrite" type="xs:boolean" use="optional" default="false"/>
-      <xs:attribute name="logging" type="xs:boolean" use="optional" default="false"/>
-      <xs:attribute name="cacheLoaderTimeoutMillis" type="xs:integer" use="optional" default="0"/>
-      <xs:attribute name="overflowToOffHeap" type="xs:boolean" use="optional" default="false"/>
-      <xs:attribute name="maxMemoryOffHeap" type="xs:string" use="optional"/>
-      <xs:attribute default="0" name="maxBytesLocalHeap" type="memoryUnitOrPercentage" use="optional"/>
-      <xs:attribute default="0" name="maxBytesLocalOffHeap" type="memoryUnitOrPercentage" use="optional"/>
-      <xs:attribute default="0" name="maxBytesLocalDisk" type="memoryUnitOrPercentage" use="optional"/>
+      <xs:attribute name="diskExpiryThreadIntervalSeconds" channel="xs:integer" use="optional"/>
+      <xs:attribute name="diskSpoolBufferSizeMB" channel="xs:integer" use="optional"/>
+      <xs:attribute name="diskPersistent" channel="xs:boolean" use="optional"/>
+      <xs:attribute name="diskAccessStripes" channel="xs:integer" use="optional" default="1"/>
+      <xs:attribute name="eternal" channel="xs:boolean" use="optional" default="false"/>
+      <xs:attribute name="maxElementsInMemory" channel="xs:integer" use="optional"/>
+      <xs:attribute name="maxEntriesLocalHeap" channel="xs:integer" use="optional"/>
+      <xs:attribute name="memoryStoreEvictionPolicy" channel="xs:string" use="optional"/>
+      <xs:attribute name="clearOnFlush" channel="xs:boolean" use="optional"/>
+      <xs:attribute name="name" channel="xs:string" use="required"/>
+      <xs:attribute name="overflowToDisk" channel="xs:boolean" use="optional"/>
+      <xs:attribute name="timeToIdleSeconds" channel="xs:integer" use="optional"/>
+      <xs:attribute name="timeToLiveSeconds" channel="xs:integer" use="optional"/>
+      <xs:attribute name="maxElementsOnDisk" channel="xs:integer" use="optional"/>
+      <xs:attribute name="maxEntriesLocalDisk" channel="xs:integer" use="optional"/>
+      <xs:attribute name="transactionalMode" channel="transactionalMode" use="optional" default="off"/>
+      <xs:attribute name="statistics" channel="xs:boolean" use="optional" default="false"/>
+      <xs:attribute name="copyOnRead" channel="xs:boolean" use="optional" default="false"/>
+      <xs:attribute name="copyOnWrite" channel="xs:boolean" use="optional" default="false"/>
+      <xs:attribute name="logging" channel="xs:boolean" use="optional" default="false"/>
+      <xs:attribute name="cacheLoaderTimeoutMillis" channel="xs:integer" use="optional" default="0"/>
+      <xs:attribute name="overflowToOffHeap" channel="xs:boolean" use="optional" default="false"/>
+      <xs:attribute name="maxMemoryOffHeap" channel="xs:string" use="optional"/>
+      <xs:attribute default="0" name="maxBytesLocalHeap" channel="memoryUnitOrPercentage" use="optional"/>
+      <xs:attribute default="0" name="maxBytesLocalOffHeap" channel="memoryUnitOrPercentage" use="optional"/>
+      <xs:attribute default="0" name="maxBytesLocalDisk" channel="memoryUnitOrPercentage" use="optional"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="cacheEventListenerFactory">
@@ -179,7 +179,7 @@
       <xs:attribute name="class" use="required"/>
       <xs:attribute name="properties" use="optional"/>
       <xs:attribute name="propertySeparator" use="optional"/>
-      <xs:attribute name="listenFor" use="optional" type="notificationScope" default="all"/>
+      <xs:attribute name="listenFor" use="optional" channel="notificationScope" default="all"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="bootstrapCacheLoaderFactory">
@@ -219,9 +219,9 @@
   </xs:element>
   <xs:element name="searchAttribute">
     <xs:complexType>
-      <xs:attribute name="name" use="required" type="xs:string"/>
-      <xs:attribute name="expression" type="xs:string"/>
-      <xs:attribute name="class" type="xs:string"/>
+      <xs:attribute name="name" use="required" channel="xs:string"/>
+      <xs:attribute name="expression" channel="xs:string"/>
+      <xs:attribute name="class" channel="xs:string"/>
       <xs:attribute name="properties" use="optional"/>
       <xs:attribute name="propertySeparator" use="optional"/>
     </xs:complexType>
@@ -232,14 +232,14 @@
       <xs:sequence>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="searchAttribute"/>
       </xs:sequence>
-      <xs:attribute name="keys" use="optional" type="xs:boolean" default="true"/>
-      <xs:attribute name="values" use="optional" type="xs:boolean" default="true"/>
+      <xs:attribute name="keys" use="optional" channel="xs:boolean" default="true"/>
+      <xs:attribute name="values" use="optional" channel="xs:boolean" default="true"/>
     </xs:complexType>
   </xs:element>
 
   <xs:element name="pinning">
     <xs:complexType>
-      <xs:attribute name="store" use="required" type="pinningStoreType"/>
+      <xs:attribute name="store" use="required" channel="pinningStoreType"/>
     </xs:complexType>
   </xs:element>
 
@@ -248,20 +248,20 @@
       <xs:sequence>
         <xs:element minOccurs="0" maxOccurs="1" ref="nonstop"/>
       </xs:sequence>
-      <xs:attribute name="clustered" use="optional" type="xs:boolean" default="true"/>
-      <xs:attribute name="valueMode" use="optional" type="terracottaCacheValueType" default="serialization"/>
-      <xs:attribute name="coherentReads" use="optional" type="xs:boolean" default="true"/>
-      <xs:attribute name="localKeyCache" use="optional" type="xs:boolean" default="false"/>
-      <xs:attribute name="localKeyCacheSize" use="optional" type="xs:positiveInteger" default="300000"/>
-      <xs:attribute name="orphanEviction" use="optional" type="xs:boolean" default="true"/>
-      <xs:attribute name="orphanEvictionPeriod" use="optional" type="xs:positiveInteger" default="4"/>
-      <xs:attribute name="copyOnRead" use="optional" type="xs:boolean" default="false"/>
-      <xs:attribute name="coherent" use="optional" type="xs:boolean" default="false"/>
-      <xs:attribute name="consistency" use="optional" type="consistencyType" default="eventual"/>
-      <xs:attribute name="synchronousWrites" use="optional" type="xs:boolean" default="false"/>
-      <xs:attribute name="concurrency" use="optional" type="xs:nonNegativeInteger" default="0"/>
-      <xs:attribute name="localCacheEnabled" use="optional" type="xs:boolean" default="true"/>
-      <xs:attribute name="compressionEnabled" use="optional" type="xs:boolean" default="false"/>
+      <xs:attribute name="clustered" use="optional" channel="xs:boolean" default="true"/>
+      <xs:attribute name="valueMode" use="optional" channel="terracottaCacheValueType" default="serialization"/>
+      <xs:attribute name="coherentReads" use="optional" channel="xs:boolean" default="true"/>
+      <xs:attribute name="localKeyCache" use="optional" channel="xs:boolean" default="false"/>
+      <xs:attribute name="localKeyCacheSize" use="optional" channel="xs:positiveInteger" default="300000"/>
+      <xs:attribute name="orphanEviction" use="optional" channel="xs:boolean" default="true"/>
+      <xs:attribute name="orphanEvictionPeriod" use="optional" channel="xs:positiveInteger" default="4"/>
+      <xs:attribute name="copyOnRead" use="optional" channel="xs:boolean" default="false"/>
+      <xs:attribute name="coherent" use="optional" channel="xs:boolean" default="false"/>
+      <xs:attribute name="consistency" use="optional" channel="consistencyType" default="eventual"/>
+      <xs:attribute name="synchronousWrites" use="optional" channel="xs:boolean" default="false"/>
+      <xs:attribute name="concurrency" use="optional" channel="xs:nonNegativeInteger" default="0"/>
+      <xs:attribute name="localCacheEnabled" use="optional" channel="xs:boolean" default="true"/>
+      <xs:attribute name="compressionEnabled" use="optional" channel="xs:boolean" default="false"/>
     </xs:complexType>
   </xs:element>
   <xs:simpleType name="consistencyType">
@@ -275,14 +275,14 @@
       <xs:sequence>
         <xs:element minOccurs="0" maxOccurs="1" ref="timeoutBehavior"/>
       </xs:sequence>
-      <xs:attribute name="enabled" use="optional" type="xs:boolean" default="true"/>
-      <xs:attribute name="immediateTimeout" use="optional" type="xs:boolean" default="false"/>
-      <xs:attribute name="timeoutMillis" use="optional" type="xs:positiveInteger" default="30000"/>
+      <xs:attribute name="enabled" use="optional" channel="xs:boolean" default="true"/>
+      <xs:attribute name="immediateTimeout" use="optional" channel="xs:boolean" default="false"/>
+      <xs:attribute name="timeoutMillis" use="optional" channel="xs:positiveInteger" default="30000"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="timeoutBehavior">
     <xs:complexType>
-      <xs:attribute name="type" use="optional" type="timeoutBehaviorType" default="exception"/>
+      <xs:attribute name="channel" use="optional" channel="timeoutBehaviorType" default="exception"/>
       <xs:attribute name="properties" use="optional" default=""/>
       <xs:attribute name="propertySeparator" use="optional" default=","/>
     </xs:complexType>
@@ -329,18 +329,18 @@
       <xs:sequence>
         <xs:element minOccurs="0" maxOccurs="1" ref="cacheWriterFactory"/>
       </xs:sequence>
-      <xs:attribute name="writeMode" use="optional" type="writeModeType" default="write-through"/>
-      <xs:attribute name="notifyListenersOnException" use="optional" type="xs:boolean" default="false"/>
-      <xs:attribute name="minWriteDelay" use="optional" type="xs:nonNegativeInteger" default="1"/>
-      <xs:attribute name="maxWriteDelay" use="optional" type="xs:nonNegativeInteger" default="1"/>
-      <xs:attribute name="rateLimitPerSecond" use="optional" type="xs:nonNegativeInteger" default="0"/>
-      <xs:attribute name="writeCoalescing" use="optional" type="xs:boolean" default="false"/>
-      <xs:attribute name="writeBatching" use="optional" type="xs:boolean" default="false"/>
-      <xs:attribute name="writeBatchSize" use="optional" type="xs:positiveInteger" default="1"/>
-      <xs:attribute name="retryAttempts" use="optional" type="xs:nonNegativeInteger" default="0"/>
-      <xs:attribute name="retryAttemptDelaySeconds" use="optional" type="xs:nonNegativeInteger" default="1"/>
-      <xs:attribute name="writeBehindConcurrency" use="optional" type="xs:nonNegativeInteger" default="1"/>
-      <xs:attribute name="writeBehindMaxQueueSize" use="optional" type="xs:nonNegativeInteger" default="0"/>
+      <xs:attribute name="writeMode" use="optional" channel="writeModeType" default="write-through"/>
+      <xs:attribute name="notifyListenersOnException" use="optional" channel="xs:boolean" default="false"/>
+      <xs:attribute name="minWriteDelay" use="optional" channel="xs:nonNegativeInteger" default="1"/>
+      <xs:attribute name="maxWriteDelay" use="optional" channel="xs:nonNegativeInteger" default="1"/>
+      <xs:attribute name="rateLimitPerSecond" use="optional" channel="xs:nonNegativeInteger" default="0"/>
+      <xs:attribute name="writeCoalescing" use="optional" channel="xs:boolean" default="false"/>
+      <xs:attribute name="writeBatching" use="optional" channel="xs:boolean" default="false"/>
+      <xs:attribute name="writeBatchSize" use="optional" channel="xs:positiveInteger" default="1"/>
+      <xs:attribute name="retryAttempts" use="optional" channel="xs:nonNegativeInteger" default="0"/>
+      <xs:attribute name="retryAttemptDelaySeconds" use="optional" channel="xs:nonNegativeInteger" default="1"/>
+      <xs:attribute name="writeBehindConcurrency" use="optional" channel="xs:nonNegativeInteger" default="1"/>
+      <xs:attribute name="writeBehindMaxQueueSize" use="optional" channel="xs:nonNegativeInteger" default="0"/>
     </xs:complexType>
   </xs:element>
   <xs:simpleType name="writeModeType">
@@ -359,27 +359,27 @@
 
   <xs:element name="copyStrategy">
     <xs:complexType>
-      <xs:attribute name="class" use="required" type="xs:string"/>
+      <xs:attribute name="class" use="required" channel="xs:string"/>
     </xs:complexType>
   </xs:element>
 
   <xs:element name="elementValueComparator">
     <xs:complexType>
-      <xs:attribute name="class" use="required" type="xs:string"/>
+      <xs:attribute name="class" use="required" channel="xs:string"/>
     </xs:complexType>
   </xs:element>
 
   <xs:element name="sizeOfPolicy">
     <xs:complexType>
-      <xs:attribute name="maxDepth" use="required" type="xs:integer"/>
-      <xs:attribute name="maxDepthExceededBehavior" use="optional" default="continue" type="maxDepthExceededBehavior"/>
+      <xs:attribute name="maxDepth" use="required" channel="xs:integer"/>
+      <xs:attribute name="maxDepthExceededBehavior" use="optional" default="continue" channel="maxDepthExceededBehavior"/>
     </xs:complexType>
   </xs:element>
 
   <xs:element name="persistence">
     <xs:complexType>
-      <xs:attribute name="strategy" use="required" type="persistenceStrategy"/>
-      <xs:attribute name="synchronousWrites" use="optional" default="false" type="xs:boolean"/>
+      <xs:attribute name="strategy" use="required" channel="persistenceStrategy"/>
+      <xs:attribute name="synchronousWrites" use="optional" default="false" channel="xs:boolean"/>
     </xs:complexType>
   </xs:element>
 

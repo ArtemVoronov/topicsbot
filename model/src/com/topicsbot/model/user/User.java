@@ -27,9 +27,9 @@ public class User {
   private String name;
 
   @Enumerated(EnumType.STRING)
-  @Column(name="type", unique = false, nullable = false)
-  @NotNull(message = "User type is null")
-  private ChannelType type;
+  @Column(name="channel", unique = false, nullable = false)
+  @NotNull(message = "User channel is null")
+  private ChannelType channel;
 
   public Integer getId() {
     return id;
@@ -51,11 +51,11 @@ public class User {
     this.name = name;
   }
 
-  public ChannelType getType() {
-    return type;
+  public ChannelType getChannel() {
+    return channel;
   }
 
-  public void setType(ChannelType type) {
-    this.type = type;
+  public void setChannel(ChannelType channel) {
+    this.channel = channel;
   }
 }

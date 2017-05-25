@@ -33,7 +33,7 @@ class UserTest extends DBTestBase {
   }
 
   static void assertUsersEquals(User expected, User actual) {
-    assertEquals expected.type, actual.type
+    assertEquals expected.channel, actual.channel
     assertEquals expected.externalId, actual.externalId
     assertEquals expected.name, actual.name
   }

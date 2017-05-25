@@ -3,6 +3,7 @@ package com.topicsbot.services;
 import com.topicsbot.services.analysis.AnalysisService;
 import com.topicsbot.services.api.telegram.TelegramApiService;
 import com.topicsbot.services.api.telegram.TelegramApiProvider;
+import com.topicsbot.services.cache.CacheService;
 import com.topicsbot.services.db.DBService;
 import com.topicsbot.services.i18n.ResourceBundleService;
 import org.apache.commons.configuration2.Configuration;
@@ -20,13 +21,15 @@ public class Services {
   private final TelegramApiProvider telegramApiProvider;
   private final ResourceBundleService resourceBundleService;
   private final AnalysisService analysisService;
+  private final CacheService cacheService;
 
   public Services(Configuration config) throws ServicesException {
     this.resourceBundleService = new ResourceBundleService();
     this.dbService = initDBService(config);
     this.scheduledExecutorService = initScheduledExecutorService(config);
     this.analysisService = initAnalysisService(config);
-    this.telegramApiProvider = initTelegramApiProvider(config, dbService, scheduledExecutorService, resourceBundleService, analysisService);
+    this.cacheService = initCacheService(config);
+    this.telegramApiProvider = initTelegramApiProvider(config, dbService, scheduledExecutorService, resourceBundleService, analysisService, cacheService);
 
   }
 
@@ -71,14 +74,14 @@ public class Services {
   private TelegramApiProvider initTelegramApiProvider(Configuration config, DBService db,
                                                       ScheduledExecutorService scheduledExecutorService,
                                                       ResourceBundleService resourceBundleService,
-                                                      AnalysisService analysisService) throws ServicesException {
+                                                      AnalysisService analysisService, CacheService cacheService) throws ServicesException {
     try {
       boolean testMode = config.getBoolean("test.mode", false);
       int connectTimeout = config.getInt("telegram.api.client.connect.timeout.millis");
       int requestTimeout = config.getInt("telegram.api.client.request.timeout.millis");
       String botToken = config.getString(testMode ? "test.bot.token" : "bot.token");
       String botUserName = config.getString(testMode ? "test.bot.username" : "bot.username");
-      return new TelegramApiService(db, scheduledExecutorService, resourceBundleService, analysisService, connectTimeout, requestTimeout, botToken, botUserName);
+      return new TelegramApiService(db, scheduledExecutorService, resourceBundleService, analysisService, cacheService, connectTimeout, requestTimeout, botToken, botUserName);
     } catch (Exception e) {
       throw new ServicesException("Error during TelegramApiProvider initialization", e);
     }
@@ -91,6 +94,15 @@ public class Services {
       return new AnalysisService(pathToStopWordsDir, pathToLuceneIndexesDir);
     } catch (Exception e) {
       throw new ServicesException("Error during AnalysisService initialization", e);
+    }
+  }
+
+  private CacheService initCacheService(Configuration config) throws ServicesException {
+    try {
+      String pathToCacheDir = config.getString("path.cache");
+      return new CacheService(pathToCacheDir);
+    } catch (Exception e) {
+      throw new ServicesException("Error during CacheService initialization", e);
     }
   }
 
@@ -110,9 +122,14 @@ public class Services {
     return analysisService;
   }
 
+  public CacheService getCacheService() {
+    return cacheService;
+  }
+
   public void shutdown() {
     dbService.shutdown();
     scheduledExecutorService.shutdown();
+    cacheService.shutdown();
   }
 
   private static class ThreadFactoryWithCounter implements ThreadFactory {

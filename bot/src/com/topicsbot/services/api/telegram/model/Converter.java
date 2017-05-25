@@ -16,7 +16,7 @@ public class Converter {
       case CHANNEL:
         return com.topicsbot.model.chat.ChatType.CHANNEL;
       default:
-        throw new IllegalArgumentException("unkown chat type: " + chatType);
+        throw new IllegalArgumentException("unknown chat type: " + chatType);
     }
   }
 }
