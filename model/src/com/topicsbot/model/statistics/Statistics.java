@@ -10,8 +10,8 @@ import java.time.LocalDate;
 /**
  * Author: Artem Voronov
  */
-//@Entity(name = "stat")//TODO: clean
-//@Table(name = "statistics")
+@MappedSuperclass
+@Table(name = "statistics")
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class Statistics {
 

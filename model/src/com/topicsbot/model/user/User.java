@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
  * Author: Artem Voronov
  */
 @Entity(name="user")
-@Table(name ="users")
+@Table(name ="users", uniqueConstraints = {@UniqueConstraint(columnNames = {"external_id", "channel"})})
 public class User {
 
   @Id

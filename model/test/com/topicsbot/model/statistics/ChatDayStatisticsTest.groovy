@@ -44,10 +44,10 @@ class ChatDayStatisticsTest extends DBTestBase {
     def another = tx { s -> s.get(ChatDayStatistics, chatDayStatistics.id) as ChatDayStatistics}
 
     assertNotNull another
-    assertChatDayStatisticssEquals chatDayStatistics, another
+    assertChatDayStatisticsEquals chatDayStatistics, another
   }
 
-  static void assertChatDayStatisticssEquals(ChatDayStatistics expected, ChatDayStatistics actual) {
+  static void assertChatDayStatisticsEquals(ChatDayStatistics expected, ChatDayStatistics actual) {
     assertEquals expected.date, actual.date
     ChatTest.assertChatsEquals expected.chat, actual.chat
     assertEquals expected.floodSize, actual.floodSize

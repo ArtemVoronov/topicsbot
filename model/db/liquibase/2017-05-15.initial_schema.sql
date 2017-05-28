@@ -25,14 +25,14 @@ create table chat_day_statistics (
 
 create table chats (
   id integer not null auto_increment,
-  size integer not null,
-  external_id varchar(500) not null unique,
+  channel varchar(255) not null,
+  external_id varchar(500) not null,
   language varchar(255) not null,
   rebirth_date date not null,
-  channel varchar(255) not null,
+  size integer not null,
   timezone varchar(255) not null,
   title varchar(400),
-  channel varchar(255) not null,
+  type varchar(255) not null,
   primary key (id)
 ) ENGINE=InnoDB default CHARSET=utf8;
 
@@ -66,12 +66,15 @@ create table user_day_statistics (
 
 create table users (
   id integer not null auto_increment,
+  channel varchar(255) not null,
   external_id varchar(500) not null,
   name varchar(300) not null,
-  channel varchar(255) not null,
   primary key (id)
 ) ENGINE=InnoDB default CHARSET=utf8;
 
+alter table chats add constraint UK_9qo83j2wg125byyn6mw77i305  unique (external_id, channel);
+
+alter table users add constraint UK_r3i1mr7suidhs19p9d3yuf77n  unique (external_id, channel);
 
 alter table chat_day_statistics
   add constraint FK_s8u97llr77noj08ellgixo2x1
@@ -89,20 +92,23 @@ foreign key (chat_id)
 references chats (id);
 
 alter table user_day_statistics
-  add constraint FK_1u5wm6kcyf0kep1gcua5mipk8
-foreign key (user_id)
-references users (id);
-
-alter table user_day_statistics
   add constraint FK_f4jdn1tc4lc4466d8aqislrm4
 foreign key (chat_id)
 references chats (id);
 
--- rollback ALTER TABLE user_day_statistics DROP FOREIGN KEY FK_f4jdn1tc4lc4466d8aqislrm4;
+alter table user_day_statistics
+  add constraint FK_1u5wm6kcyf0kep1gcua5mipk8
+foreign key (user_id)
+references users (id);
+
 -- rollback ALTER TABLE user_day_statistics DROP FOREIGN KEY FK_1u5wm6kcyf0kep1gcua5mipk8;
+-- rollback ALTER TABLE user_day_statistics DROP FOREIGN KEY FK_f4jdn1tc4lc4466d8aqislrm4;
 -- rollback ALTER TABLE topics DROP FOREIGN KEY FK_kixu2lxrfuvbblnd3ibk7qlq4;
 -- rollback ALTER TABLE topics DROP FOREIGN KEY FK_hjticaks4ayit8nwchseme2f5;
 -- rollback ALTER TABLE chat_day_statistics DROP FOREIGN KEY FK_s8u97llr77noj08ellgixo2x1;
+
+-- rollback ALTER TABLE users DROP INDEX UK_r3i1mr7suidhs19p9d3yuf77n;
+-- rollback ALTER TABLE chats DROP INDEX UK_9qo83j2wg125byyn6mw77i305;
 
 -- rollback DROP TABLE users;
 -- rollback DROP TABLE user_day_statistics;

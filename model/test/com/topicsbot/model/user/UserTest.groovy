@@ -2,6 +2,7 @@ package com.topicsbot.model.user
 
 import com.topicsbot.model.ChannelType
 import com.topicsbot.model.DBTestBase
+import org.hibernate.exception.ConstraintViolationException
 
 import static org.junit.Assert.assertNotNull
 
@@ -14,7 +15,7 @@ class UserTest extends DBTestBase {
     def defaultFields = [
       externalId : '-6301029591',
       name       : 'Artem Voronov',
-      type       : ChannelType.TELEGRAM
+      channel    : ChannelType.TELEGRAM
     ]
     return new User(defaultFields + overrides)
   }
@@ -30,6 +31,28 @@ class UserTest extends DBTestBase {
 
     assertNotNull another
     assertUsersEquals user, another
+  }
+
+  void testDuplicate() {
+    def user = createCorrectUser()
+    def same = createCorrectUser()
+    def another = createCorrectUser(externalId: "-6301029592")
+
+    vtx { s ->
+      s.save(user)
+      s.save(another)
+    }
+
+    assertNotNull(user.id)
+    assertNotNull(another.id)
+
+    def msg = shouldFail(ConstraintViolationException) {
+      vtx { s ->
+        s.save(same)
+      }
+    }
+
+    assertEquals 'could not execute statement', msg
   }
 
   static void assertUsersEquals(User expected, User actual) {

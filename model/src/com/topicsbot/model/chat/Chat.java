@@ -13,7 +13,7 @@ import java.time.ZoneId;
  * Author: Artem Voronov
  */
 @Entity(name="chat")
-@Table(name ="chats")
+@Table(name ="chats", uniqueConstraints = {@UniqueConstraint(columnNames = {"external_id", "channel"})})
 public class Chat {
 
   @Id
@@ -21,7 +21,7 @@ public class Chat {
   @Column(name = "id", unique = true, nullable = false)
   private Integer id;
 
-  @Column(name = "external_id", unique = true, nullable = false, length = 500)
+  @Column(name = "external_id", unique = false, nullable = false, length = 500)
   private String externalId;
 
   @Column(name = "title", unique = false, nullable = true, length = 400)
@@ -112,6 +112,7 @@ public class Chat {
 
   public void setTimezone(ZoneId timezone) {
     this.timezone = timezone;
+    this.rebirthDate = LocalDate.now(timezone);
   }
 
   public LocalDate getRebirthDate() {
