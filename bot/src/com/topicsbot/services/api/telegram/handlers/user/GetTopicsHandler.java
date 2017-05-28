@@ -49,6 +49,7 @@ public class GetTopicsHandler implements UpdateHandler {
   private String getTopicsMessage(Chat chat) {
     List<Topic> humanTopics = getHumanTopics(chat);
     Set<String> autoTopics = getAutoTopics(chat);
+    List<String> hashTags = analysisService.getChatHashTags(chat);
 
     if ((humanTopics == null || humanTopics.isEmpty()) && (autoTopics == null || autoTopics.isEmpty()))
       return resourceBundleService.getMessage(chat.getLanguageShort(), "no.topics.message");
@@ -78,11 +79,10 @@ public class GetTopicsHandler implements UpdateHandler {
       }
     }
 
-    //TODO
-//    if (hashTags != null && !hashTags.isEmpty()) {
-//      String chatHashTagsMessage = String.join(", ", hashTags);
-//      sb.append(resourceBundleService.getMessage(chat.getLanguageShort(), "popular.hashtags"));
-//    }
+    if (hashTags != null && !hashTags.isEmpty()) {
+      sb.append(resourceBundleService.getMessage(chat.getLanguageShort(), "popular.hashtags"))
+          .append(String.join(", ", hashTags));
+    }
 
     return sb.toString();
   }
@@ -93,7 +93,7 @@ public class GetTopicsHandler implements UpdateHandler {
   }
 
   private Set<String> getAutoTopics(Chat chat) {
-    List<String> keywords = analysisService.getKeywords(chat);
-    return analysisService.getTopics(keywords, chat.getLanguage());
+    List<String> keywords = analysisService.getChatKeywords(chat);
+    return analysisService.getChatTopics(keywords, chat.getLanguage());
   }
 }

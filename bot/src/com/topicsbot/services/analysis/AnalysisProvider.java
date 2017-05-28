@@ -11,6 +11,10 @@ import java.util.Set;
  */
 public interface AnalysisProvider {
   void index(String text, Chat chat);
-  List<String> getKeywords(Chat chat);
-  Set<String> getTopics(List<String> keywords, ChatLanguage language);
+  List<String> getChatKeywords(Chat chat);
+  Set<String> getChatTopics(List<String> keywords, ChatLanguage language);
+  List<String> getChatHashTags(Chat chat);
+  List<String> getWorldKeywords(String dateIsoFormatted, ChatLanguage chatLanguage);
+  Set<String> getWorldTopics(List<String> keywords, ChatLanguage language);
+  List<String> getWorldHashTags(String dateIsoFormatted, ChatLanguage chatLanguage);
 }

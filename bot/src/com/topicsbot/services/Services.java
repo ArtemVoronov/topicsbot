@@ -91,7 +91,8 @@ public class Services {
     try {
       String pathToStopWordsDir = config.getString("path.to.stop.words");
       String pathToLuceneIndexesDir = config.getString("path.to.lucene.indexes");
-      return new AnalysisService(pathToStopWordsDir, pathToLuceneIndexesDir);
+      String pathToWorldLuceneIndexesDir = config.getString("path.to.world.lucene.indexes");
+      return new AnalysisService(pathToStopWordsDir, pathToLuceneIndexesDir, pathToWorldLuceneIndexesDir);
     } catch (Exception e) {
       throw new ServicesException("Error during AnalysisService initialization", e);
     }

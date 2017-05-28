@@ -19,6 +19,7 @@ import org.apache.lucene.store.FSDirectory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Stream;
@@ -37,8 +38,9 @@ public class AnalysisService implements AnalysisProvider {
   private final Analyzer analyzer;
   private final TopicsGenerator topicsGenerator;
   private final String pathToLuceneIndexesDir;
+  private final String pathToWorldLuceneIndexesDir;
 
-  public AnalysisService(String pathToStopWordsDir, String pathToLuceneIndexesDir) {
+  public AnalysisService(String pathToStopWordsDir, String pathToLuceneIndexesDir, String pathToWorldLuceneIndexesDir) {
     CharArraySet stopWords = getStopWords(pathToStopWordsDir);
     TopicBotAnalyzer topicsBotAnalyzer = new TopicBotAnalyzer(stopWords);
     HashTagsAnalyzers hashTagsAnalyzer = new HashTagsAnalyzers(stopWords);
@@ -49,21 +51,43 @@ public class AnalysisService implements AnalysisProvider {
     this.analyzer = new PerFieldAnalyzerWrapper(topicsBotAnalyzer, analyzerPerField);
     this.topicsGenerator = new WikiMediaClient(KEYWORDS_COUNT);
     this.pathToLuceneIndexesDir = pathToLuceneIndexesDir;
+    this.pathToWorldLuceneIndexesDir = pathToWorldLuceneIndexesDir;
   }
 
   @Override
   public void index(String text, Chat chat) {
     indexMessage(chat.getExternalId(), text, chat.getRebirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
+    indexMessage(text, LocalDate.now().toString(), chat.getLanguage() );
   }
 
   @Override
-  public List<String> getKeywords(Chat chat) {
+  public List<String> getChatKeywords(Chat chat) {
     return getChatKeywordsFrequency(chat.getExternalId(), chat.getRebirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE), false);
   }
 
   @Override
-  public Set<String> getTopics(List<String> keywords, ChatLanguage language) {
+  public Set<String> getChatTopics(List<String> keywords, ChatLanguage language) {
     return topicsGenerator.getTopics(keywords, language);
+  }
+
+  @Override
+  public List<String> getChatHashTags(Chat chat) {
+    return getChatHashTagsFrequency(chat.getExternalId(), chat.getRebirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE), false);
+  }
+
+  @Override
+  public List<String> getWorldKeywords(String dateIsoFormatted, ChatLanguage language) {
+    return getWorldKeywordsFrequency(dateIsoFormatted, language, false);
+  }
+
+  @Override
+  public Set<String> getWorldTopics(List<String> keywords, ChatLanguage language) {
+    return topicsGenerator.getTopics(keywords, language);
+  }
+
+  @Override
+  public List<String> getWorldHashTags(String dateIsoFormatted, ChatLanguage language) {
+    return getWorldHashTagsFrequency(dateIsoFormatted, language, false);
   }
 
   private List<String> getChatKeywordsFrequency(String chatId, String chatBirthday, boolean extended) {
@@ -71,7 +95,37 @@ public class AnalysisService implements AnalysisProvider {
     try {
       return readTermFrequency(filename, extended, LUCENE_TEXT_FIELD, KEYWORDS_COUNT);
     } catch (IOException ex) {
-      logger.error("unable to get chat keywrods frequency: " + ex.getMessage(), ex);
+      logger.error("unable to get chat keywords frequency: " + ex.getMessage(), ex);
+      return null;
+    }
+  }
+
+  private List<String> getWorldKeywordsFrequency(String dateIsoFormatted, ChatLanguage language, boolean extended) {
+    String filename = pathToWorldLuceneIndexesDir + "/" + dateIsoFormatted + "_" + language;
+    try {
+      return readTermFrequency(filename, extended, LUCENE_TEXT_FIELD, KEYWORDS_COUNT);
+    } catch (IOException ex) {
+      logger.error("unable to get world keywords frequency: " + ex.getMessage(), ex);
+      return null;
+    }
+  }
+
+  private List<String> getChatHashTagsFrequency(String chatId, String chatBirthday, boolean extended) {
+    String filename = pathToLuceneIndexesDir + "/" + chatId + "_" + chatBirthday;
+    try {
+      return readTermFrequency(filename, extended, LUCENE_CHAT_HASH_TAGS, HASHTAGS_COUNT);
+    } catch (IOException ex) {
+      logger.error("unable to get chat hashtags frequency: " + ex.getMessage(), ex);
+      return null;
+    }
+  }
+
+  private List<String> getWorldHashTagsFrequency(String dateIsoFormatted, ChatLanguage language, boolean extended) {
+    String filename = pathToWorldLuceneIndexesDir + "/" + dateIsoFormatted + "_" + language;
+    try {
+      return readTermFrequency(filename, extended, LUCENE_CHAT_HASH_TAGS, HASHTAGS_COUNT);
+    } catch (IOException ex) {
+      logger.error("unable to get world hashtags frequency: " + ex.getMessage(), ex);
       return null;
     }
   }
@@ -126,7 +180,19 @@ public class AnalysisService implements AnalysisProvider {
     try {
       createLuceneIndex(filename, text);
     } catch (IOException ex) {
-      logger.error("unable to add index: " + ex.getMessage(), ex);
+      logger.error("unable to add chat index: " + ex.getMessage(), ex);
+    }
+  }
+
+  private void indexMessage(String text, String dateIsoFormatted, ChatLanguage language) {
+    if (text == null || text.isEmpty())
+      return;
+
+    String filename = pathToWorldLuceneIndexesDir + "/" + dateIsoFormatted + "_" + language;
+    try {
+      createLuceneIndex(filename, text);
+    } catch (IOException ex) {
+      logger.error("unable to add world index: " + ex.getMessage(), ex);
     }
   }
 

@@ -1,7 +1,7 @@
 package com.topicsbot.services.api.telegram.handlers.user;
 
 import com.topicsbot.model.chat.Chat;
-import com.topicsbot.services.analysis.AnalysisService;
+import com.topicsbot.services.analysis.AnalysisProvider;
 import com.topicsbot.services.api.telegram.handlers.UpdateHandler;
 import com.topicsbot.services.api.telegram.model.Message;
 import com.topicsbot.services.api.telegram.model.Update;
@@ -12,11 +12,11 @@ import com.topicsbot.services.db.dao.ChatDAO;
  */
 public class ToStatisticsHandler implements UpdateHandler {
 
-  private final AnalysisService analysisService;
+  private final AnalysisProvider analysisProvider;
   private final ChatDAO chatDAO;
 
-  public ToStatisticsHandler(AnalysisService analysisService, ChatDAO chatDAO) {
-    this.analysisService = analysisService;
+  public ToStatisticsHandler(AnalysisProvider analysisProvider, ChatDAO chatDAO) {
+    this.analysisProvider = analysisProvider;
     this.chatDAO = chatDAO;
   }
 
@@ -29,6 +29,6 @@ public class ToStatisticsHandler implements UpdateHandler {
 
     Chat chat = chatDAO.find(message.getChatId());
     String text = message.getText().trim();
-    analysisService.index(text, chat);
+    analysisProvider.index(text, chat);
   }
 }

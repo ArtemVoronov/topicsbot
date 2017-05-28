@@ -7,10 +7,7 @@ import com.topicsbot.services.analysis.AnalysisService;
 import com.topicsbot.services.api.telegram.handlers.UpdateHandler;
 import com.topicsbot.services.api.telegram.handlers.UpdateProcessor;
 import com.topicsbot.services.api.telegram.handlers.UpdateType;
-import com.topicsbot.services.api.telegram.handlers.user.AddTopicHandler;
-import com.topicsbot.services.api.telegram.handlers.user.GetTopicsHandler;
-import com.topicsbot.services.api.telegram.handlers.user.StartCommandHandler;
-import com.topicsbot.services.api.telegram.handlers.user.ToStatisticsHandler;
+import com.topicsbot.services.api.telegram.handlers.user.*;
 import com.topicsbot.services.api.telegram.model.*;
 import com.topicsbot.services.api.telegram.model.Chat;
 import com.topicsbot.services.cache.CacheService;
@@ -110,6 +107,7 @@ public class TelegramApiService implements TelegramApiProvider {
       handlers.put(UpdateType.TO_STATISTICS, new ToStatisticsHandler(analysisService, chatDAO));
       handlers.put(UpdateType.TOPICS, new GetTopicsHandler(analysisService, telegramApiService, chatDAO, topicDAO, resourceBundleService));
       handlers.put(UpdateType.ADD, new AddTopicHandler(chatDAO, topicDAO, userDAO, telegramApiService, resourceBundleService, cacheService));
+      handlers.put(UpdateType.WORLD_TOPICS, new GetWorldTopicsHandler(analysisService, telegramApiService, chatDAO, resourceBundleService));
       this.updateProcessor = new UpdateProcessor(botUserName, handlers, cacheService);
     }
 
