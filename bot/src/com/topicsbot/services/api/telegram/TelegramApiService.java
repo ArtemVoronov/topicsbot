@@ -7,6 +7,7 @@ import com.topicsbot.services.analysis.AnalysisService;
 import com.topicsbot.services.api.telegram.handlers.UpdateHandler;
 import com.topicsbot.services.api.telegram.handlers.UpdateProcessor;
 import com.topicsbot.services.api.telegram.handlers.UpdateType;
+import com.topicsbot.services.api.telegram.handlers.user.AddTopicHandler;
 import com.topicsbot.services.api.telegram.handlers.user.GetTopicsHandler;
 import com.topicsbot.services.api.telegram.handlers.user.StartCommandHandler;
 import com.topicsbot.services.api.telegram.handlers.user.ToStatisticsHandler;
@@ -15,6 +16,8 @@ import com.topicsbot.services.api.telegram.model.Chat;
 import com.topicsbot.services.cache.CacheService;
 import com.topicsbot.services.db.DBService;
 import com.topicsbot.services.db.dao.ChatDAO;
+import com.topicsbot.services.db.dao.TopicDAO;
+import com.topicsbot.services.db.dao.UserDAO;
 import com.topicsbot.services.i18n.ResourceBundleService;
 import org.apache.log4j.Logger;
 
@@ -94,13 +97,19 @@ public class TelegramApiService implements TelegramApiProvider {
 
     private final UpdateProcessor updateProcessor;
     private final ChatDAO chatDAO;
+    private final TopicDAO topicDAO;
+    private final UserDAO userDAO;
 
-    ProcessUpdatesDaemon(CacheService cacheService, AnalysisService analysisService, TelegramApiService telegramApiService, DBService db, ResourceBundleService resourceBundleService, String botUserName) {
+    ProcessUpdatesDaemon(CacheService cacheService, AnalysisService analysisService, TelegramApiService telegramApiService,
+                         DBService db, ResourceBundleService resourceBundleService, String botUserName) {
       this.chatDAO = new ChatDAO(db);
+      this.topicDAO = new TopicDAO(db);
+      this.userDAO = new UserDAO(db);
       Map<UpdateType, UpdateHandler> handlers = new HashMap<>(UpdateType.values().length);
       handlers.put(UpdateType.START, new StartCommandHandler(telegramApiService, resourceBundleService, chatDAO));
       handlers.put(UpdateType.TO_STATISTICS, new ToStatisticsHandler(analysisService, chatDAO));
-      handlers.put(UpdateType.TOPICS, new GetTopicsHandler(analysisService, telegramApiService, chatDAO, resourceBundleService));
+      handlers.put(UpdateType.TOPICS, new GetTopicsHandler(analysisService, telegramApiService, chatDAO, topicDAO, resourceBundleService));
+      handlers.put(UpdateType.ADD, new AddTopicHandler(chatDAO, topicDAO, userDAO, telegramApiService, resourceBundleService, cacheService));
       this.updateProcessor = new UpdateProcessor(botUserName, handlers, cacheService);
     }
 

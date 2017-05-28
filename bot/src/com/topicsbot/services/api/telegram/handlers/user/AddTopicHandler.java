@@ -1,7 +1,6 @@
 package com.topicsbot.services.api.telegram.handlers.user;
 
 import com.topicsbot.model.ChannelType;
-import com.topicsbot.model.TimeZones;
 import com.topicsbot.model.chat.Chat;
 import com.topicsbot.model.user.User;
 import com.topicsbot.services.api.telegram.TelegramApiProvider;
@@ -15,17 +14,10 @@ import com.topicsbot.services.db.dao.TopicDAO;
 import com.topicsbot.services.db.dao.UserDAO;
 import com.topicsbot.services.i18n.ResourceBundleService;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.TimeZone;
-
 /**
  * Author: Artem Voronov
  */
 public class AddTopicHandler implements UpdateHandler {
-
-
   public static final int TOPIC_MAX_LENGTH = 255;
 
   private final ChatDAO chatDAO;
@@ -93,7 +85,7 @@ public class AddTopicHandler implements UpdateHandler {
     String userId = message.getUserId();
     String userName = message.getUserName();
     User user = getOrCreateUser(userId, userName);
-    topicDAO.create(chat, topic, user, chat.getRebirthDate());//TODO timezone!
+    topicDAO.create(chat, topic, user, chat.getRebirthDate());
 
     String feedback = resourceBundleService.getMessage(chat.getLanguageShort(), "add.topic.success.message");
     telegramApiProvider.sendMessage(message.getChat(), feedback);
@@ -109,12 +101,22 @@ public class AddTopicHandler implements UpdateHandler {
     return user;
   }
 
-  public static void main(String[] args) {//TODO: clean
-    LocalDateTime ldt1 = LocalDateTime.now(TimeZone.getTimeZone(TimeZones.GMT_0.getName()).toZoneId());
-    LocalDateTime ldt2 = LocalDateTime.now(TimeZone.getTimeZone(TimeZones.GMT_MINUS_7.getName()).toZoneId());
-    String s1= ldt1.format(DateTimeFormatter.ISO_LOCAL_DATE);
-    String s2= ldt2.format(DateTimeFormatter.ISO_LOCAL_DATE);
-    System.out.println(s1);
-    System.out.println(s2);
-  }
+  //TODO: clean
+//  public static void main(String[] args) {
+//    LocalDateTime ldt1 = LocalDateTime.now(TimeZone.getTimeZone(TimeZones.GMT_PLUS_12.getName()).toZoneId());
+//    LocalDateTime ldt2 = LocalDateTime.now(TimeZone.getTimeZone(TimeZones.GMT_MINUS_13.getName()).toZoneId());
+//
+//
+//    LocalDate ld1 = LocalDate.now(TimeZone.getTimeZone(TimeZones.GMT_PLUS_12.getName()).toZoneId());
+//    LocalDate ld2 = LocalDate.now(TimeZone.getTimeZone(TimeZones.GMT_MINUS_13.getName()).toZoneId());
+//
+//    String s1= ldt1.format(DateTimeFormatter.ISO_LOCAL_DATE);
+//    String s2= ldt2.format(DateTimeFormatter.ISO_LOCAL_DATE);
+//    System.out.println(s1);
+//    System.out.println(s2);
+//
+//
+//    System.out.println(ld1);
+//    System.out.println(ld2);
+//  }
 }

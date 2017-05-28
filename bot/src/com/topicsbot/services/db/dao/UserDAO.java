@@ -27,7 +27,7 @@ public class UserDAO {
   }
 
   public User find(String externalId, ChannelType channel) {
-    return db.tx(s -> (User) UserQuery.byExternalId(externalId, channel, s).list());
+    return db.tx(s -> (User) UserQuery.byExternalId(externalId, channel, s).uniqueResult());
   }
 
   public void delete(int id) {

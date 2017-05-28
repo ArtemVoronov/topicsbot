@@ -29,7 +29,6 @@ public class StartCommandHandler implements UpdateHandler {
   public void handle(Update update) {
     Message message = update.getMessage();
     Chat chat = chatDAO.find(message.getChatId());
-    ChatLanguage language = chat.getLanguage();
     String build = resourceBundleService.getMessage(chat.getLanguageShort(), "build.note");
     String help = resourceBundleService.getMessage(chat.getLanguageShort(), "help.message");
     String startMessageTemplate = resourceBundleService.getMessage(chat.getLanguageShort(), "start.message");

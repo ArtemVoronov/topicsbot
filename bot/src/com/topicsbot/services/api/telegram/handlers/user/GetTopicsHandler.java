@@ -1,12 +1,14 @@
 package com.topicsbot.services.api.telegram.handlers.user;
 
 import com.topicsbot.model.chat.Chat;
+import com.topicsbot.model.topic.Topic;
 import com.topicsbot.services.analysis.AnalysisService;
 import com.topicsbot.services.api.telegram.TelegramApiProvider;
 import com.topicsbot.services.api.telegram.handlers.UpdateHandler;
 import com.topicsbot.services.api.telegram.model.Message;
 import com.topicsbot.services.api.telegram.model.Update;
 import com.topicsbot.services.db.dao.ChatDAO;
+import com.topicsbot.services.db.dao.TopicDAO;
 import com.topicsbot.services.i18n.ResourceBundleService;
 
 import java.util.List;
@@ -19,13 +21,16 @@ public class GetTopicsHandler implements UpdateHandler {
   private final AnalysisService analysisService;
   private final TelegramApiProvider telegramApiProvider;
   private final ChatDAO chatDAO;
+  private final TopicDAO topicDAO;
   private final ResourceBundleService resourceBundleService;
 
   public GetTopicsHandler(AnalysisService analysisService, TelegramApiProvider telegramApiProvider,
-                          ChatDAO chatDAO, ResourceBundleService resourceBundleService) {
+                          ChatDAO chatDAO, TopicDAO topicDAO,
+                          ResourceBundleService resourceBundleService) {
     this.analysisService = analysisService;
     this.telegramApiProvider = telegramApiProvider;
     this.chatDAO = chatDAO;
+    this.topicDAO = topicDAO;
     this.resourceBundleService = resourceBundleService;
   }
 
@@ -37,59 +42,58 @@ public class GetTopicsHandler implements UpdateHandler {
       return;
 
     Chat chat = chatDAO.find(message.getChatId());
-    List<String> keywords = analysisService.getKeywords(chat);
-    Set<String> topics = analysisService.getTopics(keywords, chat.getLanguage());
-
-    StringBuilder sb = new StringBuilder();
-
-    int count = 0;
-    for (String s : topics) {
-      sb.append(++count).append(s).append("\n");
-    }
-
-    telegramApiProvider.sendMessage(message.getChat(), sb.toString());
+    String result = getTopicsMessage(chat);
+    telegramApiProvider.sendMessage(message.getChat(), result);
   }
 
-  //TODO:
-//  public String getTopicsMessage(Long chatId, boolean isAdmin) throws IOException {
-//    Chat current = TopicsBotCore.INSTANCE.getChat(chatId);
-//    List<Topic> humanTopics = getHumanTopics(chatId);
-//    Set<String> autoTopics = getAutoTopics(chatId, current);
-//    List<String> hashTags = getChatHastagsFrequency(chatId, current.getBirthday(), isAdmin);
-//
-//    if (humanTopics == null && autoTopics == null && (hashTags == null || hashTags.isEmpty())) {
-//      return TopicsBotCore.INSTANCE.getMessageLocalization(chatId, MessageType.NO_TOPICS);
-//    }
-//
-//    int count = 0;
-//    StringBuilder sb = new StringBuilder();
-//
-//    if (humanTopics != null) {
-//      sb.append( TopicsBotCore.INSTANCE.getMessageLocalization(chatId, MessageType.TOPICS_HEADER1) );
-//      for (Topic t : humanTopics) {
-//        sb.append(++count).append(". ").append(t.getText()).append("\n");
-//      }
-//    }
-//
-//    if (autoTopics != null) {
-//      count = 0;
-//
-//      if (humanTopics != null) {
-//        sb.append( TopicsBotCore.INSTANCE.getMessageLocalization(chatId, MessageType.TOPICS_HEADER2) );
-//      } else {
-//        sb.append( TopicsBotCore.INSTANCE.getMessageLocalization(chatId, MessageType.TOPICS_HEADER3) );
-//      }
-//
-//      for (String t : autoTopics) {
-//        sb.append(++count).append(". ").append(t).append("\n");
-//      }
-//    }
-//
+  private String getTopicsMessage(Chat chat) {
+    List<Topic> humanTopics = getHumanTopics(chat);
+    Set<String> autoTopics = getAutoTopics(chat);
+
+    if ((humanTopics == null || humanTopics.isEmpty()) && (autoTopics == null || autoTopics.isEmpty()))
+      return resourceBundleService.getMessage(chat.getLanguageShort(), "no.topics.message");
+
+
+    int count = 0;
+    StringBuilder sb = new StringBuilder();
+
+    if (humanTopics != null) {
+      sb.append(resourceBundleService.getMessage(chat.getLanguageShort(), "topics.header1.message"));
+      for (Topic t : humanTopics) {
+        sb.append(++count).append(". ").append(t.getText()).append("\n");
+      }
+    }
+
+    if (autoTopics != null) {
+      count = 0;
+
+      if (humanTopics != null) {
+        sb.append(resourceBundleService.getMessage(chat.getLanguageShort(), "topics.header2.message"));
+      } else {
+        sb.append(resourceBundleService.getMessage(chat.getLanguageShort(), "topics.header3.message"));
+      }
+
+      for (String t : autoTopics) {
+        sb.append(++count).append(". ").append(t).append("\n");
+      }
+    }
+
+    //TODO
 //    if (hashTags != null && !hashTags.isEmpty()) {
 //      String chatHashTagsMessage = String.join(", ", hashTags);
-//      sb.append(TopicsBotCore.INSTANCE.getMessageLocalization(chatId, MessageType.POPULAR_HASHTAGS)).append(chatHashTagsMessage);
+//      sb.append(resourceBundleService.getMessage(chat.getLanguageShort(), "popular.hashtags"));
 //    }
-//
-//    return sb.toString();
-//  }
+
+    return sb.toString();
+  }
+
+  private List<Topic> getHumanTopics(Chat chat) {
+    return topicDAO.find(chat, chat.getRebirthDate());
+
+  }
+
+  private Set<String> getAutoTopics(Chat chat) {
+    List<String> keywords = analysisService.getKeywords(chat);
+    return analysisService.getTopics(keywords, chat.getLanguage());
+  }
 }
