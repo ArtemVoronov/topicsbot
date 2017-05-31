@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+  <session-factory>
+    <property name="hibernate.current_session_context_class">managed</property>
+
+    <property name="hibernate.cache.region.factory_class">
+      org.hibernate.cache.ehcache.EhCacheRegionFactory
+    </property>
+    <property name="hibernate.cache.use_second_level_cache">true</property>
+    <property name="hibernate.cache.use_query_cache">true</property>
+    <property name="hibernate.generate_statistics">true</property>
+
+    <class-cache class="com.topicsbot.model.chat.Chat" usage="read-write" region="chats"/>
+  </session-factory>
+
+ </hibernate-configuration>

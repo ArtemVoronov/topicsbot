@@ -73,4 +73,8 @@ public class Message {
 
     return sb.toString();
   }
+
+  public boolean hasText() {
+    return text != null && !text.isEmpty();
+  }
 }

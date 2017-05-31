@@ -49,7 +49,10 @@ public class Services {
       hibernateProperties.put("hibernate.c3p0.preferredTestQuery", config.getString("db.hibernate.c3p0.preferredTestQuery"));
       hibernateProperties.put("hibernate.c3p0.testConnectionOnCheckout", config.getString("db.hibernate.c3p0.testConnectionOnCheckout"));
       hibernateProperties.put("application.id", config.getString("db.application.id"));
-      return new DBService(hibernateProperties);
+
+      String hibernateAddCfg = "/" + DBService.class.getPackage().getName().replace('.', '/') + "/hibernate.cfg.xml";
+
+      return new DBService(hibernateProperties, hibernateAddCfg);
     } catch(Exception e) {
       throw new ServicesException("Error during DBService initialization.", e);
     }

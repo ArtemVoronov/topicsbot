@@ -15,9 +15,13 @@ public class DBService {
   private SessionFactory sf;
 
   @SuppressWarnings("deprecation")
-  public DBService(Properties hibernateProperties) {
-    Configuration conf = new Configuration().configure(User.class.getResource("../model.cfg.xml"));
+  public DBService(Properties hibernateProperties, String hibernateAddCfg) {
+    Configuration conf = new Configuration().configure("/com/topicsbot/model/model.cfg.xml");//TODO: add ehcache write-behind
+    if (hibernateAddCfg != null)
+      conf.configure(hibernateAddCfg);
+
     conf.addProperties(hibernateProperties);
+
     sf = conf.buildSessionFactory();
   }
 

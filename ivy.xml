@@ -55,7 +55,7 @@
     </dependency>
     <dependency org="org.hibernate" name="hibernate-validator" rev="5.2.3.Final" conf="model-prod->default" />
     <dependency org="org.hibernate" name="hibernate-c3p0" rev="4.3.8.Final" conf="model-prod->default"/>
-    <dependency org="org.hibernate" name="hibernate-ehcache" rev="4.3.8.Final" conf="model-prod->default"/>
+    <dependency org="org.hibernate" name="hibernate-ehcache" rev="5.2.10.Final" conf="model-prod->default"/>
     <dependency org="mysql" name="mysql-connector-java" rev="5.1.13" conf="model-prod->default"/>
     <dependency org="org.hibernate.javax.persistence" name="hibernate-jpa-2.1-api" rev="1.0.0.Final" conf="model-prod->default"/>
     <dependency org="dom4j" name="dom4j" rev="1.6.1" conf="model-prod->default"/>
