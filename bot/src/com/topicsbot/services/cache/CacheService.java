@@ -54,7 +54,6 @@ public class CacheService {
     this.userStatistics = initUserStatistics(pathCacheDir);
     this.db = db;
     this.statisticsCacheCleaner = new StatisticsCacheCleaner();
-    //TODO: add clean deamon for dirs: lucene, world_lucene
     scheduledExecutorService.scheduleWithFixedDelay(statisticsCacheCleaner, 10L, 3600L*24, TimeUnit.SECONDS);
   }
 

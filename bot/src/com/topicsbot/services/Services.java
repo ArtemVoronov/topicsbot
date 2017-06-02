@@ -27,10 +27,9 @@ public class Services {
     this.resourceBundleService = new ResourceBundleService();
     this.dbService = initDBService(config);
     this.scheduledExecutorService = initScheduledExecutorService(config);
-    this.analysisService = initAnalysisService(config);
+    this.analysisService = initAnalysisService(config, scheduledExecutorService);
     this.cacheService = initCacheService(config, dbService, scheduledExecutorService);
     this.telegramApiProvider = initTelegramApiProvider(config, dbService, scheduledExecutorService, resourceBundleService, analysisService, cacheService);
-
   }
 
   private DBService initDBService(Configuration config) throws ServicesException {
@@ -90,12 +89,12 @@ public class Services {
     }
   }
 
-  private AnalysisService initAnalysisService(Configuration config) throws ServicesException {
+  private AnalysisService initAnalysisService(Configuration config, ScheduledExecutorService scheduledExecutorService) throws ServicesException {
     try {
       String pathToStopWordsDir = config.getString("path.to.stop.words");
       String pathToLuceneIndexesDir = config.getString("path.to.lucene.indexes");
       String pathToWorldLuceneIndexesDir = config.getString("path.to.world.lucene.indexes");
-      return new AnalysisService(pathToStopWordsDir, pathToLuceneIndexesDir, pathToWorldLuceneIndexesDir);
+      return new AnalysisService(scheduledExecutorService, pathToStopWordsDir, pathToLuceneIndexesDir, pathToWorldLuceneIndexesDir);
     } catch (Exception e) {
       throw new ServicesException("Error during AnalysisService initialization", e);
     }

@@ -11,7 +11,6 @@ import com.topicsbot.services.db.DBService;
 import com.topicsbot.services.i18n.ResourceBundleService;
 import org.apache.log4j.Logger;
 
-import java.time.LocalTime;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledExecutorService;

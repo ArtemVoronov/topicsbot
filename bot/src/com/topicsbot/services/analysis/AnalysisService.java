@@ -4,6 +4,7 @@ import com.topicsbot.model.chat.Chat;
 import com.topicsbot.model.chat.ChatLanguage;
 import com.topicsbot.services.analysis.analyzers.HashTagsAnalyzers;
 import com.topicsbot.services.analysis.analyzers.TopicBotAnalyzer;
+import com.topicsbot.services.analysis.daemons.HistoryCleanerDaemon;
 import com.topicsbot.services.analysis.generators.TopicsGenerator;
 import com.topicsbot.services.analysis.generators.WikiMediaClient;
 import org.apache.log4j.Logger;
@@ -22,6 +23,8 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 /**
@@ -40,7 +43,8 @@ public class AnalysisService implements AnalysisProvider {
   private final String pathToLuceneIndexesDir;
   private final String pathToWorldLuceneIndexesDir;
 
-  public AnalysisService(String pathToStopWordsDir, String pathToLuceneIndexesDir, String pathToWorldLuceneIndexesDir) {
+  public AnalysisService(ScheduledExecutorService scheduledExecutorService,
+                         String pathToStopWordsDir, String pathToLuceneIndexesDir, String pathToWorldLuceneIndexesDir) {
     CharArraySet stopWords = getStopWords(pathToStopWordsDir);
     TopicBotAnalyzer topicsBotAnalyzer = new TopicBotAnalyzer(stopWords);
     HashTagsAnalyzers hashTagsAnalyzer = new HashTagsAnalyzers(stopWords);
@@ -52,6 +56,8 @@ public class AnalysisService implements AnalysisProvider {
     this.topicsGenerator = new WikiMediaClient(KEYWORDS_COUNT);
     this.pathToLuceneIndexesDir = pathToLuceneIndexesDir;
     this.pathToWorldLuceneIndexesDir = pathToWorldLuceneIndexesDir;
+
+    scheduledExecutorService.scheduleWithFixedDelay(new HistoryCleanerDaemon(2, pathToLuceneIndexesDir, pathToWorldLuceneIndexesDir), 60L, 432_000L, TimeUnit.SECONDS);//once per 5 days
   }
 
   @Override
