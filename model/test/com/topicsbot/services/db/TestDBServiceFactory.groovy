@@ -17,7 +17,8 @@ class TestDBServiceFactory {
       hiberProps = load("test_db.properties")
     }
 
-    final DBService db = new DBService(hiberProps)
+    String hibernateAddCfg = "/" + DBService.class.getPackage().getName().replace('.', '/') + "/hibernate.cfg.xml"
+    final DBService db = new DBService(hiberProps,  hibernateAddCfg)
 
     createEmptyDB(hiberProps)
 

@@ -1,6 +1,5 @@
 package com.topicsbot.services.db;
 
-import com.topicsbot.model.user.User;
 import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -16,7 +15,7 @@ public class DBService {
 
   @SuppressWarnings("deprecation")
   public DBService(Properties hibernateProperties, String hibernateAddCfg) {
-    Configuration conf = new Configuration().configure("/com/topicsbot/model/model.cfg.xml");//TODO: add ehcache write-behind
+    Configuration conf = new Configuration().configure("/com/topicsbot/model/model.cfg.xml");
     if (hibernateAddCfg != null)
       conf.configure(hibernateAddCfg);
 

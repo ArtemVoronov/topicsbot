@@ -29,6 +29,14 @@ public class StatisticsDAO {
       stat.setFloodSize(floodSize);
       stat.setMessageCounter(messageCounter);
       stat.setWordCounter(wordCounter);
+      stat.setStartCommandCounter(0);
+      stat.setHelpCommandCounter(0);
+      stat.setTopicsCommandCounter(0);
+      stat.setAddTopicCommandCounter(0);
+      stat.setStatisticsCommandCounter(0);
+      stat.setSettingsCommandCounter(0);
+      stat.setRateCommandCounter(0);
+      stat.setWorldTopicsCommandCounter(0);
       s.save(stat);
       return stat;
     });
@@ -43,6 +51,14 @@ public class StatisticsDAO {
       stat.setFloodSize(floodSize);
       stat.setMessageCounter(messageCounter);
       stat.setWordCounter(wordCounter);
+      stat.setStartCommandCounter(0);
+      stat.setHelpCommandCounter(0);
+      stat.setTopicsCommandCounter(0);
+      stat.setAddTopicCommandCounter(0);
+      stat.setStatisticsCommandCounter(0);
+      stat.setSettingsCommandCounter(0);
+      stat.setRateCommandCounter(0);
+      stat.setWorldTopicsCommandCounter(0);
       s.save(stat);
       return stat;
     });
@@ -58,7 +74,7 @@ public class StatisticsDAO {
 
   public void update(Statistics detached, int floodSize, int messageCounter, int wordCounter) {
     db.vtx(s -> {
-      ChatDayStatistics stat = (ChatDayStatistics) s.merge(detached);
+      Statistics stat = (Statistics) s.merge(detached);
       stat.setFloodSize(stat.getFloodSize() + floodSize);
       stat.setMessageCounter(stat.getMessageCounter() + messageCounter);
       stat.setWordCounter(stat.getWordCounter() + wordCounter);
