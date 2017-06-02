@@ -10,6 +10,7 @@ import com.topicsbot.services.api.telegram.model.Update;
 import com.topicsbot.services.db.dao.ChatDAO;
 import com.topicsbot.services.db.dao.TopicDAO;
 import com.topicsbot.services.i18n.ResourceBundleService;
+import com.topicsbot.utils.TCache;
 
 import java.util.List;
 import java.util.Set;
@@ -23,6 +24,8 @@ public class GetTopicsHandler implements UpdateHandler {
   private final ChatDAO chatDAO;
   private final TopicDAO topicDAO;
   private final ResourceBundleService resourceBundleService;
+
+  private final TCache<String, Set<String>> cachedAutoTopics = new TCache<>(3L*60*1000); //3 min
 
   public GetTopicsHandler(AnalysisService analysisService, TelegramApiProvider telegramApiProvider,
                           ChatDAO chatDAO, TopicDAO topicDAO,
@@ -47,7 +50,6 @@ public class GetTopicsHandler implements UpdateHandler {
   }
 
   private String getTopicsMessage(Chat chat) {
-    //TODO: add topics limits + TCache
     List<Topic> humanTopics = getHumanTopics(chat);
     Set<String> autoTopics = getAutoTopics(chat);
     List<String> hashTags = analysisService.getChatHashTags(chat);
@@ -90,11 +92,19 @@ public class GetTopicsHandler implements UpdateHandler {
 
   private List<Topic> getHumanTopics(Chat chat) {
     return topicDAO.find(chat, chat.getRebirthDate());
-
   }
 
   private Set<String> getAutoTopics(Chat chat) {
-    List<String> keywords = analysisService.getChatKeywords(chat);
-    return analysisService.getChatTopics(keywords, chat.getLanguage());
+    Set<String> result = cachedAutoTopics.get(chat.getExternalId());
+
+    if (result == null) {
+      List<String> keywords = analysisService.getChatKeywords(chat);
+      result = analysisService.getChatTopics(keywords, chat.getLanguage());
+
+      if (result != null && !result.isEmpty())
+        cachedAutoTopics.putIfNotSet(chat.getExternalId(), result);
+    }
+
+    return result;
   }
 }

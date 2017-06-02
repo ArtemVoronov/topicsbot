@@ -18,7 +18,8 @@ import com.topicsbot.services.i18n.ResourceBundleService;
  * Author: Artem Voronov
  */
 public class AddTopicHandler implements UpdateHandler {
-  public static final int TOPIC_MAX_LENGTH = 255;
+  private static final int TOPIC_MAX_LENGTH = 255;
+  private static final int TOPICS_LIMIT = 10;
 
   private final ChatDAO chatDAO;
   private final TopicDAO topicDAO;
@@ -82,6 +83,12 @@ public class AddTopicHandler implements UpdateHandler {
       return;
     }
 
+    if (isTooManyTopicsToday(chat)) {
+      String feedback = resourceBundleService.getMessage(chat.getLanguageShort(), "add.topic.limit.message");
+      telegramApiProvider.sendMessage(message.getChat(), feedback);
+      return;
+    }
+
     String userId = message.getUserId();
     String userName = message.getUserName();
     User user = getOrCreateUser(userId, userName);
@@ -101,22 +108,11 @@ public class AddTopicHandler implements UpdateHandler {
     return user;
   }
 
-  //TODO: clean
-//  public static void main(String[] args) {
-//    LocalDateTime ldt1 = LocalDateTime.now(TimeZone.getTimeZone(TimeZones.GMT_PLUS_12.getName()).toZoneId());
-//    LocalDateTime ldt2 = LocalDateTime.now(TimeZone.getTimeZone(TimeZones.GMT_MINUS_13.getName()).toZoneId());
-//
-//
-//    LocalDate ld1 = LocalDate.now(TimeZone.getTimeZone(TimeZones.GMT_PLUS_12.getName()).toZoneId());
-//    LocalDate ld2 = LocalDate.now(TimeZone.getTimeZone(TimeZones.GMT_MINUS_13.getName()).toZoneId());
-//
-//    String s1= ldt1.format(DateTimeFormatter.ISO_LOCAL_DATE);
-//    String s2= ldt2.format(DateTimeFormatter.ISO_LOCAL_DATE);
-//    System.out.println(s1);
-//    System.out.println(s2);
-//
-//
-//    System.out.println(ld1);
-//    System.out.println(ld2);
-//  }
+  private boolean isTooManyTopicsToday(Chat chat) {
+    return getHumanTopicsCount(chat) >= TOPICS_LIMIT;
+  }
+
+  private int getHumanTopicsCount(Chat chat) {
+    return topicDAO.find(chat, chat.getRebirthDate()).size();
+  }
 }
