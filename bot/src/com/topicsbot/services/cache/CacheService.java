@@ -40,9 +40,12 @@ public class CacheService {
 
   private final Map<String, ChatDayStatistics> chatStatistics; //chat external id + chat rebirth date -> stat
   private final Map<String, Map<String, UserDayStatistics>> userStatistics; //chat external id + chat rebirth date -> user external id -> stat
-  private final ReentrantReadWriteLock statisticsLock = new ReentrantReadWriteLock(); // для чатов
+  private final ReentrantReadWriteLock statisticsLock = new ReentrantReadWriteLock(); //for statistics
   private final Lock statisticsRead = statisticsLock.readLock();
   private final Lock statisticsWrite = statisticsLock.writeLock();
+  private final ReentrantReadWriteLock waitersLock = new ReentrantReadWriteLock(); //for add topic waiters
+  private final Lock waitersRead = waitersLock.readLock();
+  private final Lock waitersWrite = waitersLock.writeLock();
 
   private final DBService db;
   private final StatisticsCacheCleaner statisticsCacheCleaner;
@@ -115,28 +118,51 @@ public class CacheService {
   }
 
   public boolean hasWaiters(String chatId) {
-    return addTopicWaiters.containsKey(chatId) && !addTopicWaiters.get(chatId).isEmpty();
+    try {
+      waitersRead.lock();
+      return addTopicWaiters.containsKey(chatId) && !addTopicWaiters.get(chatId).isEmpty();
+    } finally {
+      waitersRead.unlock();
+    }
   }
 
   public boolean hasWaiter(String chatId, String userId) {
-    return hasWaiters(chatId) && addTopicWaiters.get(chatId).contains(userId);
+    try {
+      waitersRead.lock();
+      return hasWaiters(chatId) && addTopicWaiters.get(chatId).contains(userId);
+    } finally {
+      waitersRead.unlock();
+    }
   }
 
   public void addWaiter(String chatId, String userId) {
-    Set<String> waiters = addTopicWaiters.get(chatId);
-    if (waiters == null) {
-      waiters = new HashSet<>();
-      addTopicWaiters.put(chatId, waiters);
+    try {
+      waitersWrite.lock();
+
+      Set<String> waiters = addTopicWaiters.get(chatId);
+      if (waiters == null) {
+        waiters = new HashSet<>();
+        addTopicWaiters.put(chatId, waiters);
+      }
+      waiters.add(userId);
+
+    } finally {
+      waitersWrite.unlock();
     }
-    waiters.add(userId);
   }
 
   public void removeWaiter(String chatId, String userId) {
-    Set<String> waiters = addTopicWaiters.get(chatId);
-    if (waiters == null)
-      return;
+    try {
+      waitersWrite.lock();
 
-    waiters.remove(userId);
+      Set<String> waiters = addTopicWaiters.get(chatId);
+      if (waiters == null)
+        return;
+
+      waiters.remove(userId);
+    } finally {
+      waitersWrite.unlock();
+    }
   }
 
   public ChatDayStatistics getChatStatistics(Chat chat) {
