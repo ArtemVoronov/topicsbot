@@ -22,6 +22,8 @@ public enum UpdateType {
   TIMEZONE_KEYBOARD("timezone_keyboard"), //show keyboard for a timezone choosing
   CLOSE_SETTINGS("close_settings"), //hide 'settings' keyboard
   BACK_TO_SETTINGS("back_to_settings"), //show keyboard 'settings'
+
+  //default update
   TO_STATISTICS("to_statistics"),
 
   //admin commands // TODO: clean deprecated

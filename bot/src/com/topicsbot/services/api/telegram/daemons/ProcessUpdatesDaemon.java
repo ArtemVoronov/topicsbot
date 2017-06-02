@@ -16,7 +16,6 @@ import com.topicsbot.services.api.telegram.model.Update;
 import com.topicsbot.services.cache.CacheService;
 import com.topicsbot.services.db.DBService;
 import com.topicsbot.services.db.dao.ChatDAO;
-import com.topicsbot.services.db.dao.StatisticsDAO;
 import com.topicsbot.services.db.dao.TopicDAO;
 import com.topicsbot.services.db.dao.UserDAO;
 import com.topicsbot.services.i18n.ResourceBundleService;
@@ -61,6 +60,10 @@ public class ProcessUpdatesDaemon implements Runnable {
     handlers.put(UpdateType.ADD, new AddTopicHandler(chatDAO, topicDAO, userDAO, telegramApiProvider, resourceBundleService, cacheService));
     handlers.put(UpdateType.WORLD_TOPICS, new GetWorldTopicsHandler(analysisService, telegramApiProvider, chatDAO, resourceBundleService));
     handlers.put(UpdateType.STATISTICS, new GetStatisticsHandler(analysisService, telegramApiProvider, chatDAO, cacheService, resourceBundleService));
+    handlers.put(UpdateType.SETTINGS, new ShowSettingsKeyboardHandler(telegramApiProvider, chatDAO, resourceBundleService));
+    handlers.put(UpdateType.CLOSE_SETTINGS, new HideSettingsKeyboardHandler(telegramApiProvider, chatDAO, resourceBundleService));
+    handlers.put(UpdateType.LANGUAGE_KEYBOARD, new ShowLanguagesKeyboardHandler(telegramApiProvider, chatDAO, resourceBundleService));
+    handlers.put(UpdateType.TIMEZONE_KEYBOARD, new ShowTimezonesKeyboardHandler(telegramApiProvider, chatDAO, resourceBundleService));
     this.updateProcessor = new UpdateProcessor(botUserName, handlers, cacheService);
   }
 

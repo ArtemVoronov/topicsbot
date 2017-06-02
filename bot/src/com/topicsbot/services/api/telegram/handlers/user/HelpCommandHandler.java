@@ -26,6 +26,10 @@ public class HelpCommandHandler implements UpdateHandler {
   @Override
   public void handle(Update update) {
     Message message = update.getMessage();
+
+    if (message == null)
+      return;
+
     Chat chat = chatDAO.find(message.getChatId());
     String result = resourceBundleService.getMessage(chat.getLanguageShort(), "help.message");
     telegramApiProvider.sendMessage(message.getChat(), result);

@@ -2,7 +2,6 @@ package com.topicsbot.services.api.telegram.handlers.user;
 
 import com.topicsbot.BotContext;
 import com.topicsbot.model.chat.Chat;
-import com.topicsbot.model.chat.ChatLanguage;
 import com.topicsbot.services.api.telegram.TelegramApiProvider;
 import com.topicsbot.services.api.telegram.handlers.UpdateHandler;
 import com.topicsbot.services.api.telegram.model.Message;
@@ -28,6 +27,10 @@ public class StartCommandHandler implements UpdateHandler {
   @Override
   public void handle(Update update) {
     Message message = update.getMessage();
+
+    if (message == null)
+      return;
+
     Chat chat = chatDAO.find(message.getChatId());
     String build = resourceBundleService.getMessage(chat.getLanguageShort(), "build.note");
     String help = resourceBundleService.getMessage(chat.getLanguageShort(), "help.message");

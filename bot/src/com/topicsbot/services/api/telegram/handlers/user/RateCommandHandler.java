@@ -28,6 +28,10 @@ public class RateCommandHandler implements UpdateHandler {
   @Override
   public void handle(Update update) {
     Message message = update.getMessage();
+
+    if (message == null)
+      return;
+
     Chat chat = chatDAO.find(message.getChatId());
     String template = resourceBundleService.getMessage(chat.getLanguageShort(), "rate.message");
     String result = String.format(template, FIVE_STARS);

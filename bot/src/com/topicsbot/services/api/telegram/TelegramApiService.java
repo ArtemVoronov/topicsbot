@@ -1,5 +1,8 @@
 package com.topicsbot.services.api.telegram;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.topicsbot.services.analysis.AnalysisService;
 import com.topicsbot.services.api.telegram.daemons.GetUpdatesDaemon;
 import com.topicsbot.services.api.telegram.daemons.ProcessUpdatesDaemon;
@@ -21,6 +24,11 @@ import java.util.concurrent.TimeUnit;
  */
 public class TelegramApiService implements TelegramApiProvider {
   private static final Logger logger = Logger.getLogger("TELEGRAM_API_SERVICE");
+  private static final ObjectMapper MAPPER = new ObjectMapper();
+  static {
+    MAPPER.registerModule(new JavaTimeModule());
+    MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+  }
 
   private final TelegramApiClient client;
   private final String getUpdatesUrl;
@@ -71,5 +79,30 @@ public class TelegramApiService implements TelegramApiProvider {
   public Updates getUpdates(Integer lastUpdateId) {
     String jsonParams = lastUpdateId == null ? "{}" : "{\"offset\":" + lastUpdateId + "}";
     return client.makeRequest(getUpdatesUrl, jsonParams, Updates.class);
+  }
+
+  @Override
+  public void sendReplyKeyboard(Chat chat, String text, ReplyKeyboardMarkup keyboard) {
+    try {
+      final String jsonParams = "{\"chat_id\":\"" + chat.getId() + "\",\"text\":\"" + text + "\",\"reply_markup\":" + MAPPER.writeValueAsString(keyboard) + "}";
+      sendMessageRequestsQueue.add(() -> client.makeRequest(sendMessageUrl, jsonParams, Message.class));
+    } catch (Exception ex) {
+      logger.error(ex.getMessage(), ex);
+    }
+  }
+
+  @Override
+  public void hideKeyboard(Chat chat, String text, ReplyKeyboardRemove replyKeyboardRemove) {
+    try {
+      final String jsonParams = "{\"chat_id\":\"" + chat.getId() + "\",\"text\":\"" + text + "\",\"reply_markup\":" + MAPPER.writeValueAsString(replyKeyboardRemove) + "}";
+      sendMessageRequestsQueue.add(() -> client.makeRequest(sendMessageUrl, jsonParams, Message.class));
+    } catch (Exception ex) {
+      logger.error(ex.getMessage(), ex);
+    }
+  }
+
+  @Override
+  public void sendInlineKeyboard() {
+
   }
 }

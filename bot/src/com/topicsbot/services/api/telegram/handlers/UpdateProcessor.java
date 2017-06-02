@@ -36,15 +36,6 @@ public class UpdateProcessor {
     }
   }
 
-  //TODO: move to somewhere
-  static final char HIDDEN_CHAR = '\u2063';
-  static final String SECRET_COMMAND_LANG_PARAM = HIDDEN_CHAR + "";
-  static final String SECRET_COMMAND_TIME_PARAM = HIDDEN_CHAR + " " + SECRET_COMMAND_LANG_PARAM;
-  static final String SECRET_COMMAND_LANG = HIDDEN_CHAR + " " + SECRET_COMMAND_TIME_PARAM;
-  static final String SECRET_COMMAND_TIME = HIDDEN_CHAR + " " + SECRET_COMMAND_LANG;
-  static final String SECRET_COMMAND_CLOSE_SETTINGS = HIDDEN_CHAR + " " + SECRET_COMMAND_TIME;
-  static final String SECRET_COMMAND_SETTINGS = HIDDEN_CHAR + " " + SECRET_COMMAND_CLOSE_SETTINGS;
-
   private UpdateType convert(Update update) {
     try {
       Message message = update.getMessage();
@@ -52,17 +43,17 @@ public class UpdateProcessor {
       String command = null;
       if (text == null) {
         command = UpdateType.TO_STATISTICS.getCommand();
-      } else if (text.trim().startsWith(SECRET_COMMAND_SETTINGS)) {
+      } else if (text.trim().startsWith(KeyboardMaster.SECRET_COMMAND_SETTINGS)) {
         command = UpdateType.SETTINGS.getCommand();
-      } else if (text.trim().startsWith(SECRET_COMMAND_CLOSE_SETTINGS)) {
+      } else if (text.trim().startsWith(KeyboardMaster.SECRET_COMMAND_CLOSE_SETTINGS)) {
         command = UpdateType.CLOSE_SETTINGS.getCommand();
-      } else if (text.trim().startsWith(SECRET_COMMAND_TIME)) {
+      } else if (text.trim().startsWith(KeyboardMaster.SECRET_COMMAND_TIME)) {
         command = UpdateType.TIMEZONE_KEYBOARD.getCommand();
-      } else if (text.trim().startsWith(SECRET_COMMAND_LANG)) {
+      } else if (text.trim().startsWith(KeyboardMaster.SECRET_COMMAND_LANG)) {
         command = UpdateType.LANGUAGE_KEYBOARD.getCommand();
-      } else if (text.trim().startsWith(SECRET_COMMAND_TIME_PARAM)) {
+      } else if (text.trim().startsWith(KeyboardMaster.SECRET_COMMAND_TIME_PARAM)) {
         command = UpdateType.TIMEZONE.getCommand();
-      } else if (text.trim().startsWith(SECRET_COMMAND_LANG_PARAM)) {
+      } else if (text.trim().startsWith(KeyboardMaster.SECRET_COMMAND_LANG_PARAM)) {
         command = UpdateType.LANGUAGE.getCommand();
       } else {
         text = text.trim();
