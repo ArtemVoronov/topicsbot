@@ -1,4 +1,5 @@
 package com.topicsbot.services.db.dao;
+
 import com.topicsbot.model.chat.Chat;
 import com.topicsbot.model.statistics.ChatDayStatistics;
 import com.topicsbot.model.statistics.Statistics;

@@ -2,14 +2,15 @@ package com.topicsbot.services.api.telegram.handlers.user;
 
 import com.topicsbot.model.ChannelType;
 import com.topicsbot.model.chat.Chat;
-import com.topicsbot.model.statistics.Statistics;
+import com.topicsbot.model.statistics.ChatDayStatistics;
+import com.topicsbot.model.statistics.UserDayStatistics;
 import com.topicsbot.model.user.User;
 import com.topicsbot.services.analysis.AnalysisProvider;
 import com.topicsbot.services.api.telegram.handlers.UpdateHandler;
 import com.topicsbot.services.api.telegram.model.Message;
 import com.topicsbot.services.api.telegram.model.Update;
+import com.topicsbot.services.cache.CacheService;
 import com.topicsbot.services.db.dao.ChatDAO;
-import com.topicsbot.services.db.dao.StatisticsDAO;
 import com.topicsbot.services.db.dao.UserDAO;
 
 /**
@@ -18,14 +19,15 @@ import com.topicsbot.services.db.dao.UserDAO;
 public class ToStatisticsHandler implements UpdateHandler {
 
   private final AnalysisProvider analysisProvider;
+  private final CacheService cache;
   private final ChatDAO chatDAO;
   private final UserDAO userDAO;
-  private final StatisticsDAO statisticsDAO;
 
-  public ToStatisticsHandler(AnalysisProvider analysisProvider, ChatDAO chatDAO, StatisticsDAO statisticsDAO, UserDAO userDAO) {
+  public ToStatisticsHandler(AnalysisProvider analysisProvider, CacheService cache,
+                             ChatDAO chatDAO, UserDAO userDAO) {
     this.analysisProvider = analysisProvider;
+    this.cache = cache;
     this.chatDAO = chatDAO;
-    this.statisticsDAO = statisticsDAO;
     this.userDAO = userDAO;
   }
 
@@ -53,15 +55,15 @@ public class ToStatisticsHandler implements UpdateHandler {
   }
 
   private void updateChatDayStatistics(Message message, Chat chat) {
-    Statistics statistics = statisticsDAO.find(chat, chat.getRebirthDate());
+    ChatDayStatistics statistics = cache.getChatStatistics(chat);
 
     int words = getWordCounter(message);
     int flood = getFloodSize(message);
 
     if (statistics == null) {
-      statisticsDAO.create(chat, chat.getRebirthDate(), flood, 1, words);
+      cache.createChatStatistics(chat, flood, 1, words);
     } else {
-      statisticsDAO.update(statistics, flood, 1, words);
+      cache.updateStatistics(statistics, flood, 1, words);
     }
 
     //TODO: stickers, images, videos, audios
@@ -72,15 +74,15 @@ public class ToStatisticsHandler implements UpdateHandler {
     String userName = message.getUserName();
     User user = getOrCreateUser(userId, userName);
 
-    Statistics statistics = statisticsDAO.find(chat, user, chat.getRebirthDate());
+    UserDayStatistics statistics = cache.getUserStatistics(chat, user);
 
     int words = getWordCounter(message);
     int flood = getFloodSize(message);
 
     if (statistics == null) {
-      statisticsDAO.create(chat, user, chat.getRebirthDate(), flood, 1, words);
+      cache.createUserStatistics(chat, user, flood, 1, words);
     } else {
-      statisticsDAO.update(statistics, flood, 1, words);
+      cache.updateStatistics(statistics, flood, 1, words);
     }
 
     //TODO: stickers, images, videos, audios

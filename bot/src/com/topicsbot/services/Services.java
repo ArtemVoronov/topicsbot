@@ -6,12 +6,12 @@ import com.topicsbot.services.api.telegram.TelegramApiProvider;
 import com.topicsbot.services.cache.CacheService;
 import com.topicsbot.services.db.DBService;
 import com.topicsbot.services.i18n.ResourceBundleService;
+import com.topicsbot.utils.ThreadFactoryWithCounter;
 import org.apache.commons.configuration2.Configuration;
 
 import java.util.Properties;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 public class Services {
@@ -28,7 +28,7 @@ public class Services {
     this.dbService = initDBService(config);
     this.scheduledExecutorService = initScheduledExecutorService(config);
     this.analysisService = initAnalysisService(config);
-    this.cacheService = initCacheService(config);
+    this.cacheService = initCacheService(config, dbService, scheduledExecutorService);
     this.telegramApiProvider = initTelegramApiProvider(config, dbService, scheduledExecutorService, resourceBundleService, analysisService, cacheService);
 
   }
@@ -101,10 +101,12 @@ public class Services {
     }
   }
 
-  private CacheService initCacheService(Configuration config) throws ServicesException {
+  private CacheService initCacheService(Configuration config, DBService db, ScheduledExecutorService scheduledExecutorService) throws ServicesException {
     try {
       String pathToCacheDir = config.getString("path.cache");
-      return new CacheService(pathToCacheDir);
+      if (pathToCacheDir == null)
+        throw new IllegalArgumentException("missed path cache param");
+      return new CacheService(pathToCacheDir, db, scheduledExecutorService);
     } catch (Exception e) {
       throw new ServicesException("Error during CacheService initialization", e);
     }
@@ -134,24 +136,6 @@ public class Services {
     dbService.shutdown();
     scheduledExecutorService.shutdown();
     cacheService.shutdown();
-  }
-
-  private static class ThreadFactoryWithCounter implements ThreadFactory {
-    private int counter;
-    private String threadNamePrefix;
-
-    ThreadFactoryWithCounter(String threadNamePrefix, int initialCounter) {
-      this.threadNamePrefix = threadNamePrefix;
-      this.counter = initialCounter;
-    }
-
-    Thread createThread(Runnable r, String threadName) {
-      return new Thread(r, threadName);
-    }
-
-    public final Thread newThread(Runnable r) {
-      return this.createThread(r, this.threadNamePrefix + this.counter++);
-    }
   }
 
 }

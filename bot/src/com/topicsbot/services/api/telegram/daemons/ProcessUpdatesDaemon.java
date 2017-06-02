@@ -51,13 +51,13 @@ public class ProcessUpdatesDaemon implements Runnable {
     this.chatDAO = new ChatDAO(db);
     final TopicDAO topicDAO = new TopicDAO(db);
     final UserDAO userDAO = new UserDAO(db);
-    final StatisticsDAO statisticsDAO = new StatisticsDAO(db);
     Map<UpdateType, UpdateHandler> handlers = new HashMap<>(UpdateType.values().length);
     handlers.put(UpdateType.START, new StartCommandHandler(telegramApiProvider, resourceBundleService, chatDAO));
-    handlers.put(UpdateType.TO_STATISTICS, new ToStatisticsHandler(analysisService, chatDAO, statisticsDAO, userDAO));
+    handlers.put(UpdateType.TO_STATISTICS, new ToStatisticsHandler(analysisService, cacheService, chatDAO, userDAO));
     handlers.put(UpdateType.TOPICS, new GetTopicsHandler(analysisService, telegramApiProvider, chatDAO, topicDAO, resourceBundleService));
     handlers.put(UpdateType.ADD, new AddTopicHandler(chatDAO, topicDAO, userDAO, telegramApiProvider, resourceBundleService, cacheService));
     handlers.put(UpdateType.WORLD_TOPICS, new GetWorldTopicsHandler(analysisService, telegramApiProvider, chatDAO, resourceBundleService));
+    handlers.put(UpdateType.STATISTICS, new GetStatisticsHandler(analysisService, telegramApiProvider, chatDAO, cacheService, resourceBundleService));
     this.updateProcessor = new UpdateProcessor(botUserName, handlers, cacheService);
   }
 

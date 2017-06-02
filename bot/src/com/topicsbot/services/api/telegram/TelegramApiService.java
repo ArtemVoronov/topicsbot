@@ -49,18 +49,6 @@ public class TelegramApiService implements TelegramApiProvider {
     scheduledExecutorService.scheduleWithFixedDelay(new RebirthChatDaemon(dbService), 15L, 3600L, TimeUnit.SECONDS);
   }
 
-  private long calculateRebirthChatDaemonInitDelay() {
-    LocalTime now = LocalTime.now();
-    int minutes = now.getMinute();
-    int seconds = now.getSecond();
-    long daemonInitDelaySeconds = (60L - minutes) * 60 + 60L - seconds;
-
-    if (logger.isDebugEnabled())
-      logger.debug("rebirth daemon init delay: " + daemonInitDelaySeconds + " seconds (" + (60 - minutes) + " min)");
-
-    return daemonInitDelaySeconds;
-  }
-
   @Override
   public void sendMessage(Chat chat, String text) {
     final String jsonParams = "{\"chat_id\":\"" + chat.getId() + "\",\"text\":\"" + text + "\"}";

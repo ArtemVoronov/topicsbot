@@ -47,6 +47,7 @@ public class GetTopicsHandler implements UpdateHandler {
   }
 
   private String getTopicsMessage(Chat chat) {
+    //TODO: add topics limits + TCache
     List<Topic> humanTopics = getHumanTopics(chat);
     Set<String> autoTopics = getAutoTopics(chat);
     List<String> hashTags = analysisService.getChatHashTags(chat);
@@ -58,17 +59,17 @@ public class GetTopicsHandler implements UpdateHandler {
     int count = 0;
     StringBuilder sb = new StringBuilder();
 
-    if (humanTopics != null) {
+    if (humanTopics != null && !humanTopics.isEmpty()) {
       sb.append(resourceBundleService.getMessage(chat.getLanguageShort(), "topics.header1.message"));
       for (Topic t : humanTopics) {
         sb.append(++count).append(". ").append(t.getText()).append("\n");
       }
     }
 
-    if (autoTopics != null) {
+    if (autoTopics != null && !autoTopics.isEmpty()) {
       count = 0;
 
-      if (humanTopics != null) {
+      if (humanTopics != null && !humanTopics.isEmpty()) {
         sb.append(resourceBundleService.getMessage(chat.getLanguageShort(), "topics.header2.message"));
       } else {
         sb.append(resourceBundleService.getMessage(chat.getLanguageShort(), "topics.header3.message"));
