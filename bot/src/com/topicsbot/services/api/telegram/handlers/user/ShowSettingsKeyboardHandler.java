@@ -3,7 +3,7 @@ package com.topicsbot.services.api.telegram.handlers.user;
 import com.topicsbot.model.TimeZones;
 import com.topicsbot.model.chat.Chat;
 import com.topicsbot.services.api.telegram.TelegramApiProvider;
-import com.topicsbot.services.api.telegram.handlers.KeyboardMaster;
+import com.topicsbot.services.api.telegram.handlers.KeyboardFactory;
 import com.topicsbot.services.api.telegram.handlers.UpdateHandler;
 import com.topicsbot.services.api.telegram.model.*;
 import com.topicsbot.services.db.dao.ChatDAO;
@@ -11,8 +11,6 @@ import com.topicsbot.services.i18n.ResourceBundleService;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Author: Artem Voronov
@@ -23,12 +21,14 @@ public class ShowSettingsKeyboardHandler implements UpdateHandler {
   private final TelegramApiProvider telegramApiProvider;
   private final ChatDAO chatDAO;
   private final ResourceBundleService resourceBundleService;
+  private final KeyboardFactory keyboardFactory;
 
   public ShowSettingsKeyboardHandler(TelegramApiProvider telegramApiProvider, ChatDAO chatDAO,
-                                     ResourceBundleService resourceBundleService) {
+                                     ResourceBundleService resourceBundleService, KeyboardFactory keyboardFactory) {
     this.telegramApiProvider = telegramApiProvider;
     this.chatDAO = chatDAO;
     this.resourceBundleService = resourceBundleService;
+    this.keyboardFactory = keyboardFactory;
   }
 
   @Override
@@ -40,33 +40,8 @@ public class ShowSettingsKeyboardHandler implements UpdateHandler {
 
     Chat chat = chatDAO.find(message.getChatId());
     String text = getChatSettingsMessage(chat);
-    ReplyKeyboardMarkup keyboard = createSettingsKeyboard(chat);
+    ReplyKeyboardMarkup keyboard = keyboardFactory.createSettingsKeyboard(chat);
     telegramApiProvider.sendReplyKeyboard(message.getChat(), text, keyboard);
-  }
-
-  private ReplyKeyboardMarkup createSettingsKeyboard(Chat chat) {
-    String close = resourceBundleService.getMessage(chat.getLanguageShort(), "close.settings.button");
-    String language = resourceBundleService.getMessage(chat.getLanguageShort(), "lang.button");
-    String timezone = resourceBundleService.getMessage(chat.getLanguageShort(), "time.button");
-    List<KeyboardRow> rowList = new ArrayList<>(2);
-    KeyboardRow r1 = new KeyboardRow();
-    r1.add(new KeyboardButton(KeyboardMaster.SECRET_COMMAND_CLOSE_SETTINGS + " " + close));
-    KeyboardRow r2 = new KeyboardRow();
-    r2.add(new KeyboardButton(KeyboardMaster.SECRET_COMMAND_LANG + " " + language));
-    r2.add(new KeyboardButton(KeyboardMaster.SECRET_COMMAND_TIME + " " + timezone));
-    rowList.add(r1);
-    rowList.add(r2);
-
-    return createShowKeyboard(rowList);
-  }
-
-  private static ReplyKeyboardMarkup createShowKeyboard(List<KeyboardRow> rowList) { //TODO: duplicate
-    ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-    keyboardMarkup.setKeyboard(rowList);
-    keyboardMarkup.setOneTimeKeyboard(true);
-    keyboardMarkup.setResizeKeyboard(true);
-    keyboardMarkup.setSelective(true);
-    return keyboardMarkup;
   }
 
   private String getChatSettingsMessage(Chat chat) { //TODO: duplicate

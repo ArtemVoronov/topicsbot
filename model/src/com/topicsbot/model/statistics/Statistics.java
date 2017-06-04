@@ -20,8 +20,8 @@ public abstract class Statistics {
   private Chat chat;
 
   @Convert(converter = LocalDateConverter.class)
-  @Column(name = "date", unique = false, nullable = true)
-  private LocalDate date;
+  @Column(name = "create_date", unique = false, nullable = false)
+  private LocalDate createDate;
 
   @Column(name = "flood_size", unique = false, nullable = false)
   @NotNull(message = "Flood size is null")
@@ -67,6 +67,9 @@ public abstract class Statistics {
   @NotNull(message = "World topics command counter is null")
   private Integer worldTopicsCommandCounter;
 
+  @Column(name = "deleted", unique = false, nullable = false)
+  private boolean deleted;
+
   public Chat getChat() {
     return chat;
   }
@@ -75,12 +78,12 @@ public abstract class Statistics {
     this.chat = chat;
   }
 
-  public LocalDate getDate() {
-    return date;
+  public LocalDate getCreateDate() {
+    return createDate;
   }
 
-  public void setDate(LocalDate date) {
-    this.date = date;
+  public void setCreateDate(LocalDate createDate) {
+    this.createDate = createDate;
   }
 
   public Integer getFloodSize() {
@@ -169,5 +172,13 @@ public abstract class Statistics {
 
   public void setWorldTopicsCommandCounter(Integer worldTopicsCommandCounter) {
     this.worldTopicsCommandCounter = worldTopicsCommandCounter;
+  }
+
+  public boolean isDeleted() {
+    return deleted;
+  }
+
+  public void setDeleted(boolean deleted) {
+    this.deleted = deleted;
   }
 }

@@ -10,6 +10,7 @@ import com.topicsbot.services.db.query.ChatStatisticsQuery;
 import com.topicsbot.services.db.query.UserStatisticsQuery;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * author: Artem Voronov
@@ -26,7 +27,7 @@ public class StatisticsDAO {
     return db.tx(s -> {
       ChatDayStatistics stat = new ChatDayStatistics();
       stat.setChat(chat);
-      stat.setDate(date);
+      stat.setCreateDate(date);
       stat.setFloodSize(floodSize);
       stat.setMessageCounter(messageCounter);
       stat.setWordCounter(wordCounter);
@@ -48,7 +49,7 @@ public class StatisticsDAO {
       UserDayStatistics stat = new UserDayStatistics();
       stat.setChat(chat);
       stat.setUser(user);
-      stat.setDate(date);
+      stat.setCreateDate(date);
       stat.setFloodSize(floodSize);
       stat.setMessageCounter(messageCounter);
       stat.setWordCounter(wordCounter);
@@ -81,5 +82,26 @@ public class StatisticsDAO {
       stat.setWordCounter(stat.getWordCounter() + wordCounter);
     });
   }
+
+  //TODO: clean
+//  public void deleteChatStatisticsIfExists(Chat chat, LocalDate date) {
+//    db.vtx(s -> {
+//      ChatDayStatistics stat = (ChatDayStatistics) ChatStatisticsQuery.byChat(chat, date, s).uniqueResult();
+//      if (stat != null)
+//        stat.setDeleted(true);
+//    });
+//  }
+//
+//  @SuppressWarnings("unchecked")
+//  public void deleteUserStatisticsIfExists(Chat chat, LocalDate date) {
+//    db.vtx(s -> {
+//      List<UserDayStatistics> statistics = UserStatisticsQuery.byChat(chat, date, s).list();
+//      if (statistics != null && !statistics.isEmpty()) {
+//        for (UserDayStatistics stat : statistics){
+//          stat.setDeleted(true);
+//        }
+//      }
+//    });
+//  }
 
 }

@@ -3,6 +3,7 @@ package com.topicsbot.services.api.telegram.handlers.user;
 import com.topicsbot.model.TimeZones;
 import com.topicsbot.model.chat.Chat;
 import com.topicsbot.services.api.telegram.TelegramApiProvider;
+import com.topicsbot.services.api.telegram.handlers.KeyboardFactory;
 import com.topicsbot.services.api.telegram.handlers.UpdateHandler;
 import com.topicsbot.services.api.telegram.model.Message;
 import com.topicsbot.services.api.telegram.model.ReplyKeyboardRemove;
@@ -18,7 +19,7 @@ import java.time.format.DateTimeFormatter;
  */
 public class HideSettingsKeyboardHandler implements UpdateHandler {
 
-  public static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+  private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
   private final TelegramApiProvider telegramApiProvider;
   private final ChatDAO chatDAO;
   private final ResourceBundleService resourceBundleService;
@@ -39,15 +40,8 @@ public class HideSettingsKeyboardHandler implements UpdateHandler {
 
     Chat chat = chatDAO.find(message.getChatId());
     String text = getChatSettingsMessage(chat);
-    ReplyKeyboardRemove keyboardRemove = createHideKeyboard();
+    ReplyKeyboardRemove keyboardRemove = KeyboardFactory.createHideKeyboard();
     telegramApiProvider.hideKeyboard(message.getChat(), text, keyboardRemove);
-  }
-
-  private static ReplyKeyboardRemove createHideKeyboard() {
-    ReplyKeyboardRemove replyKeyboardRemove = new ReplyKeyboardRemove();
-    replyKeyboardRemove.setRemoveKeyboard(true);
-    replyKeyboardRemove.setSelective(true);
-    return replyKeyboardRemove;
   }
 
   private String getChatSettingsMessage(Chat chat) { //TODO: duplication

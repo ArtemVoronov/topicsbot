@@ -43,17 +43,17 @@ public class UpdateProcessor {
       String command = null;
       if (text == null) {
         command = UpdateType.TO_STATISTICS.getCommand();
-      } else if (text.trim().startsWith(KeyboardMaster.SECRET_COMMAND_SETTINGS)) {
+      } else if (text.trim().startsWith(KeyboardFactory.SECRET_COMMAND_SETTINGS)) {
         command = UpdateType.SETTINGS.getCommand();
-      } else if (text.trim().startsWith(KeyboardMaster.SECRET_COMMAND_CLOSE_SETTINGS)) {
+      } else if (text.trim().startsWith(KeyboardFactory.SECRET_COMMAND_CLOSE_SETTINGS)) {
         command = UpdateType.CLOSE_SETTINGS.getCommand();
-      } else if (text.trim().startsWith(KeyboardMaster.SECRET_COMMAND_TIME)) {
+      } else if (text.trim().startsWith(KeyboardFactory.SECRET_COMMAND_TIME)) {
         command = UpdateType.TIMEZONE_KEYBOARD.getCommand();
-      } else if (text.trim().startsWith(KeyboardMaster.SECRET_COMMAND_LANG)) {
+      } else if (text.trim().startsWith(KeyboardFactory.SECRET_COMMAND_LANG)) {
         command = UpdateType.LANGUAGE_KEYBOARD.getCommand();
-      } else if (text.trim().startsWith(KeyboardMaster.SECRET_COMMAND_TIME_PARAM)) {
+      } else if (text.trim().startsWith(KeyboardFactory.SECRET_COMMAND_TIME_PARAM)) {
         command = UpdateType.TIMEZONE.getCommand();
-      } else if (text.trim().startsWith(KeyboardMaster.SECRET_COMMAND_LANG_PARAM)) {
+      } else if (text.trim().startsWith(KeyboardFactory.SECRET_COMMAND_LANG_PARAM)) {
         command = UpdateType.LANGUAGE.getCommand();
       } else {
         text = text.trim();

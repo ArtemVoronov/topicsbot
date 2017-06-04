@@ -1,5 +1,6 @@
 package com.topicsbot.services.db.query;
 
+import com.topicsbot.model.ChannelType;
 import com.topicsbot.model.chat.Chat;
 import org.hibernate.CacheMode;
 import org.hibernate.Criteria;
@@ -18,8 +19,12 @@ public class ChatQuery {
     return c;
   }
 
-  public static Criteria byExternalId(String externalId, Session s) {
-    return all(s).add(Restrictions.eq("externalId", externalId));
+  public static Criteria telegram(Session s) {
+    return all(s).add(Restrictions.eq("channel", ChannelType.TELEGRAM));
+  }
+
+  public static Criteria byTelegramExternalId(String externalId, Session s) {
+    return telegram(s).add(Restrictions.eq("externalId", externalId));
   }
 
 }

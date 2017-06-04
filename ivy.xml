@@ -126,6 +126,9 @@
     <dependency org="org.apache.lucene" name="lucene-core" rev="6.0.0" conf="bot-prod->default"/>
     <dependency org="org.apache.lucene" name="lucene-analyzers-common" rev="6.0.0" conf="bot-prod->default"/>
     <dependency org="org.apache.lucene" name="lucene-queryparser" rev="6.0.0" conf="bot-prod->default"/>
+
+    <dependency org="commons-io" name="commons-io" rev="2.5" conf="bot-prod->default"/>
+
   </dependencies>
 
 </ivy-module>

@@ -27,9 +27,19 @@ public class ChatStatisticsQuery {
     return all(s).add(Restrictions.idEq(id));
   }
 
-  public static Criteria byChat(Chat chat, LocalDate date, Session s) {
+  public static Criteria active(Session s) {
     return all(s)
+        .add(Restrictions.eq("deleted", false));
+  }
+
+  public static Criteria deleted(Session s) {
+    return all(s)
+        .add(Restrictions.eq("deleted", true));
+  }
+
+  public static Criteria byChat(Chat chat, LocalDate date, Session s) {
+    return active(s)
         .add(Restrictions.eq("chat", chat))
-        .add(Restrictions.eq("date", date));
+        .add(Restrictions.eq("createDate", date));
   }
 }

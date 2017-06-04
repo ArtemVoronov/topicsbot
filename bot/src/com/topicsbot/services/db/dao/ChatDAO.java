@@ -38,21 +38,29 @@ public class ChatDAO {
     });
   }
 
-  public void update(String externalId) {
+  public void update(String externalId, ChatLanguage language) {
     db.vtx(s -> {
-      Chat chat = (Chat) ChatQuery.byExternalId(externalId, s).uniqueResult();
-      //TODO
-      s.save(chat);
+      Chat chat = (Chat) ChatQuery.byTelegramExternalId(externalId, s).uniqueResult();
+      chat.setLanguage(language);
+      s.saveOrUpdate(chat);
+    });
+  }
+
+  public void update(String externalId, ZoneId timezone) {
+    db.vtx(s -> {
+      Chat chat = (Chat) ChatQuery.byTelegramExternalId(externalId, s).uniqueResult();
+      chat.setTimezone(timezone);
+      s.saveOrUpdate(chat);
     });
   }
 
   public Chat find(String externalId) {
-    return db.tx(s -> (Chat) ChatQuery.byExternalId(externalId, s).uniqueResult());
+    return db.tx(s -> (Chat) ChatQuery.byTelegramExternalId(externalId, s).uniqueResult());
   }
 
   public void delete(String externalId) {
     db.vtx(s -> {
-      Chat chat = (Chat) ChatQuery.byExternalId(externalId, s).uniqueResult();
+      Chat chat = (Chat) ChatQuery.byTelegramExternalId(externalId, s).uniqueResult();
       s.delete(chat);
     });
   }

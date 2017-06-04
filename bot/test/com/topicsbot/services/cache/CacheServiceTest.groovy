@@ -38,7 +38,10 @@ class CacheServiceTest extends DBTestBase {
 
   void testSaveAndLoadWaiters() {
     ScheduledExecutorService scheduledExecutorService = initScheduledExecutorService()
-    String p = CacheServiceTest.class.protectionDomain.codeSource.location.path
+    String p = CacheServiceTest.class.protectionDomain.codeSource.location.path + "/t1"
+    File dir = new File(p)
+    if (!dir.exists())
+      dir.mkdir()
     File file = new File(p+"/add_topics_waiters.json")
     if (file.exists())
       file.delete()
@@ -86,7 +89,10 @@ class CacheServiceTest extends DBTestBase {
 
   void testSaveAndLoadChatStatistics() {
     ScheduledExecutorService scheduledExecutorService = initScheduledExecutorService()
-    String p = CacheServiceTest.class.protectionDomain.codeSource.location.path
+    String p = CacheServiceTest.class.protectionDomain.codeSource.location.path + "/t2"
+    File dir = new File(p)
+    if (!dir.exists())
+      dir.mkdir()
     File file = new File(p + "/chat_statistics.json")
     if (file.exists())
       file.delete()
@@ -114,7 +120,10 @@ class CacheServiceTest extends DBTestBase {
 
   void testCleaningChatStatistics() {
     ScheduledExecutorService scheduledExecutorService = initScheduledExecutorService()
-    String p = CacheServiceTest.class.protectionDomain.codeSource.location.path
+    String p = CacheServiceTest.class.protectionDomain.codeSource.location.path + "/t3"
+    File dir = new File(p)
+    if (!dir.exists())
+      dir.mkdir()
     File file = new File(p + "/chat_statistics.json")
     if (file.exists())
       file.delete()
@@ -162,8 +171,11 @@ class CacheServiceTest extends DBTestBase {
 
   void testSaveAndLoadUserStatistics() {
     ScheduledExecutorService scheduledExecutorService = initScheduledExecutorService()
-    String p = CacheServiceTest.class.protectionDomain.codeSource.location.path
-    File file = new File(p + "/chat_statistics.json")
+    String p = CacheServiceTest.class.protectionDomain.codeSource.location.path + "/t4"
+    File dir = new File(p)
+    if (!dir.exists())
+      dir.mkdir()
+    File file = new File(p + "/user_statistics.json")
     if (file.exists())
       file.delete()
 
@@ -196,8 +208,11 @@ class CacheServiceTest extends DBTestBase {
 
   void testCleaningUserStatistics() {
     ScheduledExecutorService scheduledExecutorService = initScheduledExecutorService()
-    String p = CacheServiceTest.class.protectionDomain.codeSource.location.path
-    File file = new File(p + "/chat_statistics.json")
+    String p = CacheServiceTest.class.protectionDomain.codeSource.location.path + "/t5"
+    File dir = new File(p)
+    if (!dir.exists())
+      dir.mkdir()
+    File file = new File(p + "/user_statistics.json")
     if (file.exists())
       file.delete()
 

@@ -34,6 +34,9 @@ public class Topic {
   @Column(name = "create_date", unique = false, nullable = false)
   private LocalDate createDate;
 
+  @Column(name = "deleted", unique = false, nullable = false)
+  private boolean deleted;
+
   public Integer getId() {
     return id;
   }
@@ -68,5 +71,17 @@ public class Topic {
 
   public void setCreateDate(LocalDate createDate) {
     this.createDate = createDate;
+  }
+
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public boolean isDeleted() {
+    return deleted;
+  }
+
+  public void setDeleted(boolean deleted) {
+    this.deleted = deleted;
   }
 }

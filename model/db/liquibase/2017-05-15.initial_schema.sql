@@ -8,7 +8,8 @@ create schema if not exists topics_bot
 create table chat_day_statistics (
   id integer not null auto_increment,
   add_topic_command_counter integer not null,
-  date date,
+  create_date date not null,
+  deleted bit not null,
   flood_size integer not null,
   help_command_counter integer not null,
   message_counter integer not null,
@@ -39,6 +40,7 @@ create table chats (
 create table topics (
   id integer not null auto_increment,
   create_date date not null,
+  deleted bit not null,
   text varchar(400),
   author_id integer not null,
   chat_id integer not null,
@@ -48,7 +50,8 @@ create table topics (
 create table user_day_statistics (
   id integer not null auto_increment,
   add_topic_command_counter integer not null,
-  date date,
+  create_date date not null,
+  deleted bit not null,
   flood_size integer not null,
   help_command_counter integer not null,
   message_counter integer not null,

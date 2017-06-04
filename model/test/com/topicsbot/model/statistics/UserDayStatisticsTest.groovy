@@ -17,7 +17,7 @@ class UserDayStatisticsTest extends DBTestBase {
     def defaultFields = [
       chat                        : ChatTest.createCorrectChat(),
       user                        : UserTest.createCorrectUser(),
-      date                        : LocalDate.now(),
+      createDate                  : LocalDate.now(),
       floodSize                   : 500,
       messageCounter              : 15,
       wordCounter                 : 100,
@@ -51,7 +51,7 @@ class UserDayStatisticsTest extends DBTestBase {
   }
 
   static void assertUserDayStatisticssEquals(UserDayStatistics expected, UserDayStatistics actual) {
-    assertEquals expected.date, actual.date
+    assertEquals expected.createDate, actual.createDate
     ChatTest.assertChatsEquals expected.chat, actual.chat
     assertEquals expected.floodSize, actual.floodSize
     assertEquals expected.messageCounter, actual.messageCounter

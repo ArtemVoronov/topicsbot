@@ -3,7 +3,6 @@ import com.topicsbot.model.chat.Chat;
 import com.topicsbot.model.topic.Topic;
 import com.topicsbot.model.user.User;
 import com.topicsbot.services.db.DBService;
-import com.topicsbot.services.db.query.ChatQuery;
 import com.topicsbot.services.db.query.TopicQuery;
 
 import java.time.LocalDate;
@@ -42,10 +41,16 @@ public class TopicDAO {
     return db.tx(s -> TopicQuery.byChat(chat, createDate, author, s).list());
   }
 
-  public void delete(int id) {
-    db.vtx(s -> {
-      Topic topic = (Topic) TopicQuery.byId(id, s).uniqueResult();
-      s.delete(topic);
-    });
-  }
+  //TODO: clean
+//  @SuppressWarnings("unchecked")
+//  public void deleteIfExists(Chat chat, LocalDate createDate) {
+//    db.vtx(s -> {
+//      List<Topic> topics = TopicQuery.byChat(chat, createDate, s).list();
+//      if (topics != null && !topics.isEmpty()) {
+//        for (Topic t : topics) {
+//          t.setDeleted(true);
+//        }
+//      }
+//    });
+//  }
 }
