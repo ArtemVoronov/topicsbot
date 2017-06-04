@@ -1,5 +1,6 @@
 package com.topicsbot.services.api.telegram.handlers;
 
+import com.topicsbot.services.api.telegram.model.InlineQuery;
 import com.topicsbot.services.api.telegram.model.Message;
 import com.topicsbot.services.api.telegram.model.Update;
 import com.topicsbot.services.cache.CacheService;
@@ -38,6 +39,10 @@ public class UpdateProcessor {
 
   private UpdateType convert(Update update) {
     try {
+      InlineQuery inlineQuery = update.getInlineQuery();
+      if (inlineQuery != null)
+        return UpdateType.INLINE_QUERY;
+
       Message message = update.getMessage();
       String text = message.getText();
       String command = null;

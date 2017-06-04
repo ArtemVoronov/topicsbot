@@ -96,104 +96,6 @@ public class AnalysisService implements AnalysisProvider {
     return getWorldHashTagsFrequency(dateIsoFormatted, language, false);
   }
 
-//TODO: clean
-//  @Override
-//  @SuppressWarnings("unchecked")
-//  public void swap(Chat chat, LocalDate oldDate, LocalDate newDate) {
-//    try {
-//      write.lock();
-//      //delete previous
-//      String lucenePath = pathToLuceneIndexesDir + "/" + chat.getExternalId() + "_" + newDate;
-//      File previousLuceneIndex = new File(lucenePath);
-//      try {
-//        if (previousLuceneIndex.exists())
-//          FileUtils.deleteDirectory(previousLuceneIndex);
-//
-//      } catch (IOException ex) {
-//        logger.error("Error during deleting indexes for " + chat.getChannel() + " chat: " + chat.getExternalId() + " " + newDate, ex);
-//      }
-//
-//      //rename current
-//      String pathTemplate = pathToLuceneIndexesDir + "/%s_%s";
-//      File oldLucene = new File(String.format(pathTemplate, chat.getExternalId(), oldDate.toString()));
-//      File newLucene = new File(String.format(pathTemplate, chat.getExternalId(), newDate.toString()));
-//      try {
-//        FileUtils.copyDirectory(oldLucene, newLucene);
-////        FileUtils.deleteDirectory(oldLucene);
-//      } catch (IOException ex) {
-//        logger.error("Failed lucene directory renaming for " + chat.getChannel() + " chat: " + chat.getExternalId() + " from " + oldDate + " to " + newDate, ex);
-//      }
-//    } finally {
-//      write.unlock();
-//    }
-//  }
-//
-//  @Override
-//  @SuppressWarnings("unchecked")
-//  public void deleteIndexes(Chat chat, LocalDate date) {
-//    String lucenePath = pathToLuceneIndexesDir + "/" + chat.getExternalId() + "_" + date;
-//    File luceneDir = new File(lucenePath);
-//
-////    FileVisitor annihilator = new SimpleFileVisitor<Path>() {
-////      @Override
-////      public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-////        Files.delete(file);
-////        return FileVisitResult.CONTINUE;
-////      }
-////
-////      @Override
-////      public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-////        Files.delete(dir);
-////        return FileVisitResult.CONTINUE;
-////      }
-////    };
-//
-//    try {
-//      if (luceneDir.exists()) {
-////        Files.walkFileTree(Paths.get(lucenePath), annihilator);
-//        FileUtils.deleteDirectory(luceneDir);
-//      }
-//    } catch (IOException ex) {
-//      logger.error("Error during deleting indexes for " + chat.getChannel() + " chat: " + chat.getExternalId() + " " + date, ex);
-//    }
-//  }
-//
-//  @Override
-//  public void renameIndexes(Chat chat, LocalDate from, LocalDate till) {
-//    String lucenePath = pathToLuceneIndexesDir + "/%s_%s";
-//    File oldLucene = new File(String.format(lucenePath, chat.getExternalId(), from.toString()));
-//    File newLucene = new File(String.format(lucenePath, chat.getExternalId(), till.toString()));
-//
-//    if (newLucene.exists()) {
-//      if (logger.isDebugEnabled())
-//        logger.debug("Warning! Previous lucene dir was not deleted: " + newLucene.getAbsolutePath());
-//
-//      newLucene.delete();
-//    }
-//
-//
-//    if (oldLucene.exists()) {
-////      boolean success = oldLucene.renameTo(newLucene);
-////      if (!success) {
-////        logger.error("Failed lucene directory renaming for " + chat.getChannel() + " chat: " + chat.getExternalId() + " from " + from + " to " + till);
-////      }
-//
-////      try {
-////        Files.move(oldLucene.toPath(), newLucene.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-////      } catch (IOException ex) {
-////        logger.error("Failed lucene directory renaming for " + chat.getChannel() + " chat: " + chat.getExternalId() + " from " + from + " to " + till);
-////      }
-//
-//      try {
-////        FileUtils.moveDirectory(oldLucene, newLucene);
-//        FileUtils.copyDirectory(oldLucene, newLucene);
-//        FileUtils.deleteDirectory(oldLucene);
-//      } catch (IOException ex) {
-//        logger.error("Failed lucene directory renaming for " + chat.getChannel() + " chat: " + chat.getExternalId() + " from " + from + " to " + till, ex);
-//      }
-//    }
-//  }
-
   private List<String> getChatKeywordsFrequency(String chatId, String chatBirthday, boolean extended) {
     String filename = pathToLuceneIndexesDir + "/" + chatId + "_" + chatBirthday;
     try {
@@ -268,7 +170,6 @@ public class AnalysisService implements AnalysisProvider {
       }
       return keywords;
     } catch (IndexNotFoundException ex) {
-//      logger.debug("Index not found for " + filename);
       return null;
     } catch (Exception ex) {
       logger.error("Error at reading terms ", ex);

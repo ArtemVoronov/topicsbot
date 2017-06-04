@@ -55,6 +55,7 @@ public class AddTopicHandler implements UpdateHandler {
     if (!startsWithForwardSlash) {
       topic = text;
       cacheService.removeWaiter(message.getChatId(), message.getUserId());
+      //TODO: replyToMessage (add message id to reply_id)
     }
 
     if (startsWithForwardSlash) {

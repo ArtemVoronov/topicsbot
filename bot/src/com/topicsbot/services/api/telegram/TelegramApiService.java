@@ -14,6 +14,7 @@ import com.topicsbot.services.db.DBService;
 import com.topicsbot.services.i18n.ResourceBundleService;
 import org.apache.log4j.Logger;
 
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledExecutorService;
@@ -34,6 +35,7 @@ public class TelegramApiService implements TelegramApiProvider {
   private final String getUpdatesUrl;
   private final String sendMessageUrl;
   private final String getChatMembersCountUrl;
+  private final String answerInlineQueryUrl;
 
   private final Queue<Runnable> sendMessageRequestsQueue = new ConcurrentLinkedQueue<>();
   private final Queue<Update> updatesQueue = new ConcurrentLinkedQueue<>();
@@ -49,6 +51,7 @@ public class TelegramApiService implements TelegramApiProvider {
     this.getUpdatesUrl = apiTelegramUrl + "/getUpdates";
     this.sendMessageUrl = apiTelegramUrl + "/sendMessage";
     this.getChatMembersCountUrl = apiTelegramUrl + "/getChatMembersCount";
+    this.answerInlineQueryUrl = apiTelegramUrl + "/answerInlineQuery";
 
     scheduledExecutorService.scheduleWithFixedDelay(new GetUpdatesDaemon(updatesQueue, this), 10000L, 15L, TimeUnit.MILLISECONDS);
     scheduledExecutorService.scheduleWithFixedDelay(new ProcessUpdatesDaemon(this, updatesQueue, cacheService, analysisService, dbService, resourceBundleService, botUserName), 10000L, 15L, TimeUnit.MILLISECONDS);
@@ -102,7 +105,12 @@ public class TelegramApiService implements TelegramApiProvider {
   }
 
   @Override
-  public void sendInlineKeyboard() {
-
+  public void answerInlineQuery(String inlineQueryId, List<InlineQueryResult> inlineQueryResults) {
+    try {
+      final String jsonParams = "{\"inline_query_id\":\"" + inlineQueryId + "\",\"results\":" + MAPPER.writeValueAsString(inlineQueryResults) + "}";
+      sendMessageRequestsQueue.add(() -> client.makeRequest(answerInlineQueryUrl, jsonParams, Message.class));
+    } catch (Exception ex) {
+      logger.error(ex.getMessage(), ex);
+    }
   }
 }

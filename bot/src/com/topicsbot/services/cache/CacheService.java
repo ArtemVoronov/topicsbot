@@ -262,62 +262,6 @@ public class CacheService {
     }
   }
 
-  //TODO: clean
-//  public ChatDayStatistics removeChatStatistics(Chat chat) {
-//    try {
-//      statisticsWrite.lock();
-//      return chatStatistics.remove(getChatKey(chat));
-//    } finally {
-//      statisticsWrite.unlock();
-//    }
-//  }
-//
-//  public void addChatStatistics(String chatExternalId, LocalDate createDate, ChatDayStatistics stat) {
-//    try {
-//      statisticsWrite.lock();
-//      String key = chatExternalId+"_"+createDate;
-//      if (chatStatistics.containsKey(key)) {
-//        ChatDayStatistics another = chatStatistics.remove(key);
-//        another.setDeleted(true);
-//        db.vtx(s->s.save(another));
-//      }
-//      chatStatistics.put(key, stat);
-//    } finally {
-//      statisticsWrite.unlock();
-//    }
-//  }
-//
-//  public Map<String, UserDayStatistics> removeUserStatistics(Chat chat) {
-//    try {
-//      statisticsWrite.lock();
-//      return userStatistics.remove(getChatKey(chat));
-//    } finally {
-//      statisticsWrite.unlock();
-//    }
-//  }
-//
-//
-//  public void addUserStatistics(String chatExternalId, LocalDate createDate, Map<String, UserDayStatistics> flooders) {
-//    try {
-//      statisticsWrite.lock();
-//      String key = chatExternalId+"_"+createDate;
-//      if (userStatistics.containsKey(key)) {
-//
-//        Map<String, UserDayStatistics> another = userStatistics.remove(key);
-//        db.vtx(s -> {
-//          for (UserDayStatistics statistics : another.values()) {
-//            statistics.setDeleted(true);
-//            s.save(statistics);
-//          }
-//        });
-//
-//      }
-//      userStatistics.put(key, flooders);
-//    } finally {
-//      statisticsWrite.unlock();
-//    }
-//  }
-
   StatisticsCacheCleaner getStatisticsCacheCleaner() {
     return statisticsCacheCleaner;
   }

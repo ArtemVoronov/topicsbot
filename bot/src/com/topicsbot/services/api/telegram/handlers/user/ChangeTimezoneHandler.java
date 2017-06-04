@@ -57,43 +57,6 @@ public class ChangeTimezoneHandler implements UpdateHandler {
     telegramApiProvider.hideKeyboard(message.getChat(), feedback, KeyboardFactory.createHideKeyboard());
   }
 
-  //TODO: clean
-//  private void changeTimezone(Chat chat, ZoneId newTimezone) {
-//    LocalDate dateOld = LocalDate.now(chat.getTimezone());
-//    LocalDate dateNew = LocalDate.now(newTimezone);
-//
-//    if (dateNew.isEqual(dateOld)) {
-//      chatDAO.update(chat.getExternalId(), newTimezone);
-//      return;
-//    }
-//
-//    //если дата изменилась, то в этом случае приоритет отдаётся текущим данным, т.е. всему что юзеры успели ввести
-//
-//    //удаляем старые индексы и переименовываем новые
-////    analysisProvider.deleteIndexes(chat, dateNew);
-////    analysisProvider.renameIndexes(chat, dateOld, dateNew);
-//    analysisProvider.swap(chat, dateOld, dateNew);
-//
-//    //если статистика в кэше
-//    ChatDayStatistics chatStat = cacheService.removeChatStatistics(chat);
-//    if (chatStat != null) {
-//      chatStat.setCreateDate(dateNew);
-//      cacheService.addChatStatistics(chat.getExternalId(), dateNew, chatStat);
-//    }
-//
-//    Map<String, UserDayStatistics> flooders = cacheService.removeUserStatistics(chat);
-//    if (flooders != null) {
-//      cacheService.addUserStatistics(chat.getExternalId(), dateNew, flooders);
-//    }
-//
-//    //если статистика в БД
-//    statisticsDAO.deleteChatStatisticsIfExists(chat, dateOld);
-//    statisticsDAO.deleteUserStatisticsIfExists(chat, dateOld);
-//    topicDAO.deleteIfExists(chat, dateOld);
-//
-//    chatDAO.update(chat.getExternalId(), newTimezone);
-//  }
-
   private static ZoneId convert(String chosenTimezone) {
     String zone = TimeZones.mappingTo.get(chosenTimezone);
     return TimeZone.getTimeZone(zone).toZoneId();

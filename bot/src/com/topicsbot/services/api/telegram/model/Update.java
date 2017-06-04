@@ -9,6 +9,8 @@ public class Update {
   @JsonProperty("update_id")
   private int id;
   private Message message;
+  @JsonProperty("inline_query")
+  private InlineQuery inlineQuery;
 
   public int getId() {
     return id;
@@ -24,5 +26,13 @@ public class Update {
 
   public void setMessage(Message message) {
     this.message = message;
+  }
+
+  public InlineQuery getInlineQuery() {
+    return inlineQuery;
+  }
+
+  public void setInlineQuery(InlineQuery inlineQuery) {
+    this.inlineQuery = inlineQuery;
   }
 }

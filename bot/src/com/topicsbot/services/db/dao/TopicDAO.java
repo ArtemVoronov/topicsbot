@@ -36,21 +36,4 @@ public class TopicDAO {
     return db.tx(s -> TopicQuery.byChat(chat, createDate, s).list());
   }
 
-  @SuppressWarnings("unchecked")
-  public List<Topic> find(Chat chat, LocalDate createDate, User author) {
-    return db.tx(s -> TopicQuery.byChat(chat, createDate, author, s).list());
-  }
-
-  //TODO: clean
-//  @SuppressWarnings("unchecked")
-//  public void deleteIfExists(Chat chat, LocalDate createDate) {
-//    db.vtx(s -> {
-//      List<Topic> topics = TopicQuery.byChat(chat, createDate, s).list();
-//      if (topics != null && !topics.isEmpty()) {
-//        for (Topic t : topics) {
-//          t.setDeleted(true);
-//        }
-//      }
-//    });
-//  }
 }

@@ -26,6 +26,9 @@ public enum UpdateType {
   //default update
   TO_STATISTICS("to_statistics"),
 
+  //for using at unknown chats
+  INLINE_QUERY("inline_query"),
+
   //admin commands // TODO: clean deprecated
   CLEAR("clear"),
   DELETE("delete"),
