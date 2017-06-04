@@ -1,6 +1,5 @@
 package com.topicsbot.services.api.telegram.handlers.user;
 
-import com.topicsbot.model.TimeZones;
 import com.topicsbot.model.chat.Chat;
 import com.topicsbot.services.api.telegram.TelegramApiProvider;
 import com.topicsbot.services.api.telegram.handlers.KeyboardFactory;
@@ -9,26 +8,22 @@ import com.topicsbot.services.api.telegram.model.Message;
 import com.topicsbot.services.api.telegram.model.ReplyKeyboardRemove;
 import com.topicsbot.services.api.telegram.model.Update;
 import com.topicsbot.services.db.dao.ChatDAO;
-import com.topicsbot.services.i18n.ResourceBundleService;
-
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
+import com.topicsbot.services.messages.MessagesFactory;
 
 /**
  * Author: Artem Voronov
  */
 public class HideSettingsKeyboardHandler implements UpdateHandler {
 
-  private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
   private final TelegramApiProvider telegramApiProvider;
   private final ChatDAO chatDAO;
-  private final ResourceBundleService resourceBundleService;
+  private final MessagesFactory messagesFactory;
 
-  public HideSettingsKeyboardHandler(TelegramApiProvider telegramApiProvider, ChatDAO chatDAO,
-                                     ResourceBundleService resourceBundleService) {
+  public HideSettingsKeyboardHandler(TelegramApiProvider telegramApiProvider, MessagesFactory messagesFactory,
+                                     ChatDAO chatDAO) {
     this.telegramApiProvider = telegramApiProvider;
     this.chatDAO = chatDAO;
-    this.resourceBundleService = resourceBundleService;
+    this.messagesFactory = messagesFactory;
   }
 
   @Override
@@ -39,16 +34,8 @@ public class HideSettingsKeyboardHandler implements UpdateHandler {
       return;
 
     Chat chat = chatDAO.find(message.getChatId());
-    String text = getChatSettingsMessage(chat);
+    String text = messagesFactory.getChatSettingsMessage(chat);
     ReplyKeyboardRemove keyboardRemove = KeyboardFactory.createHideKeyboard();
-    telegramApiProvider.hideKeyboard(message.getChat(), text, keyboardRemove);
-  }
-
-  private String getChatSettingsMessage(Chat chat) { //TODO: duplication
-    String template = resourceBundleService.getMessage(chat.getLanguageShort(), "settings.message");
-    String language = chat.getLanguage().getName();
-    String prettyTimezone = TimeZones.mappingFrom.get(chat.getTimezone().toString());
-    String currentTime = LocalTime.now(chat.getTimezone()).format(TIME_FORMATTER);
-    return String.format(template, language, prettyTimezone, currentTime);
+    telegramApiProvider.hideKeyboard(message.getChat(), text, message, keyboardRemove);
   }
 }

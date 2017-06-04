@@ -27,11 +27,13 @@ public class AddTopicHandler implements UpdateHandler {
   private final TelegramApiProvider telegramApiProvider;
   private final ResourceBundleService resourceBundleService;
   private final CacheService cacheService;
+  private final String botUserName;
 
 
-  public AddTopicHandler(ChatDAO chatDAO, TopicDAO topicDAO, UserDAO userDAO,
+  public AddTopicHandler(String botUserName, ChatDAO chatDAO, TopicDAO topicDAO, UserDAO userDAO,
                          TelegramApiProvider telegramApiProvider, ResourceBundleService resourceBundleService,
                          CacheService cacheService) {
+    this.botUserName = botUserName;
     this.chatDAO = chatDAO;
     this.topicDAO = topicDAO;
     this.userDAO = userDAO;
@@ -55,11 +57,10 @@ public class AddTopicHandler implements UpdateHandler {
     if (!startsWithForwardSlash) {
       topic = text;
       cacheService.removeWaiter(message.getChatId(), message.getUserId());
-      //TODO: replyToMessage (add message id to reply_id)
     }
 
     if (startsWithForwardSlash) {
-      String[] parameters = text.split(UpdateType.ADD.getCommand());
+      String[] parameters = text.replace(botUserName, "").split(UpdateType.ADD.getCommand());
       topic = parameters.length > 1 ? parameters[1].trim() : null;
     }
 
@@ -96,7 +97,7 @@ public class AddTopicHandler implements UpdateHandler {
     topicDAO.create(chat, topic, user, chat.getRebirthDate());
 
     String feedback = resourceBundleService.getMessage(chat.getLanguageShort(), "add.topic.success.message");
-    telegramApiProvider.sendMessage(message.getChat(), feedback);
+    telegramApiProvider.replyToMessage(message.getChat(), feedback, message);
   }
 
   private User getOrCreateUser(String userId, String userName) {

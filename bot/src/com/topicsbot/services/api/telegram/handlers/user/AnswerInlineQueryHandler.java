@@ -1,34 +1,24 @@
 package com.topicsbot.services.api.telegram.handlers.user;
 
-import com.topicsbot.model.chat.Chat;
 import com.topicsbot.model.chat.ChatLanguage;
-import com.topicsbot.services.analysis.AnalysisService;
 import com.topicsbot.services.api.telegram.TelegramApiProvider;
 import com.topicsbot.services.api.telegram.handlers.UpdateHandler;
 import com.topicsbot.services.api.telegram.model.*;
-import com.topicsbot.services.db.dao.ChatDAO;
-import com.topicsbot.services.i18n.ResourceBundleService;
+import com.topicsbot.services.messages.MessagesFactory;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Author: Artem Voronov
  */
 public class AnswerInlineQueryHandler implements UpdateHandler {
-  private final AnalysisService analysisService;
   private final TelegramApiProvider telegramApiProvider;
-  private final ChatDAO chatDAO;
-  private final ResourceBundleService resourceBundleService;
+  private final MessagesFactory messagesFactory;
 
-  public AnswerInlineQueryHandler(AnalysisService analysisService, TelegramApiProvider telegramApiProvider,
-                                  ChatDAO chatDAO, ResourceBundleService resourceBundleService) {
-    this.analysisService = analysisService;
+  public AnswerInlineQueryHandler(TelegramApiProvider telegramApiProvider, MessagesFactory messagesFactory) {
     this.telegramApiProvider = telegramApiProvider;
-    this.chatDAO = chatDAO;
-    this.resourceBundleService = resourceBundleService;
+    this.messagesFactory = messagesFactory;
   }
 
   @Override
@@ -43,7 +33,7 @@ public class AnswerInlineQueryHandler implements UpdateHandler {
   }
 
   private List<InlineQueryResult> createInlineQueryResults() {
-    String worldTopicsMessage = getWorldTopicsMessageDefault();
+    String worldTopicsMessage = messagesFactory.getWorldTopicsMessage(ChatLanguage.EN);
 
     InputTextMessageContent worldTopicsResult = new InputTextMessageContent();
     worldTopicsResult.setMessageText(worldTopicsMessage);
@@ -59,43 +49,5 @@ public class AnswerInlineQueryHandler implements UpdateHandler {
     inlineQueryResults.add(worldTopicsArticle);
 
     return inlineQueryResults;
-  }
-
-  private String getWorldTopicsMessageDefault() {
-    String dateIsoFormatted = LocalDate.now().toString();
-    ChatLanguage language = ChatLanguage.EN;
-    String languageShort = ChatLanguage.EN.name().toLowerCase();
-    List<String> worldKeywords = analysisService.getWorldKeywords(dateIsoFormatted, language);
-    Set<String> worldTopics = analysisService.getWorldTopics(worldKeywords, language);
-    List<String> worldHashTags = analysisService.getWorldHashTags(dateIsoFormatted, language);
-
-    if ((worldTopics == null || worldTopics.isEmpty()) && (worldHashTags == null || worldHashTags.isEmpty()))
-      return resourceBundleService.getMessage(languageShort, "no.topics.message");
-
-
-    int count = 0;
-    StringBuilder sb = new StringBuilder();
-
-    if (worldTopics != null && !worldTopics.isEmpty()) {
-      sb.append(resourceBundleService.getMessage(languageShort, "topics.header4.message"));
-      for (String t : worldTopics) {
-        sb.append(++count).append(". ").append(t).append("\n");
-      }
-
-      if (worldKeywords != null && !worldKeywords.isEmpty()) {
-        String worldKeywordStatisticsMessage = String.join(", ", worldKeywords);
-        sb.append(resourceBundleService.getMessage(languageShort, "top.keywords"))
-            .append(worldKeywordStatisticsMessage)
-            .append("\n");
-      }
-    }
-
-    if (worldHashTags != null && !worldHashTags.isEmpty()) {
-      String worldHashTagsMessage = String.join(", ", worldHashTags);
-      sb.append(resourceBundleService.getMessage(languageShort, "popular.hashtags"))
-          .append(worldHashTagsMessage);
-    }
-
-    return sb.toString();
   }
 }

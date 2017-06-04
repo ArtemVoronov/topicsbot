@@ -36,7 +36,7 @@ public class ShowTimezonesKeyboardHandler implements UpdateHandler {
     Chat chat = chatDAO.find(message.getChatId());
     String text = resourceBundleService.getMessage(chat.getLanguageShort(), "choose.time.message");
     ReplyKeyboardMarkup keyboard = keyboardFactory.createTimezonesKeyboard(chat);
-    telegramApiProvider.sendReplyKeyboard(message.getChat(), text, keyboard);
+    telegramApiProvider.sendReplyKeyboard(message.getChat(), text, message, keyboard);
   }
 
 }

@@ -3,7 +3,7 @@ package com.topicsbot.services.api.telegram.daemons;
 import com.topicsbot.model.ChannelType;
 import com.topicsbot.model.chat.ChatLanguage;
 import com.topicsbot.model.chat.ChatType;
-import com.topicsbot.services.analysis.AnalysisService;
+import com.topicsbot.services.analysis.AnalysisProvider;
 import com.topicsbot.services.api.telegram.TelegramApiProvider;
 import com.topicsbot.services.api.telegram.handlers.KeyboardFactory;
 import com.topicsbot.services.api.telegram.handlers.UpdateHandler;
@@ -20,6 +20,7 @@ import com.topicsbot.services.db.dao.ChatDAO;
 import com.topicsbot.services.db.dao.TopicDAO;
 import com.topicsbot.services.db.dao.UserDAO;
 import com.topicsbot.services.i18n.ResourceBundleService;
+import com.topicsbot.services.messages.MessagesFactory;
 import org.apache.log4j.Logger;
 
 import java.time.LocalDate;
@@ -42,7 +43,7 @@ public class ProcessUpdatesDaemon implements Runnable {
   private final ChatDAO chatDAO;
 
   public ProcessUpdatesDaemon(TelegramApiProvider telegramApiProvider, Queue<Update> updates,
-                       CacheService cacheService, AnalysisService analysisService ,
+                       CacheService cacheService, AnalysisProvider analysisProvider ,
                        DBService db, ResourceBundleService resourceBundleService,
                        String botUserName) {
 
@@ -52,19 +53,20 @@ public class ProcessUpdatesDaemon implements Runnable {
     final TopicDAO topicDAO = new TopicDAO(db);
     final UserDAO userDAO = new UserDAO(db);
     final KeyboardFactory keyboardFactory = new KeyboardFactory(resourceBundleService);
+    final MessagesFactory messagesFactory = new MessagesFactory(resourceBundleService, analysisProvider, cacheService);
     Map<UpdateType, UpdateHandler> handlers = new HashMap<>(UpdateType.values().length);
     handlers.put(UpdateType.START, new StartCommandHandler(telegramApiProvider, resourceBundleService, chatDAO));
     handlers.put(UpdateType.HELP, new HelpCommandHandler(telegramApiProvider, resourceBundleService, chatDAO));
     handlers.put(UpdateType.RATE, new RateCommandHandler(telegramApiProvider, resourceBundleService, chatDAO));
     handlers.put(UpdateType.CANCEL, new CancelHandler(chatDAO, telegramApiProvider, resourceBundleService, cacheService));
-    handlers.put(UpdateType.TO_STATISTICS, new ToStatisticsHandler(analysisService, cacheService, chatDAO, userDAO));
-    handlers.put(UpdateType.TOPICS, new GetTopicsHandler(analysisService, telegramApiProvider, chatDAO, topicDAO, resourceBundleService));
-    handlers.put(UpdateType.ADD, new AddTopicHandler(chatDAO, topicDAO, userDAO, telegramApiProvider, resourceBundleService, cacheService));
-    handlers.put(UpdateType.WORLD_TOPICS, new GetWorldTopicsHandler(analysisService, telegramApiProvider, chatDAO, resourceBundleService));
-    handlers.put(UpdateType.INLINE_QUERY, new AnswerInlineQueryHandler(analysisService, telegramApiProvider, chatDAO, resourceBundleService));
-    handlers.put(UpdateType.STATISTICS, new GetStatisticsHandler(analysisService, telegramApiProvider, chatDAO, cacheService, resourceBundleService));
-    handlers.put(UpdateType.SETTINGS, new ShowSettingsKeyboardHandler(telegramApiProvider, chatDAO, resourceBundleService, keyboardFactory));
-    handlers.put(UpdateType.CLOSE_SETTINGS, new HideSettingsKeyboardHandler(telegramApiProvider, chatDAO, resourceBundleService));
+    handlers.put(UpdateType.TO_STATISTICS, new ToStatisticsHandler(analysisProvider, cacheService, chatDAO, userDAO));
+    handlers.put(UpdateType.TOPICS, new GetTopicsHandler(analysisProvider, telegramApiProvider, chatDAO, topicDAO, resourceBundleService));
+    handlers.put(UpdateType.ADD, new AddTopicHandler(botUserName, chatDAO, topicDAO, userDAO, telegramApiProvider, resourceBundleService, cacheService));
+    handlers.put(UpdateType.WORLD_TOPICS, new GetWorldTopicsHandler(telegramApiProvider, messagesFactory, chatDAO));
+    handlers.put(UpdateType.INLINE_QUERY, new AnswerInlineQueryHandler(telegramApiProvider, messagesFactory));
+    handlers.put(UpdateType.STATISTICS, new GetStatisticsHandler(telegramApiProvider, messagesFactory, chatDAO));
+    handlers.put(UpdateType.SETTINGS, new ShowSettingsKeyboardHandler(telegramApiProvider, messagesFactory, chatDAO, keyboardFactory));
+    handlers.put(UpdateType.CLOSE_SETTINGS, new HideSettingsKeyboardHandler(telegramApiProvider, messagesFactory, chatDAO));
     handlers.put(UpdateType.LANGUAGE_KEYBOARD, new ShowLanguagesKeyboardHandler(telegramApiProvider, chatDAO, resourceBundleService, keyboardFactory));
     handlers.put(UpdateType.TIMEZONE_KEYBOARD, new ShowTimezonesKeyboardHandler(telegramApiProvider, chatDAO, resourceBundleService, keyboardFactory));
     handlers.put(UpdateType.LANGUAGE, new ChangeLanguageHandler(chatDAO, telegramApiProvider, resourceBundleService));

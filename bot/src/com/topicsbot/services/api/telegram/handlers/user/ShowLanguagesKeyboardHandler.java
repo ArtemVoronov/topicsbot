@@ -37,7 +37,7 @@ public class ShowLanguagesKeyboardHandler implements UpdateHandler {
     Chat chat = chatDAO.find(message.getChatId());
     String text = resourceBundleService.getMessage(chat.getLanguageShort(), "choose.lang.message");
     ReplyKeyboardMarkup keyboard = keyboardFactory.createLanguageKeyboard(chat);
-    telegramApiProvider.sendReplyKeyboard(message.getChat(), text, keyboard);
+    telegramApiProvider.sendReplyKeyboard(message.getChat(), text, message, keyboard);
   }
 
 }

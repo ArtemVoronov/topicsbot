@@ -54,7 +54,7 @@ public class ChangeTimezoneHandler implements UpdateHandler {
 
     String template = resourceBundleService.getMessage(chat.getLanguageShort(), "time.was.chosen.message");
     String feedback = String.format(template, chosenTimezone, LocalTime.now(newTimezone).format(TIME_FORMATTER));
-    telegramApiProvider.hideKeyboard(message.getChat(), feedback, KeyboardFactory.createHideKeyboard());
+    telegramApiProvider.hideKeyboard(message.getChat(), feedback, message, KeyboardFactory.createHideKeyboard());
   }
 
   private static ZoneId convert(String chosenTimezone) {

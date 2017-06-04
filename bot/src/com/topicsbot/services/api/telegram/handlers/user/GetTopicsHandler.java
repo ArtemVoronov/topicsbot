@@ -2,7 +2,7 @@ package com.topicsbot.services.api.telegram.handlers.user;
 
 import com.topicsbot.model.chat.Chat;
 import com.topicsbot.model.topic.Topic;
-import com.topicsbot.services.analysis.AnalysisService;
+import com.topicsbot.services.analysis.AnalysisProvider;
 import com.topicsbot.services.api.telegram.TelegramApiProvider;
 import com.topicsbot.services.api.telegram.handlers.UpdateHandler;
 import com.topicsbot.services.api.telegram.model.Message;
@@ -19,7 +19,7 @@ import java.util.Set;
  * Author: Artem Voronov
  */
 public class GetTopicsHandler implements UpdateHandler {
-  private final AnalysisService analysisService;
+  private final AnalysisProvider analysisProvider;
   private final TelegramApiProvider telegramApiProvider;
   private final ChatDAO chatDAO;
   private final TopicDAO topicDAO;
@@ -27,10 +27,10 @@ public class GetTopicsHandler implements UpdateHandler {
 
   private final TCache<String, Set<String>> cachedAutoTopics = new TCache<>(3L*60*1000); //3 min
 
-  public GetTopicsHandler(AnalysisService analysisService, TelegramApiProvider telegramApiProvider,
+  public GetTopicsHandler(AnalysisProvider analysisProvider, TelegramApiProvider telegramApiProvider,
                           ChatDAO chatDAO, TopicDAO topicDAO,
                           ResourceBundleService resourceBundleService) {
-    this.analysisService = analysisService;
+    this.analysisProvider = analysisProvider;
     this.telegramApiProvider = telegramApiProvider;
     this.chatDAO = chatDAO;
     this.topicDAO = topicDAO;
@@ -52,7 +52,7 @@ public class GetTopicsHandler implements UpdateHandler {
   private String getTopicsMessage(Chat chat) {
     List<Topic> humanTopics = getHumanTopics(chat);
     Set<String> autoTopics = getAutoTopics(chat);
-    List<String> hashTags = analysisService.getChatHashTags(chat);
+    List<String> hashTags = analysisProvider.getChatHashTags(chat);
 
     if ((humanTopics == null || humanTopics.isEmpty()) && (autoTopics == null || autoTopics.isEmpty()))
       return resourceBundleService.getMessage(chat.getLanguageShort(), "no.topics.message");
@@ -98,8 +98,8 @@ public class GetTopicsHandler implements UpdateHandler {
     Set<String> result = cachedAutoTopics.get(chat.getExternalId());
 
     if (result == null) {
-      List<String> keywords = analysisService.getChatKeywords(chat);
-      result = analysisService.getChatTopics(keywords, chat.getLanguage());
+      List<String> keywords = analysisProvider.getChatKeywords(chat);
+      result = analysisProvider.getChatTopics(keywords, chat.getLanguage());
 
       if (result != null && !result.isEmpty())
         cachedAutoTopics.putIfNotSet(chat.getExternalId(), result);

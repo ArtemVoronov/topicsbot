@@ -48,6 +48,6 @@ public class ChangeLanguageHandler implements UpdateHandler {
 
     String template = resourceBundleService.getMessage(newLanguage.name().toLowerCase(), "lang.was.chosen.message");
     String feedback = template + chosenLang;
-    telegramApiProvider.hideKeyboard(message.getChat(), feedback, KeyboardFactory.createHideKeyboard());
+    telegramApiProvider.hideKeyboard(message.getChat(), feedback, message, KeyboardFactory.createHideKeyboard());
   }
 }

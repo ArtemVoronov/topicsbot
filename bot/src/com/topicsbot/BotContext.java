@@ -1,7 +1,7 @@
 package com.topicsbot;
 
 import com.topicsbot.services.Services;
-import com.topicsbot.services.analysis.AnalysisService;
+import com.topicsbot.services.analysis.AnalysisProvider;
 import com.topicsbot.services.api.telegram.TelegramApiProvider;
 import com.topicsbot.services.db.DBService;
 import com.topicsbot.services.i18n.ResourceBundleService;
@@ -71,7 +71,7 @@ public class BotContext {
   }
 
   @Produces
-  public AnalysisService getAnalysisService() {
-    return services.getAnalysisService();
+  public AnalysisProvider getAnalysisProvider() {
+    return services.getAnalysisProvider();
   }
 }

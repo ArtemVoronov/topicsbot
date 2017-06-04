@@ -3,7 +3,7 @@ package com.topicsbot.services.api.telegram;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.topicsbot.services.analysis.AnalysisService;
+import com.topicsbot.services.analysis.AnalysisProvider;
 import com.topicsbot.services.api.telegram.daemons.GetUpdatesDaemon;
 import com.topicsbot.services.api.telegram.daemons.ProcessUpdatesDaemon;
 import com.topicsbot.services.api.telegram.daemons.RebirthChatDaemon;
@@ -41,7 +41,7 @@ public class TelegramApiService implements TelegramApiProvider {
   private final Queue<Update> updatesQueue = new ConcurrentLinkedQueue<>();
 
   public TelegramApiService(DBService dbService, ScheduledExecutorService scheduledExecutorService,
-                            ResourceBundleService resourceBundleService, AnalysisService analysisService,
+                            ResourceBundleService resourceBundleService, AnalysisProvider analysisProvider,
                             CacheService cacheService,
                             int connectTimeout, int requestTimeout,
                             String botToken, String botUserName) {
@@ -54,7 +54,7 @@ public class TelegramApiService implements TelegramApiProvider {
     this.answerInlineQueryUrl = apiTelegramUrl + "/answerInlineQuery";
 
     scheduledExecutorService.scheduleWithFixedDelay(new GetUpdatesDaemon(updatesQueue, this), 10000L, 15L, TimeUnit.MILLISECONDS);
-    scheduledExecutorService.scheduleWithFixedDelay(new ProcessUpdatesDaemon(this, updatesQueue, cacheService, analysisService, dbService, resourceBundleService, botUserName), 10000L, 15L, TimeUnit.MILLISECONDS);
+    scheduledExecutorService.scheduleWithFixedDelay(new ProcessUpdatesDaemon(this, updatesQueue, cacheService, analysisProvider, dbService, resourceBundleService, botUserName), 10000L, 15L, TimeUnit.MILLISECONDS);
     scheduledExecutorService.scheduleAtFixedRate(new SendMessageDaemon(sendMessageRequestsQueue, scheduledExecutorService), 10000L, 34L, TimeUnit.MILLISECONDS);
     scheduledExecutorService.scheduleWithFixedDelay(new RebirthChatDaemon(dbService), 15L, 3600L, TimeUnit.SECONDS);
   }
@@ -66,8 +66,8 @@ public class TelegramApiService implements TelegramApiProvider {
   }
 
   @Override
-  public void replyToMessage(Chat chat, String text, Message message) {
-    final String jsonParams = "{\"chat_id\":\"" + chat.getId() + "\",\"text\":\"" + text + "\",\"reply_to_message_id\":\"" + message.getId() + "\"}";
+  public void replyToMessage(Chat chat, String text, Message replyMessage) {
+    final String jsonParams = "{\"chat_id\":\"" + chat.getId() + "\",\"text\":\"" + text + "\",\"reply_to_message_id\":" + replyMessage.getId() + "}";
     sendMessageRequestsQueue.add(() -> client.makeRequest(sendMessageUrl, jsonParams, Message.class));
   }
 
@@ -85,9 +85,9 @@ public class TelegramApiService implements TelegramApiProvider {
   }
 
   @Override
-  public void sendReplyKeyboard(Chat chat, String text, ReplyKeyboardMarkup keyboard) {
+  public void sendReplyKeyboard(Chat chat, String text, Message replyMessage, ReplyKeyboardMarkup keyboard) {
     try {
-      final String jsonParams = "{\"chat_id\":\"" + chat.getId() + "\",\"text\":\"" + text + "\",\"reply_markup\":" + MAPPER.writeValueAsString(keyboard) + "}";
+      final String jsonParams = "{\"chat_id\":\"" + chat.getId() + "\",\"text\":\"" + text + "\",\"reply_to_message_id\":" + replyMessage.getId() + ",\"reply_markup\":" + MAPPER.writeValueAsString(keyboard) + "}";
       sendMessageRequestsQueue.add(() -> client.makeRequest(sendMessageUrl, jsonParams, Message.class));
     } catch (Exception ex) {
       logger.error(ex.getMessage(), ex);
@@ -95,9 +95,9 @@ public class TelegramApiService implements TelegramApiProvider {
   }
 
   @Override
-  public void hideKeyboard(Chat chat, String text, ReplyKeyboardRemove replyKeyboardRemove) {
+  public void hideKeyboard(Chat chat, String text, Message replyMessage, ReplyKeyboardRemove replyKeyboardRemove) {
     try {
-      final String jsonParams = "{\"chat_id\":\"" + chat.getId() + "\",\"text\":\"" + text + "\",\"reply_markup\":" + MAPPER.writeValueAsString(replyKeyboardRemove) + "}";
+      final String jsonParams = "{\"chat_id\":\"" + chat.getId() + "\",\"text\":\"" + text + "\",\"reply_to_message_id\":" + replyMessage.getId() + ",\"reply_markup\":" + MAPPER.writeValueAsString(replyKeyboardRemove) + "}";
       sendMessageRequestsQueue.add(() -> client.makeRequest(sendMessageUrl, jsonParams, Message.class));
     } catch (Exception ex) {
       logger.error(ex.getMessage(), ex);
