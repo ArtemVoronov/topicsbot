@@ -1,0 +1,20 @@
+.topics-bot-btn {
+  padding: 6px 12px;
+  min-height: 43px;
+}
+
+.topics-bot-title {
+  font-size: 7.5em;
+}
+
+.topics-bot-description {
+  font-size: 1.3em;
+}
+
+.notify-div.topics-bot-element {
+  font-size: 1.15em;
+}
+
+.topics-bot-command {
+  font-weight: bold;
+}

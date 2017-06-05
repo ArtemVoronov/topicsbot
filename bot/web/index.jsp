@@ -1,4 +1,4 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
-  response.sendRedirect(request.getContextPath() + "/pages/index.html");
+  response.sendRedirect(request.getContextPath() + "/home/index.html");
 %>
