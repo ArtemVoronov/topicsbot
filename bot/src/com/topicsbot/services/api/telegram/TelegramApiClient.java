@@ -1,7 +1,6 @@
 package com.topicsbot.services.api.telegram;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import org.apache.log4j.Logger;
@@ -20,7 +19,6 @@ import javax.ws.rs.core.Response;
 class TelegramApiClient {
 
   private static final Logger logger = Logger.getLogger("TELEGRAM_API_SERVICE");
-  private static final ObjectMapper mapper = new ObjectMapper();
   private final Client client;
 
   TelegramApiClient(int connectTimeout, int requestTimeout) {

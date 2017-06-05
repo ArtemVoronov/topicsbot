@@ -1,6 +1,5 @@
 package com.topicsbot.services.db;
 
-import org.apache.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -9,7 +8,6 @@ import org.hibernate.cfg.Configuration;
 import java.util.Properties;
 
 public class DBService {
-  private final static Logger logger = Logger.getLogger("TOPICS_BOT_MODEL");
 
   private SessionFactory sf;
 

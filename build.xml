@@ -1,8 +1,49 @@
-<project name="topics-bot" xmlns:ivy="antlib:org.apache.ivy.ant" basedir="." >
+<project name="topics-bot" xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:jacoco="antlib:org.jacoco.ant" basedir="." >
   <property name="build.dir" value="${basedir}/.build"/>
   <property name="distr.dir" value="${basedir}/.build/distr"/>
   <property name="test.dir" value=".${basedir}/build/test"/>
   <property name="release.version" value="dev"/>
+
+  <property name="model.classes.dir" value="${build.dir}/classes/model"/>
+  <property name="bot.classes.dir" value="${build.dir}/classes/bot"/>
+  <property name="model.test.classes.dir" value="${test.dir}/model/classes"/>
+  <property name="bot.test.classes.dir" value="${test.dir}/bot/classes"/>
+
+  <path id="model.compile.classpath">
+    <fileset dir="model/lib" includes="*.jar"/>
+    <fileset dir="model/libdev" includes="*.jar"/>
+  </path>
+  <path id="model.test.classpath">
+    <path refid="model.compile.classpath"/>
+    <path path="${model.classes.dir}"/>
+  </path>
+  <path id="bot.compile.classpath">
+    <fileset dir="model/lib" includes="*.jar"/>
+    <fileset dir="model/libdev" includes="*.jar"/>
+    <fileset dir="bot/lib" includes="*.jar"/>
+    <fileset dir="bot/libdev" includes="*.jar"/>
+    <path path="${model.classes.dir}"/>
+  </path>
+  <path id="bot.test.classpath">
+    <path refid="bot.compile.classpath"/>
+    <path path="${bot.classes.dir}"/>
+    <path path="${model.test.classes.dir}"/>
+  </path>
+
+  <path id="model.lib">
+    <fileset dir="model/lib" includes="*.jar"/>
+  </path>
+  <path id="model.libdev">
+    <fileset dir="model/libdev" includes="*.jar"/>
+  </path>
+  <path id="bot.lib">
+    <fileset dir="bot/lib" includes="*.jar"/>
+    <fileset dir="model/lib" includes="*.jar"/>
+  </path>
+  <path id="bot.libdev">
+    <fileset dir="bot/libdev" includes="*.jar"/>
+    <fileset dir="model/libdev" includes="*.jar"/>
+  </path>
 
   <target name="retrieve">
     <delete dir="model/lib" failonerror="false"/>
@@ -21,5 +62,177 @@
     <ivy:retrieve type="jar,bundle" pattern="model/libdev/[artifact]-[revision].[ext]" conf="model-dev" haltonfailure="true"/>
     <ivy:retrieve type="jar,bundle" pattern="bot/lib/[artifact]-[revision].[ext]" conf="bot-prod" haltonfailure="true"/>
     <ivy:retrieve type="jar,bundle" pattern="bot/libdev/[artifact]-[revision].[ext]" conf="bot-dev" haltonfailure="true"/>
+
+    <taskdef name="groovyc" classname="org.codehaus.groovy.ant.Groovyc" classpathref="model.lib"/>
+    <taskdef name="junit" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask" classpathref="model.lib"/>
+    <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml" classpathref="model.libdev"/>
   </target>
+
+  <target name="liquibase">
+    <delete file="${distr.dir}/liquibase.zip"/>
+    <zip destfile="${distr.dir}/liquibase.zip" basedir="model/db/liquibase"/>
+  </target>
+
+  <target name="javac" description="Компилирует код с помощью javac">
+    <delete dir="${classes.dir}" failonerror="false"/>
+    <mkdir dir="${classes.dir}"/>
+
+    <javac debug="on" srcdir="${src.dir}" destdir="${classes.dir}" classpathref="${classpathref}"/>
+
+    <copy todir="${classes.dir}">
+      <fileset dir="${src.dir}" excludes="**/*.java"/>
+    </copy>
+  </target>
+
+  <target name="groovyc" description="Компилирует код с помощью groovyc">
+    <delete dir="${classes.dir}" failonerror="false"/>
+    <mkdir dir="${classes.dir}"/>
+
+    <groovyc srcdir="${src.dir}" destdir="${classes.dir}" classpathref="${classpathref}">
+      <javac debug="on" encoding="UTF-8"/>
+    </groovyc>
+
+    <copy todir="${classes.dir}">
+      <fileset dir="${src.dir}" excludes="**/*.java **/*.groovy"/>
+    </copy>
+  </target>
+
+  <target name="junit" description="Проводит unit-тесты">
+    <delete dir="${test.dir}/jacoco/${test.name}" failonerror="false"/>
+    <delete dir="${test.dir}/junit/${test.name}" failonerror="false"/>
+    <delete dir="${test.dir}/tmp/${test.name}" failonerror="false"/>
+
+    <mkdir dir="${test.dir}/jacoco/${test.name}"/>
+    <mkdir dir="${test.dir}/junit/${test.name}"/>
+    <mkdir dir="${test.dir}/tmp/${test.name}"/>
+
+    <jacoco:coverage>
+      <junit printsummary="true"
+             failureproperty="junit.failure"
+             fork="true"
+             forkmode="once"
+             dir="${test.dir}/jacoco/${test.name}"
+             tempdir="${test.dir}/tmp/${test.name}"
+             includeantruntime="false">
+
+        <jvmarg value="-Dfile.encoding=utf-8" />
+
+        <classpath refid="${test.classpathref}"/>
+        <classpath path="${test.classes.dir}"/>
+        <classpath path="${src.classes.dir}"/>
+
+        <batchtest fork="yes" todir="${test.dir}/junit/${test.name}">
+          <fileset dir="${test.classes.dir}">
+            <include name="**/*Test.class"/>
+            <exclude name="**/*$*"/>
+          </fileset>
+
+          <formatter type="xml"/>
+        </batchtest>
+      </junit>
+    </jacoco:coverage>
+
+    <jacoco:report>
+      <executiondata>
+        <file file="${test.dir}/jacoco/${test.name}/jacoco.exec"/>
+      </executiondata>
+
+      <structure name="gussd_lk-${test.name}">
+        <classfiles>
+          <fileset dir="${src.classes.dir}"/>
+        </classfiles>
+        <sourcefiles encoding="UTF-8">
+          <fileset dir="${src.dir}"/>
+        </sourcefiles>
+      </structure>
+
+      <html destdir="${test.dir}/jacoco/${test.name}/coverage"/>
+      <xml destfile="${test.dir}/jacoco/${test.name}/coverage/report.xml"/>
+    </jacoco:report>
+
+    <fail if="junit.failure" message="${test.name} unit test(s) failed. See reports!"/>
+  </target>
+
+  <!-- MODEL -->
+
+  <target name="model.compile">
+    <antcall target="javac">
+      <param name="src.dir" value="model/src"/>
+      <param name="classes.dir" value="${model.classes.dir}"/>
+      <param name="classpathref" value="model.compile.classpath"/>
+    </antcall>
+  </target>
+
+  <target name="model.compile-test">
+    <antcall target="groovyc">
+      <param name="src.dir" value="model/test"/>
+      <param name="classes.dir" value="${model.test.classes.dir}"/>
+      <param name="classpathref" value="model.test.classpath"/>
+    </antcall>
+  </target>
+
+  <target name="model.test">
+    <antcall target="junit">
+      <param name="test.name" value="model"/>
+      <param name="src.dir" value="model/src"/>
+      <param name="src.classes.dir" value="${model.classes.dir}"/>
+      <param name="test.classes.dir" value="${model.test.classes.dir}"/>
+      <param name="test.classpathref" value="model.test.classpath"/>
+    </antcall>
+  </target>
+
+  <!-- BOT -->
+
+  <target name="bot.compile">
+    <antcall target="groovyc">
+      <param name="src.dir" value="bot/src"/>
+      <param name="classes.dir" value="${bot.classes.dir}"/>
+      <param name="classpathref" value="bot.compile.classpath"/>
+    </antcall>
+  </target>
+
+  <target name="bot.compile-test">
+    <antcall target="groovyc">
+      <param name="src.dir" value="bot/test"/>
+      <param name="classes.dir" value="${bot.test.classes.dir}"/>
+      <param name="classpathref" value="bot.test.classpath"/>
+    </antcall>
+  </target>
+
+  <target name="bot.distr">
+    <delete file="${distr.dir}/bot.war" failonerror="false"/>
+    <mkdir dir="${distr.dir}"/>
+
+    <war destfile="${distr.dir}/bot.war">
+      <manifest>
+        <attribute name="Release-Version" value="${release.version}"/>
+      </manifest>
+      <classes dir="${model.classes.dir}"/>
+      <classes dir="${bot.classes.dir}"/>
+      <lib dir="model/lib"/>
+      <lib dir="bot/lib"/>
+      <fileset dir="bot/web"/>
+    </war>
+  </target>
+
+  <target name="bot.test">
+    <antcall target="junit">
+      <param name="test.name" value="bot"/>
+      <param name="src.dir" value="bot/src"/>
+      <param name="src.classes.dir" value="${bot.classes.dir}"/>
+      <param name="test.classes.dir" value="${bot.test.classes.dir}"/>
+      <param name="test.classpathref" value="bot.test.classpath"/>
+    </antcall>
+  </target>
+
+  <!-- PUBLIC -->
+
+  <target name="compile" depends="retrieve, model.compile, bot.compile"/>
+
+  <target name="test" depends="compile, model.compile-test, bot.compile-test, model.test, bot.test"/>
+
+  <target name="distr" depends="compile, bot.distr, liquibase"/>
+
+  <target name="test.and.distr" depends="test, bot.distr, liquibase"/>
+
 </project>
