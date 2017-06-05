@@ -15,6 +15,8 @@
     <property name="hibernate.generate_statistics">true</property>
 
     <class-cache class="com.topicsbot.model.chat.Chat" usage="read-write" region="chats"/>
+    <class-cache class="com.topicsbot.model.user.User" usage="read-write" region="users"/>
+    <class-cache class="com.topicsbot.model.topic.Topic" usage="read-write" region="topics"/>
   </session-factory>
 
  </hibernate-configuration>
