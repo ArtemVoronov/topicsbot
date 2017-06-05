@@ -19,7 +19,7 @@ import com.topicsbot.services.i18n.ResourceBundleService;
  */
 public class AddTopicHandler implements UpdateHandler {
   private static final int TOPIC_MAX_LENGTH = 255;
-  private static final int TOPICS_LIMIT = 10;
+  private static final int TOPICS_LIMIT = 7;
 
   private final ChatDAO chatDAO;
   private final TopicDAO topicDAO;

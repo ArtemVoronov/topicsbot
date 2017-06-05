@@ -57,6 +57,7 @@ public class ProcessUpdatesDaemon implements Runnable {
     Map<UpdateType, UpdateHandler> handlers = new HashMap<>(UpdateType.values().length);
     handlers.put(UpdateType.START, new StartCommandHandler(telegramApiProvider, resourceBundleService, chatDAO));
     handlers.put(UpdateType.HELP, new HelpCommandHandler(telegramApiProvider, resourceBundleService, chatDAO));
+    handlers.put(UpdateType.DONATE, new DonateCommandHandler(telegramApiProvider, resourceBundleService, chatDAO));
     handlers.put(UpdateType.RATE, new RateCommandHandler(telegramApiProvider, resourceBundleService, chatDAO));
     handlers.put(UpdateType.CANCEL, new CancelHandler(chatDAO, telegramApiProvider, resourceBundleService, cacheService));
     handlers.put(UpdateType.TO_STATISTICS, new ToStatisticsHandler(analysisProvider, cacheService, chatDAO, userDAO));

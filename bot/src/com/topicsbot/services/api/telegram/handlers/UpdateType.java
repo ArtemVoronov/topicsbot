@@ -8,6 +8,7 @@ public enum UpdateType {
   START("start"),
   TOPICS("topics"),
   HELP("help"),
+  DONATE("donate"),
   ADD("add"),
   STATISTICS("statistics"),
   RATE("rate"),

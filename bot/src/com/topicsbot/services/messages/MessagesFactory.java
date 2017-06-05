@@ -40,7 +40,7 @@ public class MessagesFactory {
     List<String> worldHashTags = analysisProvider.getWorldHashTags(dateIsoFormatted, language);
 
     if ((worldTopics == null || worldTopics.isEmpty()) && (worldHashTags == null || worldHashTags.isEmpty()))
-      return resourceBundleService.getMessage(languageShort, "no.topics.message");
+      return resourceBundleService.getMessage(languageShort, "no.world.topics.message");
 
 
     int count = 0;
