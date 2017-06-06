@@ -121,7 +121,7 @@ public class ProcessUpdatesDaemon implements Runnable {
     if (modelChat == null) {
       Chat apiChat = message.getChat();
       com.topicsbot.model.chat.ChatType type = Converter.convert(apiChat.getType());
-      int size = type == ChatType.PRIVATE ? 1 : telegramApiProvider.getChatMembersCount(apiChat);
+      int size = type == ChatType.PRIVATE ? 1 : telegramApiProvider.getChatMembersCount(externalId);
       ZoneId UTC = TimeZone.getTimeZone("Etc/GMT0").toZoneId();
       chatDAO.create(externalId, apiChat.getTitle(), ChannelType.TELEGRAM, type, ChatLanguage.EN, size, UTC, LocalDate.now(UTC));
     }

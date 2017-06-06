@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.topicsbot.services.analysis.AnalysisProvider;
-import com.topicsbot.services.api.telegram.daemons.GetUpdatesDaemon;
-import com.topicsbot.services.api.telegram.daemons.ProcessUpdatesDaemon;
-import com.topicsbot.services.api.telegram.daemons.RebirthChatDaemon;
-import com.topicsbot.services.api.telegram.daemons.SendMessageDaemon;
+import com.topicsbot.services.api.telegram.daemons.*;
 import com.topicsbot.services.api.telegram.model.*;
 import com.topicsbot.services.cache.CacheService;
 import com.topicsbot.services.db.DBService;
@@ -35,6 +32,7 @@ public class TelegramApiService implements TelegramApiProvider {
   private final String getUpdatesUrl;
   private final String sendMessageUrl;
   private final String getChatMembersCountUrl;
+  private final String getChatUrl;
   private final String answerInlineQueryUrl;
 
   private final Queue<Runnable> sendMessageRequestsQueue = new ConcurrentLinkedQueue<>();
@@ -51,12 +49,14 @@ public class TelegramApiService implements TelegramApiProvider {
     this.getUpdatesUrl = apiTelegramUrl + "/getUpdates";
     this.sendMessageUrl = apiTelegramUrl + "/sendMessage";
     this.getChatMembersCountUrl = apiTelegramUrl + "/getChatMembersCount";
+    this.getChatUrl = apiTelegramUrl + "/getChat";
     this.answerInlineQueryUrl = apiTelegramUrl + "/answerInlineQuery";
 
     scheduledExecutorService.scheduleWithFixedDelay(new GetUpdatesDaemon(updatesQueue, this), 10000L, 15L, TimeUnit.MILLISECONDS);
     scheduledExecutorService.scheduleWithFixedDelay(new ProcessUpdatesDaemon(this, updatesQueue, cacheService, analysisProvider, dbService, resourceBundleService, botUserName), 10000L, 15L, TimeUnit.MILLISECONDS);
     scheduledExecutorService.scheduleAtFixedRate(new SendMessageDaemon(sendMessageRequestsQueue, scheduledExecutorService), 10000L, 34L, TimeUnit.MILLISECONDS);
     scheduledExecutorService.scheduleWithFixedDelay(new RebirthChatDaemon(dbService), 15L, 3600L, TimeUnit.SECONDS);
+    scheduledExecutorService.scheduleWithFixedDelay(new UpdateChatInfoDaemon(dbService, this), 60L, 3600L*24, TimeUnit.SECONDS);
   }
 
   @Override
@@ -72,10 +72,17 @@ public class TelegramApiService implements TelegramApiProvider {
   }
 
   @Override
-  public int getChatMembersCount(Chat chat) {
-    final String jsonParams = "{\"chat_id\":\"" + chat.getId() + "}";
+  public int getChatMembersCount(String chatExternalId) {
+    final String jsonParams = "{\"chat_id\":\"" + chatExternalId + "\"}";
     ChatMembersCount result = client.makeRequest(getChatMembersCountUrl, jsonParams, ChatMembersCount.class);
     return result.getCount();
+  }
+
+  @Override
+  public Chat getChat(String chatExternalId) {
+    final String jsonParams = "{\"chat_id\":\"" + chatExternalId + "\"}";
+    ChatInfo result = client.makeRequest(getChatUrl, jsonParams, ChatInfo.class);
+    return result.getChat();
   }
 
   @Override

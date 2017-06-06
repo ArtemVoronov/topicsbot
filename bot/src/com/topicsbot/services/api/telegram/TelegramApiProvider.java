@@ -14,5 +14,6 @@ public interface TelegramApiProvider {
   void sendReplyKeyboard(Chat chat, String text, Message replyMessage, ReplyKeyboardMarkup keyboardMarkup);
   void hideKeyboard(Chat chat, String text, Message replyMessage, ReplyKeyboardRemove replyKeyboardRemove);
   void answerInlineQuery(String inlineQueryId, List<InlineQueryResult> inlineQueryResults);
-  int getChatMembersCount(Chat chat);
+  int getChatMembersCount(String chatExternalId);
+  Chat getChat(String externalId);
 }

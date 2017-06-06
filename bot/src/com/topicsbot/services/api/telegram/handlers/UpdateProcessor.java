@@ -81,7 +81,6 @@ public class UpdateProcessor {
 
 
     } catch (Exception ex) {
-      logger.error(ex.getMessage(), ex);
       return null;
     }
   }
