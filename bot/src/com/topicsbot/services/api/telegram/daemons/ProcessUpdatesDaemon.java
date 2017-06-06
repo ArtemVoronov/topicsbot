@@ -9,6 +9,7 @@ import com.topicsbot.services.api.telegram.handlers.KeyboardFactory;
 import com.topicsbot.services.api.telegram.handlers.UpdateHandler;
 import com.topicsbot.services.api.telegram.handlers.UpdateProcessor;
 import com.topicsbot.services.api.telegram.handlers.UpdateType;
+import com.topicsbot.services.api.telegram.handlers.admin.GetJVMInfoHandler;
 import com.topicsbot.services.api.telegram.handlers.user.*;
 import com.topicsbot.services.api.telegram.model.Chat;
 import com.topicsbot.services.api.telegram.model.Converter;
@@ -72,6 +73,8 @@ public class ProcessUpdatesDaemon implements Runnable {
     handlers.put(UpdateType.TIMEZONE_KEYBOARD, new ShowTimezonesKeyboardHandler(telegramApiProvider, chatDAO, resourceBundleService, keyboardFactory));
     handlers.put(UpdateType.LANGUAGE, new ChangeLanguageHandler(chatDAO, telegramApiProvider, resourceBundleService));
     handlers.put(UpdateType.TIMEZONE, new ChangeTimezoneHandler(chatDAO, telegramApiProvider, resourceBundleService));
+
+    handlers.put(UpdateType.JVM, new GetJVMInfoHandler(telegramApiProvider));
     this.updateProcessor = new UpdateProcessor(botUserName, handlers, cacheService);
   }
 
