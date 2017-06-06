@@ -2,6 +2,7 @@ package com.topicsbot.services.api.telegram.daemons;
 
 import com.topicsbot.model.chat.Chat;
 import com.topicsbot.services.api.telegram.TelegramApiProvider;
+import com.topicsbot.services.api.telegram.model.ChatType;
 import com.topicsbot.services.db.DBService;
 import com.topicsbot.services.db.query.ChatQuery;
 import org.apache.log4j.Logger;
@@ -27,13 +28,12 @@ public class UpdateChatInfoDaemon implements Runnable {
   public void run() {
     try {
       db.vtx(s -> {
-
         List<Chat> allTelegramChats = ChatQuery.telegram(s).list();
 
         for (Chat chat : allTelegramChats) {
-          int count = telegramApiProvider.getChatMembersCount(chat.getExternalId());
           com.topicsbot.services.api.telegram.model.Chat apiChat = telegramApiProvider.getChat(chat.getExternalId());
-          chat.setSize(count);
+          int size = apiChat.getType() == ChatType.PRIVATE ? 1 : telegramApiProvider.getChatMembersCount(chat.getExternalId());
+          chat.setSize(size);
           chat.setTitle(apiChat.getTitle());
           s.saveOrUpdate(chat);
         }
