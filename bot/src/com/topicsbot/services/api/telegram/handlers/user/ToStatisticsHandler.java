@@ -39,7 +39,13 @@ public class ToStatisticsHandler implements UpdateHandler {
       return;
 
     Chat chat = chatDAO.find(message.getChatId());
-    String text = message.getText().trim();
+
+    String text = message.getText();
+
+    if (text == null)
+      return;
+
+    text = text.trim();
     analysisProvider.index(text, chat);
 
     updateChatDayStatistics(message, chat);

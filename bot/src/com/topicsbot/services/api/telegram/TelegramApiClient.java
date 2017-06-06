@@ -31,10 +31,6 @@ class TelegramApiClient {
   }
 
   <T> T makeRequest(String endpoint, String json, Class<T> clazz) {
-    if(logger.isDebugEnabled()) {
-      logger.debug("Request to: " + endpoint + ". Params: " + json);
-    }
-
     T result = null;
     Invocation invocation = client.target(endpoint).request().buildPost(Entity.entity(json, "application/json"));
     Response response = null;
@@ -44,6 +40,9 @@ class TelegramApiClient {
       if(result == null)
         throw new IllegalArgumentException("Null response from Telegram API");
     } catch (Exception ex) {
+      if(logger.isDebugEnabled()) {
+        logger.debug("Request to: " + endpoint + ". Params: " + json);
+      }
       logger.error("Error! Cause: " + ex.getMessage(), ex);
     } finally {
       if(response != null)

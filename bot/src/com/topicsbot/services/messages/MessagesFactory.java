@@ -8,6 +8,7 @@ import com.topicsbot.model.statistics.UserDayStatistics;
 import com.topicsbot.services.analysis.AnalysisProvider;
 import com.topicsbot.services.cache.CacheService;
 import com.topicsbot.services.i18n.ResourceBundleService;
+import com.topicsbot.utils.TCache;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -26,6 +27,8 @@ public class MessagesFactory {
   private final AnalysisProvider analysisProvider;
   private final CacheService cacheService;
 
+  private final TCache<String, Set<String>> cachedWorldTopics = new TCache<>(3L*60*1000); //3 min
+
   public MessagesFactory(ResourceBundleService resourceBundleService, AnalysisProvider analysisProvider, CacheService cacheService) {
     this.resourceBundleService = resourceBundleService;
     this.analysisProvider = analysisProvider;
@@ -36,7 +39,7 @@ public class MessagesFactory {
     String dateIsoFormatted = LocalDate.now().toString();
     String languageShort = language.name().toLowerCase();
     List<String> worldKeywords = analysisProvider.getWorldKeywords(dateIsoFormatted, language);
-    Set<String> worldTopics = analysisProvider.getWorldTopics(worldKeywords, language);
+    Set<String> worldTopics = getWorldTopicsCached(worldKeywords, dateIsoFormatted, language);
     List<String> worldHashTags = analysisProvider.getWorldHashTags(dateIsoFormatted, language);
 
     if ((worldTopics == null || worldTopics.isEmpty()) && (worldHashTags == null || worldHashTags.isEmpty()))
@@ -67,6 +70,20 @@ public class MessagesFactory {
     }
 
     return sb.toString();
+  }
+
+  private Set<String> getWorldTopicsCached(List<String> worldKeywords, String dateIsoFormatted, ChatLanguage language) {
+    String key = dateIsoFormatted + "_" + language;
+    Set<String> result = cachedWorldTopics.get(key);
+
+    if (result == null) {
+      result = analysisProvider.getWorldTopics(worldKeywords, language);
+
+      if (result != null && !result.isEmpty())
+        cachedWorldTopics.putIfNotSet(key, result);
+    }
+
+    return result;
   }
 
   public String getStatisticsMessage(Chat chat, boolean extended) {

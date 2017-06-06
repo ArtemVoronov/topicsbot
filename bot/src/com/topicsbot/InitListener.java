@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 public class InitListener implements ServletContextListener {
 
   private static final String PROPERTY_CONFIG_DIR     = "config.dir";
-  private static final String DEFAULT_CONFIG_DIR      = "config";
+  private static final String DEFAULT_CONFIG_DIR      = "conf";
   private static final String PROPERTIES_FILE_NAME    = "config.properties";
 
   @Override

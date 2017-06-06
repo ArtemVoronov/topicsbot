@@ -24,8 +24,11 @@ public class UpdateProcessor {
   }
 
   public void process(Update update) {
-    UpdateType updateType = convert(update);
     try {
+      UpdateType updateType = convert(update);
+      if (updateType == null)
+        return;
+
       UpdateHandler handler = handlers.get(updateType);
       if (handler == null)
         throw new IllegalArgumentException("Missed handler for update type: " + updateType);
@@ -44,6 +47,10 @@ public class UpdateProcessor {
         return UpdateType.INLINE_QUERY;
 
       Message message = update.getMessage();
+
+      if (message == null)
+        return null;
+
       String text = message.getText();
       String command = null;
       if (text == null) {
