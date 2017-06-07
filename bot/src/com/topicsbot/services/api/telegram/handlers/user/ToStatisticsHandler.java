@@ -95,12 +95,14 @@ public class ToStatisticsHandler implements UpdateHandler {
   }
 
   private User getOrCreateUser(String userId, String userName) {//TODO: duplicate operation (AddTopicHandler)
-    User user = userDAO.find(userId, ChannelType.TELEGRAM);
+    synchronized (userDAO) {
+      User user = userDAO.find(userId, ChannelType.TELEGRAM);
 
-    if (user == null) {
-      user = userDAO.create(userId, userName, ChannelType.TELEGRAM);
+      if (user == null) {
+        user = userDAO.create(userId, userName, ChannelType.TELEGRAM);
+      }
+
+      return user;
     }
-
-    return user;
   }
 }

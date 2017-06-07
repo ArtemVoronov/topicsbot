@@ -100,14 +100,16 @@ public class AddTopicHandler implements UpdateHandler {
     telegramApiProvider.replyToMessage(message.getChat(), feedback, message);
   }
 
-  private User getOrCreateUser(String userId, String userName) {
-    User user = userDAO.find(userId, ChannelType.TELEGRAM);
+  private User getOrCreateUser(String userId, String userName) {//TODO: duplicate operation
+    synchronized (userDAO) {
+      User user = userDAO.find(userId, ChannelType.TELEGRAM);
 
-    if (user == null) {
-      user = userDAO.create(userId, userName, ChannelType.TELEGRAM);
+      if (user == null) {
+        user = userDAO.create(userId, userName, ChannelType.TELEGRAM);
+      }
+
+      return user;
     }
-
-    return user;
   }
 
   private boolean isTooManyTopicsToday(Chat chat) {

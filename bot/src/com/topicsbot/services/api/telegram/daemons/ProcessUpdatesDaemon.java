@@ -116,14 +116,16 @@ public class ProcessUpdatesDaemon implements Runnable {
       return;
 
     String externalId = message.getChatId();
-    com.topicsbot.model.chat.Chat modelChat = chatDAO.find(externalId);
+    synchronized (chatDAO) {
+      com.topicsbot.model.chat.Chat modelChat = chatDAO.find(externalId);
 
-    if (modelChat == null) {
-      Chat apiChat = message.getChat();
-      com.topicsbot.model.chat.ChatType type = Converter.convert(apiChat.getType());
-      int size = type == ChatType.PRIVATE ? 1 : telegramApiProvider.getChatMembersCount(externalId);
-      ZoneId UTC = TimeZone.getTimeZone("Etc/GMT0").toZoneId();
-      chatDAO.create(externalId, apiChat.getTitle(), ChannelType.TELEGRAM, type, ChatLanguage.EN, size, UTC, LocalDate.now(UTC));
+      if (modelChat == null) {
+        Chat apiChat = message.getChat();
+        com.topicsbot.model.chat.ChatType type = Converter.convert(apiChat.getType());
+        int size = type == ChatType.PRIVATE ? 1 : telegramApiProvider.getChatMembersCount(externalId);
+        ZoneId UTC = TimeZone.getTimeZone("Etc/GMT0").toZoneId();
+        chatDAO.create(externalId, apiChat.getTitle(), ChannelType.TELEGRAM, type, ChatLanguage.EN, size, UTC, LocalDate.now(UTC));
+      }
     }
   }
 }
