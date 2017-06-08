@@ -1,7 +1,7 @@
 package com.topicsbot.services.api.telegram.handlers.user;
 
-import com.topicsbot.model.ChannelType;
 import com.topicsbot.model.chat.Chat;
+import com.topicsbot.model.statistics.CounterType;
 import com.topicsbot.model.user.User;
 import com.topicsbot.services.api.telegram.TelegramApiProvider;
 import com.topicsbot.services.api.telegram.handlers.UpdateHandler;
@@ -13,36 +13,30 @@ import com.topicsbot.services.db.dao.ChatDAO;
 import com.topicsbot.services.db.dao.TopicDAO;
 import com.topicsbot.services.db.dao.UserDAO;
 import com.topicsbot.services.i18n.ResourceBundleService;
-import org.apache.log4j.Logger;
-import org.hibernate.exception.ConstraintViolationException;
 
 /**
  * Author: Artem Voronov
  */
-public class AddTopicHandler implements UpdateHandler {
-  private static final Logger logger = Logger.getLogger("PROCESS_UPDATES_DAEMON");
+public class AddTopicUserHandler extends CommonUserHandler implements UpdateHandler {
   private static final int TOPIC_MAX_LENGTH = 255;
   private static final int TOPICS_LIMIT = 7;
 
   private final ChatDAO chatDAO;
   private final TopicDAO topicDAO;
-  private final UserDAO userDAO;
   private final TelegramApiProvider telegramApiProvider;
   private final ResourceBundleService resourceBundleService;
-  private final CacheService cacheService;
   private final String botUserName;
 
 
-  public AddTopicHandler(String botUserName, ChatDAO chatDAO, TopicDAO topicDAO, UserDAO userDAO,
-                         TelegramApiProvider telegramApiProvider, ResourceBundleService resourceBundleService,
-                         CacheService cacheService) {
+  public AddTopicUserHandler(String botUserName, ChatDAO chatDAO, TopicDAO topicDAO, UserDAO userDAO,
+                             TelegramApiProvider telegramApiProvider, ResourceBundleService resourceBundleService,
+                             CacheService cache) {
+    super(cache, userDAO);
     this.botUserName = botUserName;
     this.chatDAO = chatDAO;
     this.topicDAO = topicDAO;
-    this.userDAO = userDAO;
     this.telegramApiProvider = telegramApiProvider;
     this.resourceBundleService = resourceBundleService;
-    this.cacheService = cacheService;
   }
 
   @Override
@@ -59,7 +53,7 @@ public class AddTopicHandler implements UpdateHandler {
 
     if (!startsWithForwardSlash) {
       topic = text;
-      cacheService.removeWaiter(message.getChatId(), message.getUserId());
+      cache.removeWaiter(message.getChatId(), message.getUserId());
     }
 
     if (startsWithForwardSlash) {
@@ -70,7 +64,7 @@ public class AddTopicHandler implements UpdateHandler {
     Chat chat = chatDAO.find(message.getChatId());
 
     if (topic == null) {
-      cacheService.addWaiter(message.getChatId(), message.getUserId());
+      cache.addWaiter(message.getChatId(), message.getUserId());
       String feedback = resourceBundleService.getMessage(chat.getLanguageShort(), "add.topics.question.message");
       telegramApiProvider.sendMessage(message.getChat(), feedback);
       return;
@@ -108,22 +102,9 @@ public class AddTopicHandler implements UpdateHandler {
 
     String feedback = resourceBundleService.getMessage(chat.getLanguageShort(), "add.topic.success.message");
     telegramApiProvider.replyToMessage(message.getChat(), feedback, message);
-  }
 
-  private User getOrCreateUser(String userId, String userName) {//TODO: duplicate operation
-    try {
-      User user = userDAO.find(userId, ChannelType.TELEGRAM);
-
-      if (user == null)
-        user = userDAO.create(userId, userName, ChannelType.TELEGRAM);
-
-      return user;
-    } catch (ConstraintViolationException ex) {
-      if (logger.isDebugEnabled())
-        logger.debug("[ADD_TOPIC] Duplicate user entry create: " + userId + "-TELEGRAM");
-
-      return userDAO.find(userId, ChannelType.TELEGRAM);
-    }
+    updateChatCounters(chat, CounterType.ADD_TOPIC_COMMAND, 1);
+    updateUserCounter(message, chat, CounterType.ADD_TOPIC_COMMAND, 1);
   }
 
   private boolean isTooManyTopicsToday(Chat chat) {

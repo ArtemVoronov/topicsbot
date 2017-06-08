@@ -1,14 +1,17 @@
 package com.topicsbot.services.api.telegram.handlers.user;
 
 import com.topicsbot.model.chat.Chat;
+import com.topicsbot.model.statistics.CounterType;
 import com.topicsbot.model.topic.Topic;
 import com.topicsbot.services.analysis.AnalysisProvider;
 import com.topicsbot.services.api.telegram.TelegramApiProvider;
 import com.topicsbot.services.api.telegram.handlers.UpdateHandler;
 import com.topicsbot.services.api.telegram.model.Message;
 import com.topicsbot.services.api.telegram.model.Update;
+import com.topicsbot.services.cache.CacheService;
 import com.topicsbot.services.db.dao.ChatDAO;
 import com.topicsbot.services.db.dao.TopicDAO;
+import com.topicsbot.services.db.dao.UserDAO;
 import com.topicsbot.services.i18n.ResourceBundleService;
 import com.topicsbot.utils.TCache;
 
@@ -18,7 +21,7 @@ import java.util.Set;
 /**
  * Author: Artem Voronov
  */
-public class GetTopicsHandler implements UpdateHandler {
+public class GetTopicsUserHandler extends CommonUserHandler implements UpdateHandler {
   private final AnalysisProvider analysisProvider;
   private final TelegramApiProvider telegramApiProvider;
   private final ChatDAO chatDAO;
@@ -27,9 +30,10 @@ public class GetTopicsHandler implements UpdateHandler {
 
   private final TCache<String, Set<String>> cachedAutoTopics = new TCache<>(3L*60*1000); //3 min
 
-  public GetTopicsHandler(AnalysisProvider analysisProvider, TelegramApiProvider telegramApiProvider,
-                          ChatDAO chatDAO, TopicDAO topicDAO,
-                          ResourceBundleService resourceBundleService) {
+  public GetTopicsUserHandler(AnalysisProvider analysisProvider, TelegramApiProvider telegramApiProvider,
+                              ChatDAO chatDAO, TopicDAO topicDAO,
+                              ResourceBundleService resourceBundleService, CacheService cache, UserDAO userDAO) {
+    super(cache, userDAO);
     this.analysisProvider = analysisProvider;
     this.telegramApiProvider = telegramApiProvider;
     this.chatDAO = chatDAO;
@@ -47,6 +51,9 @@ public class GetTopicsHandler implements UpdateHandler {
     Chat chat = chatDAO.find(message.getChatId());
     String result = getTopicsMessage(chat);
     telegramApiProvider.sendMessage(message.getChat(), result);
+
+    updateChatCounters(chat, CounterType.TOPICS_COMMAND, 1);
+    updateUserCounter(message, chat, CounterType.TOPICS_COMMAND, 1);
   }
 
   private String getTopicsMessage(Chat chat) {

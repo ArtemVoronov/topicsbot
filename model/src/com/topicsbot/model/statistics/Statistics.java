@@ -67,6 +67,14 @@ public abstract class Statistics {
   @NotNull(message = "World topics command counter is null")
   private Integer worldTopicsCommandCounter;
 
+  @Column(name = "cancel_command_counter", unique = false, nullable = false)
+  @NotNull(message = "Cancel command counter is null")
+  private Integer cancelCommandCounter;
+
+  @Column(name = "donate_command_counter", unique = false, nullable = false)
+  @NotNull(message = "Donate command counter is null")
+  private Integer donateCommandCounter;
+
   @Column(name = "deleted", unique = false, nullable = false)
   private boolean deleted;
 
@@ -180,5 +188,21 @@ public abstract class Statistics {
 
   public void setDeleted(boolean deleted) {
     this.deleted = deleted;
+  }
+
+  public Integer getCancelCommandCounter() {
+    return cancelCommandCounter;
+  }
+
+  public void setCancelCommandCounter(Integer cancelCommandCounter) {
+    this.cancelCommandCounter = cancelCommandCounter;
+  }
+
+  public Integer getDonateCommandCounter() {
+    return donateCommandCounter;
+  }
+
+  public void setDonateCommandCounter(Integer donateCommandCounter) {
+    this.donateCommandCounter = donateCommandCounter;
   }
 }

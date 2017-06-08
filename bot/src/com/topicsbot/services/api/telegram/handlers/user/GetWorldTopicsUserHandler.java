@@ -1,23 +1,27 @@
 package com.topicsbot.services.api.telegram.handlers.user;
 
 import com.topicsbot.model.chat.Chat;
+import com.topicsbot.model.statistics.CounterType;
 import com.topicsbot.services.api.telegram.TelegramApiProvider;
 import com.topicsbot.services.api.telegram.handlers.UpdateHandler;
 import com.topicsbot.services.api.telegram.model.Message;
 import com.topicsbot.services.api.telegram.model.Update;
+import com.topicsbot.services.cache.CacheService;
 import com.topicsbot.services.db.dao.ChatDAO;
+import com.topicsbot.services.db.dao.UserDAO;
 import com.topicsbot.services.messages.MessagesFactory;
 
 /**
  * Author: Artem Voronov
  */
-public class GetStatisticsHandler implements UpdateHandler {
+public class GetWorldTopicsUserHandler extends CommonUserHandler implements UpdateHandler {
   private final TelegramApiProvider telegramApiProvider;
   private final ChatDAO chatDAO;
   private final MessagesFactory messagesFactory;
 
-  public GetStatisticsHandler(TelegramApiProvider telegramApiProvider, MessagesFactory messagesFactory,
-                              ChatDAO chatDAO) {
+  public GetWorldTopicsUserHandler(TelegramApiProvider telegramApiProvider, MessagesFactory messagesFactory,
+                                   CacheService cache, ChatDAO chatDAO, UserDAO userDAO) {
+    super(cache, userDAO);
     this.telegramApiProvider = telegramApiProvider;
     this.chatDAO = chatDAO;
     this.messagesFactory = messagesFactory;
@@ -31,8 +35,10 @@ public class GetStatisticsHandler implements UpdateHandler {
       return;
 
     Chat chat = chatDAO.find(message.getChatId());
-    String result = messagesFactory.getStatisticsMessage(chat, false);
+    String result = messagesFactory.getWorldTopicsMessage(chat.getLanguage());
     telegramApiProvider.sendMessage(message.getChat(), result);
-  }
 
+    updateChatCounters(chat, CounterType.WORLD_TOPICS_COMMAND, 1);
+    updateUserCounter(message, chat, CounterType.WORLD_TOPICS_COMMAND, 1);
+  }
 }

@@ -5,6 +5,7 @@ import com.topicsbot.model.chat.Chat
 import com.topicsbot.model.chat.ChatTest
 import com.topicsbot.model.statistics.ChatDayStatistics
 import com.topicsbot.model.statistics.ChatDayStatisticsTest
+import com.topicsbot.model.statistics.CounterType
 import com.topicsbot.model.statistics.UserDayStatistics
 import com.topicsbot.model.statistics.UserDayStatisticsTest
 import com.topicsbot.model.user.User
@@ -99,7 +100,7 @@ class CacheServiceTest extends DBTestBase {
 
     Chat chat1 = ChatTest.createCorrectChat()
     CacheService cache1 = new CacheService(p, db, scheduledExecutorService)
-    cache1.createChatStatistics(chat1, 18, 1, 6)
+    cache1.createChatStatistics(chat1, CounterType.START_COMMAND, 1)
 
     assertNotNull cache1.getChatStatistics(chat1)
 
@@ -107,7 +108,7 @@ class CacheServiceTest extends DBTestBase {
 
     Chat chat2 = ChatTest.createCorrectChat(externalId: "1231235")
     CacheService cache2 = new CacheService(p, db, scheduledExecutorService)
-    cache2.createChatStatistics(chat2, 28, 1, 8)
+    cache2.createChatStatistics(chat2, CounterType.DONATE_COMMAND, 1)
     assertNotNull cache2.getChatStatistics(chat1)
     assertNotNull cache2.getChatStatistics(chat2)
 
@@ -131,21 +132,21 @@ class CacheServiceTest extends DBTestBase {
     Chat chat = ChatTest.createCorrectChat(rebirthDate: LocalDate.now().minusDays(2))
     vtx{s -> s.save(chat)}
     CacheService cache = new CacheService(p, db, scheduledExecutorService)
-    cache.createChatStatistics(chat, 123, 2, 32)
+    cache.createChatStatistics(chat, CounterType.START_COMMAND, 1)
     def stat1 = cache.getChatStatistics(chat)
     assertNotNull stat1
     vtx{s ->
       chat.rebirthDate = chat.rebirthDate.plusDays(1)
       s.saveOrUpdate(chat)
     }
-    cache.createChatStatistics(chat, 18, 1, 6)
+    cache.createChatStatistics(chat, CounterType.DONATE_COMMAND, 1)
     def stat2 = cache.getChatStatistics(chat)
     assertNotNull stat2
     vtx{s ->
       chat.rebirthDate = chat.rebirthDate.plusDays(1)
       s.saveOrUpdate(chat)
     }
-    cache.createChatStatistics(chat, 511, 1, 21)
+    cache.createChatStatistics(chat, CounterType.CANCEL_COMMAND, 1)
     def stat3 = cache.getChatStatistics(chat)
     assertNotNull stat3
 
@@ -182,7 +183,7 @@ class CacheServiceTest extends DBTestBase {
     Chat chat1 = ChatTest.createCorrectChat()
     User user1 = UserTest.createCorrectUser()
     CacheService cache1 = new CacheService(p, db, scheduledExecutorService)
-    cache1.createUserStatistics(chat1, user1, 18, 1, 6)
+    cache1.createUserStatistics(chat1, user1, CounterType.START_COMMAND, 1)
 
     assertNotNull cache1.getUserStatistics(chat1, user1)
 
@@ -191,8 +192,8 @@ class CacheServiceTest extends DBTestBase {
     Chat chat2 = ChatTest.createCorrectChat(externalId: "1231235")
     User user2 = UserTest.createCorrectUser(externalId: "6666")
     CacheService cache2 = new CacheService(p, db, scheduledExecutorService)
-    cache2.createUserStatistics(chat2, user2, 18, 1, 6)
-    cache2.createUserStatistics(chat1, user2, 18, 1, 6)
+    cache2.createUserStatistics(chat2, user2, CounterType.START_COMMAND, 1)
+    cache2.createUserStatistics(chat1, user2, CounterType.START_COMMAND, 1)
     assertNotNull cache2.getUserStatistics(chat1, user1)
     assertNotNull cache2.getUserStatistics(chat1, user2)
     assertNotNull cache2.getUserStatistics(chat2, user2)
@@ -223,21 +224,21 @@ class CacheServiceTest extends DBTestBase {
       s.save(user)
     }
     CacheService cache = new CacheService(p, db, scheduledExecutorService)
-    cache.createUserStatistics(chat, user, 18, 1, 6)
+    cache.createUserStatistics(chat, user, CounterType.START_COMMAND, 1)
     def stat1 = cache.getUserStatistics(chat, user)
     assertNotNull stat1
     vtx{s ->
       chat.rebirthDate = chat.rebirthDate.plusDays(1)
       s.saveOrUpdate(chat)
     }
-    cache.createUserStatistics(chat, user, 18, 1, 6)
+    cache.createUserStatistics(chat, user, CounterType.START_COMMAND, 1)
     def stat2 = cache.getUserStatistics(chat, user)
     assertNotNull stat2
     vtx{s ->
       chat.rebirthDate = chat.rebirthDate.plusDays(1)
       s.saveOrUpdate(chat)
     }
-    cache.createUserStatistics(chat, user, 511, 1, 21)
+    cache.createUserStatistics(chat, user, CounterType.DONATE_COMMAND, 1)
     def stat3 = cache.getUserStatistics(chat, user)
     assertNotNull stat3
 

@@ -4,8 +4,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.topicsbot.model.TimeZones;
 import com.topicsbot.model.chat.Chat;
+import com.topicsbot.model.chat.ChatLanguage;
+import com.topicsbot.model.chat.ChatType;
 import com.topicsbot.model.statistics.ChatDayStatistics;
+import com.topicsbot.model.statistics.CounterType;
 import com.topicsbot.model.statistics.Statistics;
 import com.topicsbot.model.statistics.UserDayStatistics;
 import com.topicsbot.model.user.User;
@@ -15,6 +19,7 @@ import org.apache.log4j.Logger;
 import org.hibernate.Session;
 
 import java.io.File;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -174,26 +179,134 @@ public class CacheService {
     }
   }
 
-  public void createChatStatistics(Chat chat, int flood, int messages, int words) {
+  private static ChatDayStatistics createEmptyChatDayStatistics(Chat chat) {
+    ChatDayStatistics stat = new ChatDayStatistics();
+    stat.setChat(chat);
+    stat.setCreateDate(chat.getRebirthDate());
+    stat.setFloodSize(0);
+    stat.setMessageCounter(0);
+    stat.setWordCounter(0);
+    stat.setStartCommandCounter(0);
+    stat.setHelpCommandCounter(0);
+    stat.setTopicsCommandCounter(0);
+    stat.setAddTopicCommandCounter(0);
+    stat.setStatisticsCommandCounter(0);
+    stat.setSettingsCommandCounter(0);
+    stat.setRateCommandCounter(0);
+    stat.setWorldTopicsCommandCounter(0);
+    stat.setCancelCommandCounter(0);
+    stat.setDonateCommandCounter(0);
+    return stat;
+  }
+
+  private static UserDayStatistics createEmptyUserDayStatistics(Chat chat, User user) {
+    UserDayStatistics stat = new UserDayStatistics();
+    stat.setChat(chat);
+    stat.setCreateDate(chat.getRebirthDate());
+    stat.setUser(user);
+    stat.setFloodSize(0);
+    stat.setMessageCounter(0);
+    stat.setWordCounter(0);
+    stat.setStartCommandCounter(0);
+    stat.setHelpCommandCounter(0);
+    stat.setTopicsCommandCounter(0);
+    stat.setAddTopicCommandCounter(0);
+    stat.setStatisticsCommandCounter(0);
+    stat.setSettingsCommandCounter(0);
+    stat.setRateCommandCounter(0);
+    stat.setWorldTopicsCommandCounter(0);
+    stat.setCancelCommandCounter(0);
+    stat.setDonateCommandCounter(0);
+    return stat;
+  }
+
+  public void createChatStatistics(Chat chat, CounterType counterType, int counterValue) {
     try {
       statisticsWrite.lock();
-      ChatDayStatistics stat = new ChatDayStatistics();
-      stat.setChat(chat);
-      stat.setCreateDate(chat.getRebirthDate());
-      stat.setFloodSize(flood);
-      stat.setMessageCounter(messages);
-      stat.setWordCounter(words);
-      stat.setStartCommandCounter(0);
-      stat.setHelpCommandCounter(0);
-      stat.setTopicsCommandCounter(0);
-      stat.setAddTopicCommandCounter(0);
-      stat.setStatisticsCommandCounter(0);
-      stat.setSettingsCommandCounter(0);
-      stat.setRateCommandCounter(0);
-      stat.setWorldTopicsCommandCounter(0);
+      ChatDayStatistics stat = createEmptyChatDayStatistics(chat);
+      setCounterValue(stat, counterType, counterValue);
       chatStatistics.put(getChatKey(chat), stat);
     } finally {
       statisticsWrite.unlock();
+    }
+  }
+
+  private static int getCounterValue(Statistics stat, CounterType counterType) {
+    switch (counterType) {
+      case FLOOD:
+        return stat.getFloodSize() == null ? 0 : stat.getFloodSize();
+      case MESSAGES:
+        return stat.getMessageCounter() == null ? 0 : stat.getMessageCounter();
+      case WORDS:
+        return stat.getWordCounter() == null ? 0 : stat.getWordCounter();
+      case START_COMMAND:
+        return stat.getStartCommandCounter() == null ? 0 : stat.getStartCommandCounter();
+      case TOPICS_COMMAND:
+        return stat.getTopicsCommandCounter() == null ? 0 : stat.getTopicsCommandCounter();
+      case STATISTICS_COMMAND:
+        return stat.getStatisticsCommandCounter() == null ? 0 : stat.getStatisticsCommandCounter();
+      case ADD_TOPIC_COMMAND:
+        return stat.getAddTopicCommandCounter() == null ? 0 : stat.getAddTopicCommandCounter();
+      case WORLD_TOPICS_COMMAND:
+        return stat.getWorldTopicsCommandCounter() == null ? 0 : stat.getWorldTopicsCommandCounter();
+      case CANCEL_COMMAND:
+        return stat.getCancelCommandCounter() == null ? 0 : stat.getCancelCommandCounter();
+      case SETTINGS_COMMAND:
+        return stat.getSettingsCommandCounter() == null ? 0 : stat.getSettingsCommandCounter();
+      case HELP_COMMAND:
+        return stat.getHelpCommandCounter() == null ? 0 : stat.getHelpCommandCounter();
+      case RATE_COMMAND:
+        return stat.getRateCommandCounter() == null ? 0 : stat.getRateCommandCounter();
+      case DONATE_COMMAND:
+        return stat.getDonateCommandCounter() == null ? 0 : stat.getDonateCommandCounter();
+      default:
+        throw new IllegalArgumentException("unknown counter type");
+    }
+  }
+
+  private static void setCounterValue(Statistics stat, CounterType counterType, int counterValue) {
+    switch (counterType) {
+      case FLOOD:
+        stat.setFloodSize(counterValue);
+        break;
+      case MESSAGES:
+        stat.setMessageCounter(counterValue);
+        break;
+      case WORDS:
+        stat.setMessageCounter(counterValue);
+        break;
+      case START_COMMAND:
+        stat.setStartCommandCounter(counterValue);
+        break;
+      case TOPICS_COMMAND:
+        stat.setTopicsCommandCounter(counterValue);
+        break;
+      case STATISTICS_COMMAND:
+        stat.setStatisticsCommandCounter(counterValue);
+        break;
+      case ADD_TOPIC_COMMAND:
+        stat.setAddTopicCommandCounter(counterValue);
+        break;
+      case WORLD_TOPICS_COMMAND:
+        stat.setWorldTopicsCommandCounter(counterValue);
+        break;
+      case CANCEL_COMMAND:
+        stat.setCancelCommandCounter(counterValue);
+        break;
+      case SETTINGS_COMMAND:
+        stat.setSettingsCommandCounter(counterValue);
+        break;
+      case HELP_COMMAND:
+        stat.setHelpCommandCounter(counterValue);
+        break;
+      case RATE_COMMAND:
+        stat.setRateCommandCounter(counterValue);
+        break;
+      case DONATE_COMMAND:
+        stat.setDonateCommandCounter(counterValue);
+        break;
+      default:
+        throw new IllegalArgumentException("unknown counter type");
     }
   }
 
@@ -217,24 +330,11 @@ public class CacheService {
     }
   }
 
-  public void createUserStatistics(Chat chat, User user, int flood, int messages, int words) {
+  public void createUserStatistics(Chat chat, User user, CounterType counterType, int counterValue) {
     try {
       statisticsWrite.lock();
-      UserDayStatistics stat = new UserDayStatistics();
-      stat.setChat(chat);
-      stat.setUser(user);
-      stat.setCreateDate(chat.getRebirthDate());
-      stat.setFloodSize(flood);
-      stat.setMessageCounter(messages);
-      stat.setWordCounter(words);
-      stat.setStartCommandCounter(0);
-      stat.setHelpCommandCounter(0);
-      stat.setTopicsCommandCounter(0);
-      stat.setAddTopicCommandCounter(0);
-      stat.setStatisticsCommandCounter(0);
-      stat.setSettingsCommandCounter(0);
-      stat.setRateCommandCounter(0);
-      stat.setWorldTopicsCommandCounter(0);
+      UserDayStatistics stat = createEmptyUserDayStatistics(chat, user);
+      setCounterValue(stat, counterType, counterValue);
 
       String chatKey = getChatKey(chat);
       Map<String, UserDayStatistics> flooders = userStatistics.get(chatKey);
@@ -251,12 +351,11 @@ public class CacheService {
     }
   }
 
-  public void updateStatistics(Statistics stat, int flood, int messages, int words) {
+  public void updateStatistics(Statistics stat, CounterType counterType, int counterValue) {
     try {
       statisticsWrite.lock();
-      stat.setFloodSize(stat.getFloodSize() + flood);
-      stat.setMessageCounter(stat.getMessageCounter() + messages);
-      stat.setWordCounter(stat.getWordCounter() + words);
+      int previousCounterValue = getCounterValue(stat, counterType);
+      setCounterValue(stat, counterType, previousCounterValue+counterValue);
     } finally {
       statisticsWrite.unlock();
     }
@@ -264,6 +363,124 @@ public class CacheService {
 
   StatisticsCacheCleaner getStatisticsCacheCleaner() {
     return statisticsCacheCleaner;
+  }
+
+  public CacheInfo getCacheInfo(LocalDate localDate) {
+    try {
+      statisticsRead.lock();
+
+      Set<ChatDayStatistics> activeChats = chatStatistics.values().stream().filter(v-> v.getCreateDate().isEqual(localDate)).collect(Collectors.toSet());
+      Set<UserDayStatistics> activeUsers = userStatistics.values().stream().flatMap(map -> map.values().stream()).filter(v-> v.getCreateDate().isEqual(localDate)).collect(Collectors.toSet());
+
+
+      Map<ChatType, Integer> chatTypes = createEmptyChatTypesMap();
+      Map<ChatLanguage, Integer> chatLanguages = createEmptyChatLanguagesMap();
+      Map<String, Integer> chatTimeZones = createEmptyChatTimezonesMap();
+      Map<CounterType, Integer> chatCounters = createEmptyChatCountersMap();
+
+      Map<ChatLanguage, Map<ChatType, Integer>> chatLanguagesDetailed = createEmptyChatLanguagesDatailedMap();
+      Map<String, Map<ChatType, Integer>> chatTimeZonesDetailed = createEmptyChatTimezonesDatailedMap();
+      Map<CounterType, Map<ChatType, Integer>> chatCountersDetailed = createEmptyChatCountersDatailedMap();
+
+      CounterType[] counterTypes = CounterType.values();
+      for (ChatDayStatistics stat : activeChats) {
+        Chat chat = stat.getChat();
+
+        //chatTypes
+        ChatType chatType = chat.getType();
+        Integer chatTypesCount = chatTypes.get(chatType);
+        chatTypes.put(chatType, chatTypesCount + 1);
+
+        //chatTimeZones
+        String prettyTimezone = TimeZones.mappingFrom.get(chat.getTimezone().toString());
+        chatTimeZones.put(prettyTimezone, chatTimeZones.get(prettyTimezone) + 1);
+
+        //chatLanguages
+        ChatLanguage language = chat.getLanguage();
+        chatLanguages.put(language, chatLanguages.get(language) + 1);
+
+        //chatCounters
+        for (CounterType counterType : counterTypes) {
+          Integer counterFromMap = chatCounters.get(counterType);
+          chatCounters.put(counterType, counterFromMap + getCounterValue(stat, counterType));
+        }
+
+        //chatLanguagesDetailed
+        Map<ChatType, Integer> detailedLanguagesCount = chatLanguagesDetailed.get(language);
+        detailedLanguagesCount.put(chatType, detailedLanguagesCount.get(chatType) + 1);
+
+        //chatTimeZonesDetailed
+        Map<ChatType, Integer> detailedTimezonesCount = chatTimeZonesDetailed.get(prettyTimezone);
+        detailedTimezonesCount.put(chatType, detailedTimezonesCount.get(chatType) + 1);
+
+        //chatCountersDetailed
+        for (CounterType counterType : counterTypes) {
+          Map<ChatType, Integer> detailedCounter = chatCountersDetailed.get(counterType);
+          detailedCounter.put(chatType, detailedCounter.get(chatType) + getCounterValue(stat, counterType));
+        }
+      }
+
+      return new CacheInfo(activeChats.size(), activeUsers.size(), chatTypes, chatLanguages, chatTimeZones, chatCounters, chatLanguagesDetailed, chatTimeZonesDetailed, chatCountersDetailed);
+
+    } finally {
+      statisticsRead.unlock();
+    }
+  }
+
+  private static Map<ChatType, Integer> createEmptyChatTypesMap() {
+    Map<ChatType, Integer> result = new HashMap<>(4);
+    for (ChatType t : ChatType.values()) {
+      result.put(t, 0);
+    }
+    return result;
+  }
+
+  private static Map<ChatLanguage, Integer> createEmptyChatLanguagesMap() {
+    Map<ChatLanguage, Integer> result = new HashMap<>(15);
+    for (ChatLanguage t : ChatLanguage.values()) {
+      result.put(t, 0);
+    }
+    return result;
+  }
+
+  private static Map<String, Integer> createEmptyChatTimezonesMap() {
+    Map<String, Integer> result = new HashMap<>(26);
+    for (String t : TimeZones.mappingTo.keySet()) {
+      result.put(t, 0);
+    }
+    return result;
+  }
+
+  private static Map<CounterType, Integer> createEmptyChatCountersMap() {
+    Map<CounterType, Integer> result = new HashMap<>(13);
+    for (CounterType t : CounterType.values()) {
+      result.put(t, 0);
+    }
+    return result;
+  }
+
+  private static Map<ChatLanguage, Map<ChatType, Integer>> createEmptyChatLanguagesDatailedMap() {
+    Map<ChatLanguage, Map<ChatType, Integer>> result = new HashMap<>(15);
+    for (ChatLanguage t : ChatLanguage.values()) {
+      result.put(t, createEmptyChatTypesMap());
+    }
+    return result;
+  }
+
+  private static Map<String, Map<ChatType, Integer>> createEmptyChatTimezonesDatailedMap() {
+    Map<String, Map<ChatType, Integer>> result = new HashMap<>(26);
+    for (String t : TimeZones.mappingTo.keySet()) {
+      result.put(t, createEmptyChatTypesMap());
+    }
+    return result;
+  }
+
+  private static Map<CounterType, Map<ChatType, Integer>> createEmptyChatCountersDatailedMap() {
+    Map<CounterType,  Map<ChatType, Integer>> result = new HashMap<>(13);
+    for (CounterType t : CounterType.values()) {
+      result.put(t, createEmptyChatTypesMap());
+    }
+    return result;
   }
 
   private static String toJsonString(Map<String, Set<String>> data) {

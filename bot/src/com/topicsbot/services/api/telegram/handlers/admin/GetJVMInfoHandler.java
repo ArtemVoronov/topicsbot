@@ -4,18 +4,15 @@ import com.topicsbot.services.api.telegram.TelegramApiProvider;
 import com.topicsbot.services.api.telegram.handlers.UpdateHandler;
 import com.topicsbot.services.api.telegram.model.Message;
 import com.topicsbot.services.api.telegram.model.Update;
+import com.topicsbot.services.cache.CacheService;
 
 /**
  * Author: Artem Voronov
  */
-public class GetJVMInfoHandler implements UpdateHandler {
+public class GetJVMInfoHandler extends CommonAdminHandler implements UpdateHandler {
 
-  private static final int ADMIN = 193062503;
-
-  private final TelegramApiProvider telegramApiProvider;
-
-  public GetJVMInfoHandler(TelegramApiProvider telegramApiProvider) {
-    this.telegramApiProvider = telegramApiProvider;
+  public GetJVMInfoHandler(TelegramApiProvider telegramApiProvider, CacheService cacheService) {
+    super(telegramApiProvider, cacheService);
   }
 
   @Override
@@ -39,9 +36,5 @@ public class GetJVMInfoHandler implements UpdateHandler {
         "java version: " + System.getProperty("java.version");
 
     telegramApiProvider.sendMessage(message.getChat(), result);
-  }
-
-  private boolean isFromAdmin(Message message) {
-    return ADMIN == message.getFrom().getId();
   }
 }
