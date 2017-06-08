@@ -11,6 +11,7 @@ import com.topicsbot.services.db.DBService;
 import com.topicsbot.services.i18n.ResourceBundleService;
 import org.apache.log4j.Logger;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -55,8 +56,20 @@ public class TelegramApiService implements TelegramApiProvider {
     scheduledExecutorService.scheduleWithFixedDelay(new GetUpdatesDaemon(updatesQueue, this), 10000L, 15L, TimeUnit.MILLISECONDS);
     scheduledExecutorService.scheduleWithFixedDelay(new ProcessUpdatesDaemon(this, updatesQueue, cacheService, analysisProvider, dbService, resourceBundleService, botUserName), 10000L, 15L, TimeUnit.MILLISECONDS);
     scheduledExecutorService.scheduleAtFixedRate(new SendMessageDaemon(sendMessageRequestsQueue, scheduledExecutorService), 10000L, 34L, TimeUnit.MILLISECONDS);
-    scheduledExecutorService.scheduleWithFixedDelay(new RebirthChatDaemon(dbService), 15L, 3600L, TimeUnit.SECONDS);
-    scheduledExecutorService.scheduleWithFixedDelay(new UpdateChatInfoDaemon(dbService, this), 60L, 3600L*24, TimeUnit.SECONDS);
+    scheduledExecutorService.scheduleWithFixedDelay(new RebirthChatDaemon(dbService), calculateRebirthChatDaemonInitDelay(), 3600L, TimeUnit.SECONDS);
+    scheduledExecutorService.scheduleWithFixedDelay(new UpdateChatInfoDaemon(dbService, this), 180L, 3600L*24, TimeUnit.SECONDS);
+  }
+
+  private static long calculateRebirthChatDaemonInitDelay() {
+    LocalTime now = LocalTime.now();
+    int minutes = now.getMinute();
+    int seconds = now.getSecond();
+    long daemonInitDelaySeconds = (60L - minutes) * 60 + 60L - seconds;
+
+    if (logger.isDebugEnabled())
+      logger.debug("rebirth daemon init delay: " + daemonInitDelaySeconds + " seconds (" + (60 - minutes) + " min)");
+
+    return daemonInitDelaySeconds;
   }
 
   @Override

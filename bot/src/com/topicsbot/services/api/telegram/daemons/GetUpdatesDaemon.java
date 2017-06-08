@@ -26,7 +26,7 @@ public class GetUpdatesDaemon implements Runnable {
   public void run() {
     try {
       Updates result = telegramApiProvider.getUpdates(lastUpdateId);
-      if (!result.isEmpty()) {
+      if (result != null && !result.isEmpty()) {
         lastUpdateId = result.getLastUpdateId() + 1;
         updates.addAll(result.getUpdates());
       }

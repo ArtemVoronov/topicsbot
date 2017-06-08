@@ -12,11 +12,14 @@ import com.topicsbot.services.api.telegram.model.Update;
 import com.topicsbot.services.cache.CacheService;
 import com.topicsbot.services.db.dao.ChatDAO;
 import com.topicsbot.services.db.dao.UserDAO;
+import org.apache.log4j.Logger;
+import org.hibernate.exception.ConstraintViolationException;
 
 /**
  * Author: Artem Voronov
  */
 public class ToStatisticsHandler implements UpdateHandler {
+  private static final Logger logger = Logger.getLogger("PROCESS_UPDATES_DAEMON");
 
   private final AnalysisProvider analysisProvider;
   private final CacheService cache;
@@ -80,6 +83,9 @@ public class ToStatisticsHandler implements UpdateHandler {
     String userName = message.getUserName();
     User user = getOrCreateUser(userId, userName);
 
+    if (user == null)
+      throw new IllegalStateException("Missed user record: " + userId + "-TELEGRAM");
+
     UserDayStatistics statistics = cache.getUserStatistics(chat, user);
 
     int words = getWordCounter(message);
@@ -95,14 +101,18 @@ public class ToStatisticsHandler implements UpdateHandler {
   }
 
   private User getOrCreateUser(String userId, String userName) {//TODO: duplicate operation (AddTopicHandler)
-    synchronized (userDAO) {
+    try {
       User user = userDAO.find(userId, ChannelType.TELEGRAM);
 
-      if (user == null) {
+      if (user == null)
         user = userDAO.create(userId, userName, ChannelType.TELEGRAM);
-      }
 
       return user;
+    } catch (ConstraintViolationException ex) {
+      if (logger.isDebugEnabled())
+        logger.debug("[TO_STATISTICS] Duplicate user entry create: " + userId + "-TELEGRAM");
+
+      return userDAO.find(userId, ChannelType.TELEGRAM);
     }
   }
 }

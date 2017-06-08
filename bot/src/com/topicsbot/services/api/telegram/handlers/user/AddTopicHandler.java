@@ -13,11 +13,14 @@ import com.topicsbot.services.db.dao.ChatDAO;
 import com.topicsbot.services.db.dao.TopicDAO;
 import com.topicsbot.services.db.dao.UserDAO;
 import com.topicsbot.services.i18n.ResourceBundleService;
+import org.apache.log4j.Logger;
+import org.hibernate.exception.ConstraintViolationException;
 
 /**
  * Author: Artem Voronov
  */
 public class AddTopicHandler implements UpdateHandler {
+  private static final Logger logger = Logger.getLogger("PROCESS_UPDATES_DAEMON");
   private static final int TOPIC_MAX_LENGTH = 255;
   private static final int TOPICS_LIMIT = 7;
 
@@ -94,6 +97,13 @@ public class AddTopicHandler implements UpdateHandler {
     String userId = message.getUserId();
     String userName = message.getUserName();
     User user = getOrCreateUser(userId, userName);
+
+    if (user == null) {
+      String feedback = resourceBundleService.getMessage(chat.getLanguageShort(), "error.message");
+      telegramApiProvider.replyToMessage(message.getChat(), feedback, message);
+      throw new IllegalStateException("Missed user record: " + userId + "-TELEGRAM");
+    }
+
     topicDAO.create(chat, topic, user, chat.getRebirthDate());
 
     String feedback = resourceBundleService.getMessage(chat.getLanguageShort(), "add.topic.success.message");
@@ -101,14 +111,18 @@ public class AddTopicHandler implements UpdateHandler {
   }
 
   private User getOrCreateUser(String userId, String userName) {//TODO: duplicate operation
-    synchronized (userDAO) {
+    try {
       User user = userDAO.find(userId, ChannelType.TELEGRAM);
 
-      if (user == null) {
+      if (user == null)
         user = userDAO.create(userId, userName, ChannelType.TELEGRAM);
-      }
 
       return user;
+    } catch (ConstraintViolationException ex) {
+      if (logger.isDebugEnabled())
+        logger.debug("[ADD_TOPIC] Duplicate user entry create: " + userId + "-TELEGRAM");
+
+      return userDAO.find(userId, ChannelType.TELEGRAM);
     }
   }
 
