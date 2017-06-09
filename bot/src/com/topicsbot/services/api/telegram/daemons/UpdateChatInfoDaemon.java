@@ -32,6 +32,11 @@ public class UpdateChatInfoDaemon implements Runnable {
 
         for (Chat chat : allTelegramChats) {
           com.topicsbot.services.api.telegram.model.Chat apiChat = telegramApiProvider.getChat(chat.getExternalId());
+          if (apiChat == null) {
+            if (logger.isDebugEnabled())
+              logger.debug("Telegram chat cannot be loaded: " + chat.getExternalId());
+            continue;
+          }
           int size = apiChat.getType() == ChatType.PRIVATE ? 1 : telegramApiProvider.getChatMembersCount(chat.getExternalId());
           chat.setSize(size);
           chat.setTitle(apiChat.getTitle());
