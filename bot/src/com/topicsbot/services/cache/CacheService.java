@@ -62,7 +62,7 @@ public class CacheService {
     this.userStatistics = initUserStatistics(pathCacheDir);
     this.db = db;
     this.statisticsCacheCleaner = new StatisticsCacheCleaner();
-    scheduledExecutorService.scheduleWithFixedDelay(statisticsCacheCleaner, 10L, 3600L*24, TimeUnit.SECONDS);
+    scheduledExecutorService.scheduleWithFixedDelay(statisticsCacheCleaner, 60L, 3600L*24, TimeUnit.SECONDS);
   }
 
   private Map<String, Set<String>> initAddTopicWaiters(String pathCacheDir) {
@@ -183,19 +183,6 @@ public class CacheService {
     ChatDayStatistics stat = new ChatDayStatistics();
     stat.setChat(chat);
     stat.setCreateDate(chat.getRebirthDate());
-    stat.setFloodSize(0);
-    stat.setMessageCounter(0);
-    stat.setWordCounter(0);
-    stat.setStartCommandCounter(0);
-    stat.setHelpCommandCounter(0);
-    stat.setTopicsCommandCounter(0);
-    stat.setAddTopicCommandCounter(0);
-    stat.setStatisticsCommandCounter(0);
-    stat.setSettingsCommandCounter(0);
-    stat.setRateCommandCounter(0);
-    stat.setWorldTopicsCommandCounter(0);
-    stat.setCancelCommandCounter(0);
-    stat.setDonateCommandCounter(0);
     return stat;
   }
 
@@ -204,19 +191,6 @@ public class CacheService {
     stat.setChat(chat);
     stat.setCreateDate(chat.getRebirthDate());
     stat.setUser(user);
-    stat.setFloodSize(0);
-    stat.setMessageCounter(0);
-    stat.setWordCounter(0);
-    stat.setStartCommandCounter(0);
-    stat.setHelpCommandCounter(0);
-    stat.setTopicsCommandCounter(0);
-    stat.setAddTopicCommandCounter(0);
-    stat.setStatisticsCommandCounter(0);
-    stat.setSettingsCommandCounter(0);
-    stat.setRateCommandCounter(0);
-    stat.setWorldTopicsCommandCounter(0);
-    stat.setCancelCommandCounter(0);
-    stat.setDonateCommandCounter(0);
     return stat;
   }
 
@@ -273,7 +247,7 @@ public class CacheService {
         stat.setMessageCounter(counterValue);
         break;
       case WORDS:
-        stat.setMessageCounter(counterValue);
+        stat.setWordCounter(counterValue);
         break;
       case START_COMMAND:
         stat.setStartCommandCounter(counterValue);

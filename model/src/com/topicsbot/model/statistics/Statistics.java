@@ -25,55 +25,55 @@ public abstract class Statistics {
 
   @Column(name = "flood_size", unique = false, nullable = false)
   @NotNull(message = "Flood size is null")
-  private Integer floodSize;
+  private Integer floodSize = 0;
 
   @Column(name = "message_counter", unique = false, nullable = false)
   @NotNull(message = "Message counter is null")
-  private Integer messageCounter;
+  private Integer messageCounter = 0;
 
   @Column(name = "word_counter", unique = false, nullable = false)
   @NotNull(message = "Word counter is null")
-  private Integer wordCounter;
+  private Integer wordCounter = 0;
 
   @Column(name = "start_command_counter", unique = false, nullable = false)
   @NotNull(message = "Start command counter is null")
-  private Integer startCommandCounter;
+  private Integer startCommandCounter = 0;
 
   @Column(name = "help_command_counter", unique = false, nullable = false)
   @NotNull(message = "Help command counter is null")
-  private Integer helpCommandCounter;
+  private Integer helpCommandCounter = 0;
 
   @Column(name = "topics_command_counter", unique = false, nullable = false)
   @NotNull(message = "Topics command counter is null")
-  private Integer topicsCommandCounter;
+  private Integer topicsCommandCounter = 0;
 
   @Column(name = "add_topic_command_counter", unique = false, nullable = false)
   @NotNull(message = "Add topic command counter is null")
-  private Integer addTopicCommandCounter;
+  private Integer addTopicCommandCounter = 0;
 
   @Column(name = "statistics_command_counter", unique = false, nullable = false)
   @NotNull(message = "Statistics command counter is null")
-  private Integer statisticsCommandCounter;
+  private Integer statisticsCommandCounter = 0;
 
   @Column(name = "settings_command_counter", unique = false, nullable = false)
   @NotNull(message = "Settings command counter is null")
-  private Integer settingsCommandCounter;
+  private Integer settingsCommandCounter = 0;
 
   @Column(name = "rate_command_counter", unique = false, nullable = false)
   @NotNull(message = "Rate command counter is null")
-  private Integer rateCommandCounter;
+  private Integer rateCommandCounter = 0;
 
   @Column(name = "world_topics_command_counter", unique = false, nullable = false)
   @NotNull(message = "World topics command counter is null")
-  private Integer worldTopicsCommandCounter;
+  private Integer worldTopicsCommandCounter = 0;
 
   @Column(name = "cancel_command_counter", unique = false, nullable = false)
   @NotNull(message = "Cancel command counter is null")
-  private Integer cancelCommandCounter;
+  private Integer cancelCommandCounter = 0;
 
   @Column(name = "donate_command_counter", unique = false, nullable = false)
   @NotNull(message = "Donate command counter is null")
-  private Integer donateCommandCounter;
+  private Integer donateCommandCounter = 0;
 
   @Column(name = "deleted", unique = false, nullable = false)
   private boolean deleted;
