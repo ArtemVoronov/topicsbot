@@ -7,6 +7,7 @@ import com.topicsbot.services.api.telegram.TelegramApiProvider;
 import com.topicsbot.services.cache.CacheService;
 import com.topicsbot.services.db.DBService;
 import com.topicsbot.services.i18n.ResourceBundleService;
+import com.topicsbot.services.template.TemplateService;
 import com.topicsbot.utils.ThreadFactoryWithCounter;
 import org.apache.commons.configuration2.Configuration;
 
@@ -23,6 +24,7 @@ public class Services {
   private final ResourceBundleService resourceBundleService;
   private final AnalysisProvider analysisProvider;
   private final CacheService cacheService;
+  private final TemplateService templateService;
 
   public Services(Configuration config) throws ServicesException {
     this.resourceBundleService = new ResourceBundleService();
@@ -31,6 +33,7 @@ public class Services {
     this.analysisProvider = initAnalysisService(config, scheduledExecutorService);
     this.cacheService = initCacheService(config, dbService, scheduledExecutorService);
     this.telegramApiProvider = initTelegramApiProvider(config, dbService, scheduledExecutorService, resourceBundleService, analysisProvider, cacheService);
+    this.templateService = new TemplateService();
   }
 
   private DBService initDBService(Configuration config) throws ServicesException {
@@ -130,6 +133,10 @@ public class Services {
 
   public CacheService getCacheService() {
     return cacheService;
+  }
+
+  public TemplateService getTemplateService() {
+    return templateService;
   }
 
   public void shutdown() {

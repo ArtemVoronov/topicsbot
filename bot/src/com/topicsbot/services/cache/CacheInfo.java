@@ -1,9 +1,5 @@
 package com.topicsbot.services.cache;
 
-import com.topicsbot.model.chat.ChatLanguage;
-import com.topicsbot.model.chat.ChatType;
-import com.topicsbot.model.statistics.CounterType;
-
 import java.util.Map;
 
 /**
@@ -13,15 +9,15 @@ public class CacheInfo {
 
   private int activeChats;
   private int activeUsers;
-  private Map<ChatType, Integer> chatTypes;
-  private Map<ChatLanguage, Integer> chatLanguages;
+  private Map<String, Integer> chatTypes;
+  private Map<String, Integer> chatLanguages;
   private Map<String, Integer> chatTimeZones;
-  private Map<CounterType, Integer> chatCounters;
-  private Map<ChatLanguage, Map<ChatType, Integer>> chatLanguagesDetailed;
-  private Map<String, Map<ChatType, Integer>> chatTimeZonesDetailed;
-  private Map<CounterType, Map<ChatType, Integer>> chatCountersDetailed;
+  private Map<String, Integer> chatCounters;
+  private Map<String, Map<String, Integer>> chatLanguagesDetailed;
+  private Map<String, Map<String, Integer>> chatTimeZonesDetailed;
+  private Map<String, Map<String, Integer>> chatCountersDetailed;
 
-  public CacheInfo(int activeChats, int activeUsers, Map<ChatType, Integer> chatTypes, Map<ChatLanguage, Integer> chatLanguages, Map<String, Integer> chatTimeZones, Map<CounterType, Integer> chatCounters, Map<ChatLanguage, Map<ChatType, Integer>> chatLanguagesDetailed, Map<String, Map<ChatType, Integer>> chatTimeZonesDetailed, Map<CounterType, Map<ChatType, Integer>> chatCountersDetailed) {
+  public CacheInfo(int activeChats, int activeUsers, Map<String, Integer> chatTypes, Map<String, Integer> chatLanguages, Map<String, Integer> chatTimeZones, Map<String, Integer> chatCounters, Map<String, Map<String, Integer>> chatLanguagesDetailed, Map<String, Map<String, Integer>> chatTimeZonesDetailed, Map<String, Map<String, Integer>> chatCountersDetailed) {
     this.activeChats = activeChats;
     this.activeUsers = activeUsers;
     this.chatTypes = chatTypes;
@@ -49,19 +45,19 @@ public class CacheInfo {
     this.activeUsers = activeUsers;
   }
 
-  public Map<ChatType, Integer> getChatTypes() {
+  public Map<String, Integer> getChatTypes() {
     return chatTypes;
   }
 
-  public void setChatTypes(Map<ChatType, Integer> chatTypes) {
+  public void setChatTypes(Map<String, Integer> chatTypes) {
     this.chatTypes = chatTypes;
   }
 
-  public Map<ChatLanguage, Integer> getChatLanguages() {
+  public Map<String, Integer> getChatLanguages() {
     return chatLanguages;
   }
 
-  public void setChatLanguages(Map<ChatLanguage, Integer> chatLanguages) {
+  public void setChatLanguages(Map<String, Integer> chatLanguages) {
     this.chatLanguages = chatLanguages;
   }
 
@@ -73,35 +69,35 @@ public class CacheInfo {
     this.chatTimeZones = chatTimeZones;
   }
 
-  public Map<CounterType, Integer> getChatCounters() {
+  public Map<String, Integer> getChatCounters() {
     return chatCounters;
   }
 
-  public void setChatCounters(Map<CounterType, Integer> chatCounters) {
+  public void setChatCounters(Map<String, Integer> chatCounters) {
     this.chatCounters = chatCounters;
   }
 
-  public Map<ChatLanguage, Map<ChatType, Integer>> getChatLanguagesDetailed() {
+  public Map<String, Map<String, Integer>> getChatLanguagesDetailed() {
     return chatLanguagesDetailed;
   }
 
-  public void setChatLanguagesDetailed(Map<ChatLanguage, Map<ChatType, Integer>> chatLanguagesDetailed) {
+  public void setChatLanguagesDetailed(Map<String, Map<String, Integer>> chatLanguagesDetailed) {
     this.chatLanguagesDetailed = chatLanguagesDetailed;
   }
 
-  public Map<String, Map<ChatType, Integer>> getChatTimeZonesDetailed() {
+  public Map<String, Map<String, Integer>> getChatTimeZonesDetailed() {
     return chatTimeZonesDetailed;
   }
 
-  public void setChatTimeZonesDetailed(Map<String, Map<ChatType, Integer>> chatTimeZonesDetailed) {
+  public void setChatTimeZonesDetailed(Map<String, Map<String, Integer>> chatTimeZonesDetailed) {
     this.chatTimeZonesDetailed = chatTimeZonesDetailed;
   }
 
-  public Map<CounterType, Map<ChatType, Integer>> getChatCountersDetailed() {
+  public Map<String, Map<String, Integer>> getChatCountersDetailed() {
     return chatCountersDetailed;
   }
 
-  public void setChatCountersDetailed(Map<CounterType, Map<ChatType, Integer>> chatCountersDetailed) {
+  public void setChatCountersDetailed(Map<String, Map<String, Integer>> chatCountersDetailed) {
     this.chatCountersDetailed = chatCountersDetailed;
   }
 }

@@ -373,21 +373,21 @@ public class CacheService {
       Set<UserDayStatistics> activeUsers = userStatistics.values().stream().flatMap(map -> map.values().stream()).filter(v-> v.getCreateDate().isEqual(localDate)).collect(Collectors.toSet());
 
 
-      Map<ChatType, Integer> chatTypes = createEmptyChatTypesMap();
-      Map<ChatLanguage, Integer> chatLanguages = createEmptyChatLanguagesMap();
+      Map<String, Integer> chatTypes = createEmptyChatTypesMap();
+      Map<String, Integer> chatLanguages = createEmptyChatLanguagesMap();
       Map<String, Integer> chatTimeZones = createEmptyChatTimezonesMap();
-      Map<CounterType, Integer> chatCounters = createEmptyChatCountersMap();
+      Map<String, Integer> chatCounters = createEmptyChatCountersMap();
 
-      Map<ChatLanguage, Map<ChatType, Integer>> chatLanguagesDetailed = createEmptyChatLanguagesDatailedMap();
-      Map<String, Map<ChatType, Integer>> chatTimeZonesDetailed = createEmptyChatTimezonesDatailedMap();
-      Map<CounterType, Map<ChatType, Integer>> chatCountersDetailed = createEmptyChatCountersDatailedMap();
+      Map<String, Map<String, Integer>> chatLanguagesDetailed = createEmptyChatLanguagesDatailedMap();
+      Map<String, Map<String, Integer>> chatTimeZonesDetailed = createEmptyChatTimezonesDatailedMap();
+      Map<String, Map<String, Integer>> chatCountersDetailed = createEmptyChatCountersDatailedMap();
 
       CounterType[] counterTypes = CounterType.values();
       for (ChatDayStatistics stat : activeChats) {
         Chat chat = stat.getChat();
 
         //chatTypes
-        ChatType chatType = chat.getType();
+        String chatType = chat.getType().name();
         Integer chatTypesCount = chatTypes.get(chatType);
         chatTypes.put(chatType, chatTypesCount + 1);
 
@@ -396,28 +396,27 @@ public class CacheService {
         chatTimeZones.put(prettyTimezone, chatTimeZones.get(prettyTimezone) + 1);
 
         //chatLanguages
-        ChatLanguage language = chat.getLanguage();
+        String language = chat.getLanguage().name();
         chatLanguages.put(language, chatLanguages.get(language) + 1);
 
         //chatCounters
+        //chatCountersDetailed
         for (CounterType counterType : counterTypes) {
-          Integer counterFromMap = chatCounters.get(counterType);
-          chatCounters.put(counterType, counterFromMap + getCounterValue(stat, counterType));
+          String counterTypeName = counterType.name();
+          Integer counterFromMap = chatCounters.get(counterTypeName);
+          chatCounters.put(counterTypeName, counterFromMap + getCounterValue(stat, counterType));
+
+          Map<String, Integer> detailedCounter = chatCountersDetailed.get(counterTypeName);
+          detailedCounter.put(chatType, detailedCounter.get(chatType) + getCounterValue(stat, counterType));
         }
 
         //chatLanguagesDetailed
-        Map<ChatType, Integer> detailedLanguagesCount = chatLanguagesDetailed.get(language);
+        Map<String, Integer> detailedLanguagesCount = chatLanguagesDetailed.get(language);
         detailedLanguagesCount.put(chatType, detailedLanguagesCount.get(chatType) + 1);
 
         //chatTimeZonesDetailed
-        Map<ChatType, Integer> detailedTimezonesCount = chatTimeZonesDetailed.get(prettyTimezone);
+        Map<String, Integer> detailedTimezonesCount = chatTimeZonesDetailed.get(prettyTimezone);
         detailedTimezonesCount.put(chatType, detailedTimezonesCount.get(chatType) + 1);
-
-        //chatCountersDetailed
-        for (CounterType counterType : counterTypes) {
-          Map<ChatType, Integer> detailedCounter = chatCountersDetailed.get(counterType);
-          detailedCounter.put(chatType, detailedCounter.get(chatType) + getCounterValue(stat, counterType));
-        }
       }
 
       return new CacheInfo(activeChats.size(), activeUsers.size(), chatTypes, chatLanguages, chatTimeZones, chatCounters, chatLanguagesDetailed, chatTimeZonesDetailed, chatCountersDetailed);
@@ -427,18 +426,18 @@ public class CacheService {
     }
   }
 
-  private static Map<ChatType, Integer> createEmptyChatTypesMap() {
-    Map<ChatType, Integer> result = new HashMap<>(4);
+  private static Map<String, Integer> createEmptyChatTypesMap() {
+    Map<String, Integer> result = new HashMap<>(4);
     for (ChatType t : ChatType.values()) {
-      result.put(t, 0);
+      result.put(t.name(), 0);
     }
     return result;
   }
 
-  private static Map<ChatLanguage, Integer> createEmptyChatLanguagesMap() {
-    Map<ChatLanguage, Integer> result = new HashMap<>(15);
+  private static Map<String, Integer> createEmptyChatLanguagesMap() {
+    Map<String, Integer> result = new HashMap<>(15);
     for (ChatLanguage t : ChatLanguage.values()) {
-      result.put(t, 0);
+      result.put(t.name(), 0);
     }
     return result;
   }
@@ -451,34 +450,34 @@ public class CacheService {
     return result;
   }
 
-  private static Map<CounterType, Integer> createEmptyChatCountersMap() {
-    Map<CounterType, Integer> result = new HashMap<>(13);
+  private static Map<String, Integer> createEmptyChatCountersMap() {
+    Map<String, Integer> result = new HashMap<>(13);
     for (CounterType t : CounterType.values()) {
-      result.put(t, 0);
+      result.put(t.name(), 0);
     }
     return result;
   }
 
-  private static Map<ChatLanguage, Map<ChatType, Integer>> createEmptyChatLanguagesDatailedMap() {
-    Map<ChatLanguage, Map<ChatType, Integer>> result = new HashMap<>(15);
+  private static Map<String, Map<String, Integer>> createEmptyChatLanguagesDatailedMap() {
+    Map<String, Map<String, Integer>> result = new HashMap<>(15);
     for (ChatLanguage t : ChatLanguage.values()) {
-      result.put(t, createEmptyChatTypesMap());
+      result.put(t.name(), createEmptyChatTypesMap());
     }
     return result;
   }
 
-  private static Map<String, Map<ChatType, Integer>> createEmptyChatTimezonesDatailedMap() {
-    Map<String, Map<ChatType, Integer>> result = new HashMap<>(26);
+  private static Map<String, Map<String, Integer>> createEmptyChatTimezonesDatailedMap() {
+    Map<String, Map<String, Integer>> result = new HashMap<>(26);
     for (String t : TimeZones.mappingTo.keySet()) {
       result.put(t, createEmptyChatTypesMap());
     }
     return result;
   }
 
-  private static Map<CounterType, Map<ChatType, Integer>> createEmptyChatCountersDatailedMap() {
-    Map<CounterType,  Map<ChatType, Integer>> result = new HashMap<>(13);
+  private static Map<String, Map<String, Integer>> createEmptyChatCountersDatailedMap() {
+    Map<String,  Map<String, Integer>> result = new HashMap<>(13);
     for (CounterType t : CounterType.values()) {
-      result.put(t, createEmptyChatTypesMap());
+      result.put(t.name(), createEmptyChatTypesMap());
     }
     return result;
   }

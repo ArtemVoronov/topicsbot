@@ -3,8 +3,10 @@ package com.topicsbot;
 import com.topicsbot.services.Services;
 import com.topicsbot.services.analysis.AnalysisProvider;
 import com.topicsbot.services.api.telegram.TelegramApiProvider;
+import com.topicsbot.services.cache.CacheService;
 import com.topicsbot.services.db.DBService;
 import com.topicsbot.services.i18n.ResourceBundleService;
+import com.topicsbot.services.template.TemplateService;
 import org.apache.commons.configuration2.Configuration;
 
 import javax.ws.rs.Produces;
@@ -73,5 +75,15 @@ public class BotContext {
   @Produces
   public AnalysisProvider getAnalysisProvider() {
     return services.getAnalysisProvider();
+  }
+
+  @Produces
+  public CacheService getCacheService() {
+    return services.getCacheService();
+  }
+
+  @Produces
+  public TemplateService getTemplateService() {
+    return services.getTemplateService();
   }
 }
