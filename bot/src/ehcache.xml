@@ -8,6 +8,6 @@
   </defaultCache>
 
   <cache name="chats" maxElementsInMemory="10000" eternal="false" timeToLiveSeconds="3600"/>
-  <cache name="users" maxElementsInMemory="50000" eternal="false" timeToLiveSeconds="3600"/>
-  <cache name="topics" maxElementsInMemory="30000" eternal="false" timeToLiveSeconds="3600"/>
+  <cache name="users" maxElementsInMemory="50000" eternal="false" timeToLiveSeconds="7200"/>
+  <cache name="topics" maxElementsInMemory="10000" eternal="false" timeToLiveSeconds="3600"/>
 </ehcache>
