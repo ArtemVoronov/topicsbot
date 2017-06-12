@@ -37,8 +37,8 @@ public class AdminConsoleServlet extends HttpServlet {
       response.setContentType("text/html;charset=utf-8");
       response.setStatus(HttpServletResponse.SC_OK);
 
-      CacheService cache = BotContext.getInstance().getCacheService();
-      TemplateService templateService = BotContext.getInstance().getTemplateService();
+      CacheService cache = BotContext.getServices().getCacheService();
+      TemplateService templateService = BotContext.getServices().getTemplateService();
 
       CacheInfo cacheInfo = cache.getCacheInfo(LocalDate.now());
       String info = templateService.getAdminConsolePage(cacheInfo);

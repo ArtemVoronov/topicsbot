@@ -9,6 +9,8 @@
   <property name="model.test.classes.dir" value="${test.dir}/model/classes"/>
   <property name="bot.test.classes.dir" value="${test.dir}/bot/classes"/>
 
+  <property name="yui.dir" value="bot/libdev/yuicompressor-2.4.8.jar"/>
+
   <path id="model.compile.classpath">
     <fileset dir="model/lib" includes="*.jar"/>
     <fileset dir="model/libdev" includes="*.jar"/>
@@ -225,9 +227,27 @@
     </antcall>
   </target>
 
+  <target name="bot.min-css" description="Minifies CSS files">
+    <apply executable="java" parallel="false" dest="bot/web/">
+      <fileset dir="bot/web/">
+        <include name="pages/statistics/index.css" />
+      </fileset>
+      <arg line="-jar"/>
+      <arg path="${yui.dir}"/>
+      <arg line="--charset utf-8"/>
+      <srcfile/>
+      <arg value="-v" />
+      <arg line="-o"/>
+      <mapper type="glob" from="*.css" to="*.min.css"/>
+      <targetfile/>
+    </apply>
+  </target>
+
+  <target name="bot.compile-css" depends="bot.min-css" description="Compiles CSS files"/>
+
   <!-- PUBLIC -->
 
-  <target name="compile" depends="retrieve, model.compile, bot.compile"/>
+  <target name="compile" depends="retrieve, model.compile, bot.compile, bot.compile-css"/>
 
   <target name="test" depends="compile, model.compile-test, bot.compile-test, model.test, bot.test"/>
 

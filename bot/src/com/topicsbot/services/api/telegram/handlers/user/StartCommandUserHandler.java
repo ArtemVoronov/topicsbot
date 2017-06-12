@@ -40,7 +40,7 @@ public class StartCommandUserHandler extends CommonUserHandler implements Update
     String build = resourceBundleService.getMessage(chat.getLanguageShort(), "build.note");
     String help = resourceBundleService.getMessage(chat.getLanguageShort(), "help.message");
     String startMessageTemplate = resourceBundleService.getMessage(chat.getLanguageShort(), "start.message");
-    String result = String.format(startMessageTemplate, "http://www.topicsbot.com", BotContext.getInstance().getVersion(), build, help);
+    String result = String.format(startMessageTemplate, "http://www.topicsbot.com", BotContext.getVersion(), build, help);
     telegramApiProvider.sendMessage(message.getChat(), result);
 
     updateChatCounters(chat, CounterType.START_COMMAND, 1);

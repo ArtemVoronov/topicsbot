@@ -8,6 +8,42 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
     <listener-class>com.topicsbot.InitListener</listener-class>
   </listener>
 
+  <!-- Change to "Production" when you are ready to deploy -->
+  <context-param>
+    <param-name>javax.faces.PROJECT_STAGE</param-name>
+    <param-value>Development</param-value>
+  </context-param>
+
+  <!-- JSF mapping -->
+  <servlet>
+    <servlet-name>Faces Servlet</servlet-name>
+    <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <!-- Map these files with JSF -->
+  <servlet-mapping>
+    <servlet-name>Faces Servlet</servlet-name>
+    <url-pattern>*.xhtml</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>Faces Servlet</servlet-name>
+    <url-pattern>*.faces</url-pattern>
+  </servlet-mapping>
+
+  <!-- Weld -->
+
+  <listener>
+    <listener-class>org.jboss.weld.environment.servlet.Listener</listener-class>
+  </listener>
+
+  <resource-env-ref>
+    <description>Object factory for the CDI Bean Manager</description>
+    <resource-env-ref-name>BeanManager</resource-env-ref-name>
+    <resource-env-ref-type>javax.enterprise.inject.spi.BeanManager</resource-env-ref-type>
+  </resource-env-ref>
+
   <!-- Pages -->
 
   <welcome-file-list>
@@ -22,6 +58,22 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
   <servlet-mapping>
     <servlet-name>Admin Console Servlet</servlet-name>
     <url-pattern>/admin-console</url-pattern>
+  </servlet-mapping>
+
+  <!-- User console: redirects to chat statistics -->
+
+  <servlet>
+    <servlet-name>UserConsoleServlet</servlet-name>
+    <servlet-class>com.topicsbot.web.servlets.UserConsoleServlet</servlet-class>
+    <init-param>
+      <param-name>destination</param-name>
+      <param-value>/statistics/index.faces</param-value>
+    </init-param>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>UserConsoleServlet</servlet-name>
+    <url-pattern>/chat/*</url-pattern>
   </servlet-mapping>
 
   <!-- Security -->

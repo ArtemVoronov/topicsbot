@@ -35,7 +35,7 @@ public class InitListener implements ServletContextListener {
 
   @Override
   public void contextDestroyed(ServletContextEvent servletContextEvent) {
-    BotContext.getInstance().shutdown();
+    BotContext.shutdown();
   }
 
   private File getConfigDir() {

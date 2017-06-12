@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:c="http://java.sun.com/jsp/jstl/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+>
+
+<f:view contentType="text/html" encoding="utf-8">
+  <h:head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <title>${chatStatisticsController.chatTitle}</title>
+
+    <meta name="description" content="A telegram bot that can determine what has been discussed in a chat using it keywords"/>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <!-- Force IE9 to render in normal mode -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!-- Windows8 touch icon ( http://www.buildmypinnedsite.com/ )-->
+    <meta name="msapplication-TileColor" content="#3399cc"/>
+
+
+    <meta property="og:title" content="Topics Bot"/>
+    <meta property="og:description" content="A telegram bot that can determine what has been discussed in a chat using it keywords"/>
+    <meta property="og:url" content="http://www.topicbot.com/"/>
+    <meta property="og:image" content="http://www.topicsbot.com/images/topics-bot.png"/>
+    <meta name="description" content="A telegram bot that can determine what has been discussed in a chat using it keywords"/>
+    <meta name="keywords" content="topics, bot, telegram"/>
+    <meta charset="utf-8"/>
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,300,100" rel='stylesheet' type='text/css'/>
+
+    <link rel="shortcut icon" href="#{facesContext.externalContext.applicationContextPath}/statistics/images/topics-bot.ico" />
+    <link rel="apple-touch-icon" href="#{facesContext.externalContext.applicationContextPath}/statistics/images/apple-touch-icon.png" />
+
+    <!-- Le styles -->
+    <link href="#{facesContext.externalContext.applicationContextPath}/statistics/css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="#{facesContext.externalContext.applicationContextPath}/statistics/css/bootstrap/bootstrap-theme.min.css" rel="stylesheet" />
+    <link href="#{facesContext.externalContext.applicationContextPath}/statistics/css/sree/vendor.css" rel="stylesheet" />
+    <link href="#{facesContext.externalContext.applicationContextPath}/statistics/css/sree/main.css" rel="stylesheet" />
+    <link href="#{facesContext.externalContext.applicationContextPath}/statistics/index.css" type="text/css" rel="stylesheet"/><!--TODO: min-->
+
+    <script src="#{facesContext.externalContext.applicationContextPath}/statistics/js/sree/vendor/modernizr.js"></script>
+  </h:head>
+
+  <h:body styleClass="light-header animsition">
+    <div class=""  id="fullpage">
+      <section class="content-section section" id="statistics">
+        <div class="container">
+
+          <div class="row">
+            <div class="col-md-6 col-md-offset-3 text-center section-title">
+              <h3 class="underline longer-underline"> Welcome to Topics Bot!</h3>
+              <p>
+                Chat ${chatStatisticsController.chatId}
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </div>
+
+    <!--<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>-->
+    <script type="text/javascript" src="#{facesContext.externalContext.applicationContextPath}/statistics/js/jquery/jquery-1.12.4.min.js"></script>
+    <script type="text/javascript" src="#{facesContext.externalContext.applicationContextPath}/statistics/js/sree/vendor.js"></script>
+    <script type="text/javascript" src="#{facesContext.externalContext.applicationContextPath}/statistics/js/sree/plugins.js"></script>
+    <script type="text/javascript" src="#{facesContext.externalContext.applicationContextPath}/statistics/js/sree/main.min.js"></script>
+    <script type="text/javascript" src="#{facesContext.externalContext.applicationContextPath}/statistics/index.js"></script><!--TODO: min-->
+    <script type="application/javascript">
+      $(function() {
+        stat.ChatStatistics.apply();
+      });
+    </script>
+
+  </h:body>
+
+</f:view>
+</html>

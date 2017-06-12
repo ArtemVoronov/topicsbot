@@ -9,51 +9,41 @@ import com.topicsbot.services.i18n.ResourceBundleService;
 import com.topicsbot.services.template.TemplateService;
 import org.apache.commons.configuration2.Configuration;
 
-import javax.ws.rs.Produces;
-import java.util.concurrent.CountDownLatch;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.ContextNotActiveException;
+import javax.enterprise.context.Dependent;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.inject.Named;
+import javax.enterprise.inject.Produces;
 
 /**
  * author: Artem Voronov
  */
+@Named
+@ApplicationScoped
 public class BotContext {
-  private final static CountDownLatch initLatch = new CountDownLatch(1);
-  private static BotContext instance;
 
-  private final Services services;
-  private final String version;
+  private static Services services;
+  private static String version;
 
-
-  private BotContext(Configuration config, String version) throws Exception {
-    this.services = new Services(config);
-    this.version = version;
-  }
-
-  static void init(Configuration config, String version) throws Exception {
-    if(instance == null) {
-      instance = new BotContext(config, version);
-      initLatch.countDown();
+  static synchronized void init(Configuration config, String version) throws Exception {
+    if (BotContext.services == null) {
+      BotContext.services = new Services(config);
+      BotContext.version = version;
     }
   }
 
-  public static BotContext getInstance() {
-    try {
-      initLatch.await();
-      return instance;
-    }
-    catch(InterruptedException e) {
-      throw new RuntimeException("BotContext instance is not initialized", e);
-    }
+  static synchronized void shutdown() {
+    if (services != null)
+      services.shutdown();
   }
 
-  void shutdown() {
-    services.shutdown();
-  }
-
-  public Services getServices() {
+  public static Services getServices() {
     return services;
   }
 
-  public String getVersion() {
+  public static String getVersion() {
     return version;
   }
 
@@ -86,4 +76,23 @@ public class BotContext {
   public TemplateService getTemplateService() {
     return services.getTemplateService();
   }
+
+  @Produces
+  @Dependent
+  @SuppressWarnings("UnusedDeclaration")
+  public FacesContext getFacesContext() {
+    final FacesContext ctx = FacesContext.getCurrentInstance();
+    if (ctx == null) {
+      throw new ContextNotActiveException("FacesContext is not available");
+    }
+    return ctx;
+  }
+
+  @Produces
+  @Dependent
+  @SuppressWarnings("UnusedDeclaration")
+  public ExternalContext getExternalContext(FacesContext facesContext) {
+    return facesContext.getExternalContext();
+  }
+
 }

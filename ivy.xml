@@ -76,6 +76,7 @@
     <dependency org="org.hibernate" name="hibernate-envers" rev="4.3.8.Final" conf="model-prod->default" transitive="false"/>
     <dependency org="org.hibernate" name="hibernate-ehcache" rev="4.3.8.Final" conf="model-prod->default"/>
     <dependency org="org.hibernate" name="hibernate-c3p0" rev="4.3.8.Final" conf="model-prod->default" />
+    <dependency org="net.sf.ehcache" name="ehcache-core" rev="2.4.3" conf="model-prod->default"/>
 
     <!-- Groovy -->
     <dependency org="org.codehaus.groovy" name="groovy-all" rev="2.4.0" conf="model-prod->default">
@@ -149,6 +150,9 @@
     <dependency org="org.apache.lucene" name="lucene-core" rev="6.0.0" conf="bot-prod->default"/>
     <dependency org="org.apache.lucene" name="lucene-analyzers-common" rev="6.0.0" conf="bot-prod->default"/>
     <dependency org="org.apache.lucene" name="lucene-queryparser" rev="6.0.0" conf="bot-prod->default"/>
+
+    <!--YUI Compressor-->
+    <dependency org="com.yahoo.platform.yui" name="yuicompressor" rev="2.4.8" conf="bot-dev->default"/>
 
   </dependencies>
 

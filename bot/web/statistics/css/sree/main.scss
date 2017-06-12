@@ -1,0 +1,900 @@
+/*--------------------------------------------------------------------------
+
+	Project Name: sree - Coming Soon Template
+	Project Description: A simple and clean coming soon page made exclusively for ThemeForest market
+	File Name: main.scss
+	Author: ThemesEase
+	Author URI: http://themesease.com
+	Version: 1.0.0
+
+--------------------------------------------------------------------------*/
+
+
+/*--------------------------------------------------------------------------*/
+/* [TABLE OF CONTENTS]
+/*
+/*	1. VARIABLES & MIXINS
+/*	2. COMMON
+/*	3. BUTTONS & INPUTS
+/*	4. HEADER
+/*	5. SECTIONS
+/*	6. HEADLINE & TOP SECTION
+/*	7. COUNTDOWN
+/*	8. FEATURES, ABOUT & CONTACT SECTIONS
+/*	9. SWITCHER
+/*	10. SWEET-ALERT
+/*	11. MEDIA QUERIES
+/*--------------------------------------------------------------------------*/
+
+
+/*--------------------------------------------------------------------------*/
+/* 1. VARIABLES & MIXINS */
+/*--------------------------------------------------------------------------*/
+// Font
+$sr-body-font: 'Roboto Slab', serif;
+
+// Colors
+$primary-color: #3498db;
+$light-text-color: #525252;
+$white-color: #fff;
+$light-gray-color: #f2f2f2;
+$black-color: #424242;
+
+@import "bourbon/bourbon";
+@import "bower_components/typographic/scss/typographic";
+
+//Typographic settings
+$header-ratio: $perfect-fifth;
+$line-height-ratio: 1.75;
+$body-font: $sr-body-font;
+$body-font-weight: 300;
+$body-color: #666;
+$header-font: $sr-body-font;
+$header-font-weight: 300;
+$header-color: #333;
+$min-font: 12px;
+$max-font: 13px;
+
+//Fire up the mixin
+@include typographic;
+
+//For testing baseline
+/* @include grid-overlay(red, 19); */
+
+
+/*--------------------------------------------------------------------------*/
+/* 2. COMMON */
+/*--------------------------------------------------------------------------*/
+body {
+	letter-spacing: 1px;
+}
+.text-muted {
+	color: $light-text-color;
+}
+@include selection {
+	background-color: $primary-color;
+	color: $white-color;
+}
+ul{
+    list-style: none;
+}
+a{
+    text-decoration: none !important;
+}
+.mbn {
+    margin-bottom: 0 !important;
+}
+.mb10 {
+    margin-bottom: 10px !important;
+}
+.mb20 {
+    margin-bottom: 20px !important;
+}
+.mb30 {
+    margin-bottom: 30px !important;
+}
+.mb40 {
+    margin-bottom: 40px !important;
+}
+.mb50 {
+    margin-bottom: 50px !important;
+}
+.mb60 {
+    margin-bottom: 60px !important;
+}
+.mtn {
+    margin-top: 0 !important;
+}
+.mt10 {
+    margin-top: 10px !important;
+}
+.mt20 {
+    margin-top: 20px !important;
+}
+.mt30 {
+    margin-top: 30px !important;
+}
+.mt40 {
+    margin-top: 40px !important;
+}
+.mt50 {
+    margin-top: 50px !important;
+}
+.mt60 {
+    margin-top: 60px !important;
+}
+.mln {
+    margin-left: 0;
+}
+.ml10 {
+    margin-left: 10px;
+}
+.ml20 {
+    margin-left: 20px;
+}
+.ml30 {
+    margin-left: 30px;
+}
+.ml40 {
+    margin-left: 40px;
+}
+.ml50 {
+    margin-left: 50px;
+}
+.ml60 {
+    margin-left: 60px;
+}
+.mrn {
+    margin-right: 0;
+}
+.mr10 {
+    margin-right: 10px;
+}
+.mr20 {
+    margin-right: 20px;
+}
+.mr30 {
+    margin-right: 30px;
+}
+.mr40 {
+    margin-right: 40px;
+}
+.mr50 {
+    margin-right: 50px;
+}
+.mr60 {
+    margin-right: 60px;
+}
+.pbn {
+    padding-bottom: 0 !important;
+}
+.pb10 {
+    padding-bottom: 10px;
+}
+.pb20 {
+    padding-bottom: 20px;
+}
+.pb30 {
+    padding-bottom: 30px;
+}
+.pb40 {
+    padding-bottom: 40px;
+}
+.pb50 {
+    padding-bottom: 50px;
+}
+.pb60 {
+    padding-bottom: 60px;
+}
+.pb70 {
+    padding-bottom: 70px;
+}
+.pb80 {
+    padding-bottom: 80px;
+}
+.ptn {
+    padding-top: 0 !important;
+}
+.pt10 {
+    padding-top: 10px;
+}
+.pt20 {
+    padding-top: 20px;
+}
+.pt30 {
+    padding-top: 30px;
+}
+.pt40 {
+    padding-top: 40px;
+}
+.pt50 {
+    padding-top: 50px;
+}
+.pt60 {
+    padding-top: 60px;
+}
+.pt70 {
+    padding-top: 70px;
+}
+.pt80 {
+    padding-top: 80px;
+}
+.pt90 {
+    padding-top: 90px;
+}
+.pln {
+    padding-left: 0;
+}
+.pl10 {
+    padding-left: 10px;
+}
+.pl20 {
+    padding-left: 20px;
+}
+.pl30 {
+    padding-left: 30px;
+}
+.pl40 {
+    padding-left: 40px;
+}
+.pl50 {
+    padding-left: 50px;
+}
+.pl60 {
+    padding-left: 60px;
+}
+.prn {
+    padding-right: 0;
+}
+.pr10 {
+    padding-right: 10px;
+}
+.pr20 {
+    padding-right: 20px;
+}
+.pr30 {
+    padding-right: 30px;
+}
+.pr40 {
+    padding-right: 40px;
+}
+.pr50 {
+    padding-right: 50px;
+}
+.pr60 {
+    padding-right: 60px;
+}
+.underline {
+	position: relative;
+	padding-bottom: 0.667em;
+	margin-bottom: 1.5em;
+	&:after {
+		content: "";
+		width: 32px;
+		height: 1px;
+		background: $light-text-color;
+		position: absolute;
+		bottom: 0;
+		left: 0;
+	}
+}
+.full-underline::after {
+    width: 100%;
+}
+
+.longer-underline::after {
+    width: 60px;
+}
+
+.text-center .underline::after {
+    width: 4%;
+    left: 48%;
+}
+.text-center .longer-underline::after {
+    width: 8%;
+    left: 46%;
+}
+p{
+	color: $light-text-color;
+}
+
+
+/*--------------------------------------------------------------------------*/
+/* 3. BUTTONS & INPUTS */
+/*--------------------------------------------------------------------------*/
+#{$all-buttons} {
+	background-color: $primary-color;
+	color: $white-color;
+	border: 1px solid $primary-color;
+	outline: none;
+	@include transition(all 0.4s $ease-in-sine);
+}
+#{$all-buttons-focus},
+#{$all-buttons-hover} {
+	background-color: $white-color;
+	color: $primary-color;
+	border-color: $primary-color;
+	outline: none;
+}
+#{$all-buttons-active} {
+	background-color: $white-color;
+	color: $primary-color;
+	border-color: $primary-color;
+	outline: none;
+}
+.sr-btn {
+	display: inline-block;
+	margin: 0 0.667em;
+	min-height: 3.375em;
+	outline: none;
+	background-color: $primary-color;
+	color: $white-color;
+	border: 1px solid $primary-color;
+	@include transition(all 0.4s $ease-in-sine);
+	&:hover {
+		background-color: $white-color;
+		color: $primary-color;
+		border-color: $primary-color;
+	}
+	&:active {
+		background-color: $white-color;
+		color: $primary-color;
+		border-color: $primary-color;
+	}
+	.icon {
+		font-size: 1.5em;
+		margin-right: 5px;
+	}
+	&.white-btn{
+		background-color: $white-color;
+		color: $primary-color;
+		border-color: $white-color;
+		&:hover {
+			background-color: darken($primary-color, 15%);
+			color: $white-color;
+			border-color: darken($primary-color, 15%);
+		}
+		&:active {
+			background-color: darken($primary-color, 15%);
+			color: $white-color;
+			border-color: darken($primary-color, 15%);
+		}
+	}
+}
+#{$all-text-inputs} {
+  border: 0px;
+  min-height: 3.375em;
+  width: 100%;
+  padding: 0 1em;
+}
+
+#{$all-text-inputs-focus},
+#{$all-text-inputs-hover} {
+  border: 0px;
+  outline: none;
+}
+
+#{$all-text-inputs-active} {
+  border: 0px;
+}
+
+
+/*--------------------------------------------------------------------------*/
+/* 4. HEADER */
+/*--------------------------------------------------------------------------*/
+.header {
+    position: fixed;
+    width: 100%;
+    height: 80px;
+    padding: 20px 0;
+    @include transition(all 0.4s ease);
+    z-index: 101;
+    img {
+        height: 40px;
+    }
+}
+.light-header{
+    .dark-logo{
+        display: none;
+    }
+}
+.dark-header{
+    .dark-logo{
+        display: none;
+    }
+}
+.social-btn{
+    color: #fff;
+    font-size: 20px;
+    margin: 10px;
+    line-height: 40px;
+    transition: all 0.4s ease;
+    &:hover{
+        color: #323232;
+    }
+}
+
+.fp-viewing-1, .fp-viewing-2, .fp-viewing-3{
+    &.light-header{
+        .header{
+            background: #fff;
+            height: 50px;
+            padding: 5px 0px;
+            box-shadow: 0 5px 20px 5px rgba(0, 0, 0, 0.05);
+        }
+        .social-btn{
+            color: #323232;
+            &:hover{
+                color: $primary-color;
+            }
+        }
+        .light-logo{
+            display: none;
+        }
+        .dark-logo{
+            display: inline-block;
+        }
+    }
+    &.dark-header{
+        .header{
+            background: #323232;
+            height: 50px;
+            padding: 5px 0px;
+            box-shadow: 0 5px 20px 5px rgba(0, 0, 0, 0.05);
+        }
+        .social-btn{
+            color: #fff;
+            &:hover{
+                color: $primary-color;
+            }
+        }
+        .dark-logo{
+            display: none;
+        }
+        .light-logo{
+            display: inline-block;
+        }
+    }
+}
+.fixed-header{
+    &.light-header{
+        .header{
+            background: #fff;
+            height: 50px;
+            padding: 5px 0px;
+            box-shadow: 0 5px 20px 5px rgba(0, 0, 0, 0.05);
+        }
+        .social-btn{
+            color: #323232;
+            &:hover{
+                color: $primary-color;
+            }
+        }
+        .light-logo{
+            display: none;
+        }
+        .dark-logo{
+            display: inline-block;
+        }
+    }
+    &.dark-header{
+        .header{
+            background: #323232;
+            height: 50px;
+            padding: 5px 0px;
+            box-shadow: 0 5px 20px 5px rgba(0, 0, 0, 0.05);
+        }
+        .social-btn{
+            color: #fff;
+            &:hover{
+                color: $primary-color;
+            }
+        }
+        .dark-logo{
+            display: none;
+        }
+        .light-logo{
+            display: inline-block;
+        }
+    }
+}
+
+
+/*--------------------------------------------------------------------------*/
+/* 5. SECTIONS */
+/*--------------------------------------------------------------------------*/
+.content-section:nth-of-type(even){
+    background-color: $light-gray-color;
+}
+.content-section:nth-of-type(odd){
+    background-color: $white-color;
+}
+#fp-nav ul li a span,
+.fp-slidesNav ul li a span {
+    background: rgba(0,0,0,0.7);
+    width: 8px;
+    height: 8px;
+    margin: -4px 0 0 -4px;
+}
+
+#fp-nav ul li a.active span,
+.fp-slidesNav ul li a.active span,
+#fp-nav ul li:hover a.active span,
+.fp-slidesNav ul li:hover a.active span {
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    background: rgba(0,0,0,0.7);
+    box-sizing: border-box;
+    border: 1px solid rgba(0,0,0,0.7);
+}
+#fp-nav ul li .fp-tooltip{
+	font-family: $sr-body-font;
+	top: -8px;
+	color: $black-color;
+}
+.section-title{
+	margin-bottom: 2.25em;
+	p{
+		color: darken($black-color, 50%);
+	}
+}
+
+
+/*--------------------------------------------------------------------------*/
+/* 6. HEADLINE & HEAD SECTION */
+/*--------------------------------------------------------------------------*/
+.particles-div {
+	@include linear-gradient(darken($primary-color, 15%), $primary-color);
+	position: relative;
+	z-index: 1;
+	canvas{
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: -1;
+	}
+}
+.headline {
+	color: $white-color;
+	font-size: 5.63em;
+	text-shadow: 1px 3px 6px rgba(0,0,0,0.1);
+	text-align: center;
+	margin-top: 0;
+	small{
+		text-transform: capitalize;
+		font-size: 0.444em;
+		display: block;
+		margin-top: 1em;
+		color: rgba(255,255,255,0.75);
+	}
+}
+.static-img-div{
+    background: url(../images/Image_02.jpg);
+    background-color: rgba(0,0,0,0.5);
+    background-size: cover;
+    background-attachment: fixed;
+    transition: all 0.6s ease;
+}
+.solid-color-div{
+	background-color: $primary-color !important;
+	@include transition(all 0.4s ease-in-out);
+	.bg-icon{
+		font-size: 38.443em;
+		animation-duration: 3s;
+	}
+}
+.gradient-div{
+	@include linear-gradient(darken($primary-color, 10%), $primary-color);
+	@include transition(all 0.4s ease-in-out);
+	.bg-icon{
+		font-size: 38.443em;
+		animation-duration: 3s;
+	}
+}
+/*IE FIX FOR particles-div */
+.particles-div{
+	.content{
+		position: relative;
+		z-index: 5;
+	}
+	canvas{
+		z-index: 1;
+	}
+}
+.content-section{
+	position: relative;
+	z-index: 5;
+}
+
+
+/*--------------------------------------------------------------------------*/
+/* 7. COUNTDOWN */
+/*--------------------------------------------------------------------------*/
+.countdown{
+    background: transparent;
+    color: $white-color;
+    border: 0px;
+    margin-top: 2.25em;
+    font-size: 1em;
+    font-weight: 400 !important;
+    text-shadow: 1px 3px 6px rgba(0,0,0,0.1);
+	span{
+		font-size: 3.375em;
+	}
+    .countdown-section{
+        border-left: 1px dashed rgba(0,0,0,0.5);
+		display: inline-block;
+		width: 20%;
+		text-align: center;
+		padding: 1em 0;
+    }
+    .countdown-section:last-child{
+        border-right: 1px dashed rgba(0,0,0,0.5);
+    }
+}
+.notify-div{
+	margin-top: 3.375em;
+	text-align: center;
+	input{
+		width: 300px;
+		display: inline-block;
+	}
+}
+
+
+/*--------------------------------------------------------------------------*/
+/* 8. FEATURES, ABOUT & CONTACT SECTIONS */
+/*--------------------------------------------------------------------------*/
+.bg-icon {
+    position: absolute;
+    font-size: 25.629em;
+    color: rgba(255, 255, 255, 0.5);
+    opacity: 0.2;
+    top: -30px;
+    right: -25px;
+    transform: rotate(0deg);
+	@include transition(all 0.4s $ease-in-sine);
+}
+.feature-left-icon {
+	background: $primary-color;
+	padding: 1em 0;
+	position: relative;
+    .icon {
+        color: $white-color;
+        font-size: 5.063em;
+        width: 80px;
+		display: inline-block;
+        transition: all 0.6s ease;
+    }
+	p{
+		color: darken($white-color, 5%);
+	}
+	.feature-title{
+		margin-top: 0px;
+		color: $white-color;
+	}
+	.bg-icon {
+		font-size: 17.086em;
+		top: 5px;
+	    right: -5px;
+		@include transition(all 0.4s $ease-in-sine);
+	}
+	&:before{
+		content: '';
+	    position: absolute;
+	    width: 25px;
+	    height: 25px;
+		border: 2px solid darken($primary-color, 25%);
+		top: -4px;
+	    left: -4px;
+	    border-width: 2px 0 0 2px !important;
+		@include transition(all 0.4s $ease-in-sine);
+	}
+	&:after{
+		content: '';
+	    position: absolute;
+	    width: 25px;
+	    height: 25px;
+		border: 2px solid darken($primary-color, 25%);
+		bottom: -4px;
+	    right: -4px;
+	    border-width: 0 2px 2px 0 !important;
+		@include transition(all 0.4s $ease-in-sine);
+	}
+	&:hover{
+		&:before{
+			width: 80%;
+			height: 80%;
+		}
+		&::after{
+			width: 80%;
+			height: 80%;
+		}
+		.bg-icon {
+			font-size: 25.629em;
+		}
+	}
+}
+.sr-box{
+    background: #323232;
+    padding: 2em;
+    color: $white-color;
+	position: relative;
+    h4{
+        color: $white-color;
+    }
+	p{
+		color: darken($white-color, 20%);
+	}
+	&:before{
+		content: '';
+	    position: absolute;
+	    width: 25px;
+	    height: 25px;
+		border: 2px solid #323232;
+		top: -4px;
+	    left: -4px;
+	    border-width: 2px 0 0 2px !important;
+		@include transition(all 0.4s $ease-in-sine);
+	}
+	&:after{
+		content: '';
+	    position: absolute;
+	    width: 25px;
+	    height: 25px;
+		border: 2px solid #323232;
+		bottom: -4px;
+	    right: -4px;
+	    border-width: 0 2px 2px 0 !important;
+		@include transition(all 0.4s $ease-in-sine);
+	}
+	&:hover{
+		&:before{
+			width: 80%;
+			height: 80%;
+		}
+		&::after{
+			width: 80%;
+			height: 80%;
+		}
+		.bg-icon {
+			font-size: 38.443em;
+		}
+	}
+}
+.content-section{
+	.social-btn{
+		color: #323232 !important;
+	}
+}
+.contact-us-form input, .contact-us-form textarea{
+	margin-bottom: 1.5em;
+}
+.intro-para p{
+	color: rgba(255,255,255,0.9);
+	text-align: center;
+}
+
+
+/*--------------------------------------------------------------------------*/
+/* 9. SWITCHER */
+/*--------------------------------------------------------------------------*/
+.switcher{
+    position: fixed;
+    top: 100px;
+    padding: 20px;
+    left: -200px;
+    background: #323232;
+    width: 200px;
+    transition: all 0.4s ease;
+    box-shadow: 0 5px 20px 5px rgba(0, 0, 0, 0.05);
+    .handle{
+        position: absolute;
+        right: -40px;
+        width: 40px;
+        height: 40px;
+        color: #f2f2f2;
+        font-size: 26px;
+        line-height: 40px;
+        background: #323232;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.4s ease;
+        box-shadow: 0 5px 20px 5px rgba(0, 0, 0, 0.05);
+    }
+	p{
+		color: $light-gray-color;
+	}
+    h5{
+        font-size: 14px;
+        color: #fff;
+    }
+    .color{
+        width: 25px;
+        height: 25px;
+        display: inline-block;
+        margin: 5px;
+        cursor: pointer;
+    }
+    .alizarin{
+        background: #e74c3c;
+    }
+    .torquoise{
+        background: #1abc9c;
+    }
+    .sunflower{
+        background: #f1c40f;
+    }
+    .carrot{
+        background: #e67e22;
+    }
+    .peterriver{
+        background: #3498db;
+    }
+    .wisteria{
+        background: #8e44ad;
+    }
+    .nephritis{
+        background: #27ae60;
+    }
+    .midnightblue{
+        background: #2c3e50;
+    }
+    .switch-header{
+        padding: 5px 10px;
+        border: 1px solid #f2f2f2;
+        display: block;
+        text-align: center;
+        margin: 10px;
+        cursor: pointer;
+        font-size: 13px;
+        color: #f2f2f2;
+    }
+    p{
+        font-size: 11px;
+        a{
+            color: #fff;
+            transition: all 0.4s ease;
+            &:hover{
+                color: $primary-color;
+            }
+        }
+    }
+}
+
+
+/*--------------------------------------------------------------------------*/
+/* 10. SWEET ALERT */
+/*--------------------------------------------------------------------------*/
+.sweet-alert{
+	border-radius: 0px;
+	font-family: $sr-body-font;
+	button, input[type="button"], input[type="reset"], input[type="submit"]{
+		border-left-color: $primary-color !important;
+	    border-right-color: $primary-color !important;
+	    background-color: $primary-color !important;
+	}
+}
+.sweet-alert button.styled{
+	border-radius: 0px;
+	margin: auto;
+}
+
+
+/*--------------------------------------------------------------------------*/
+/* 11. MEDIA QUERIES */
+/*--------------------------------------------------------------------------*/
+@media only screen and (max-width: 768px){
+	.headline{
+		font-size: 3.375em !important;
+	}
+	.feature-left-icon{
+		margin-bottom: 2em;
+	}
+	.sr-box{
+		margin-bottom: 2em;
+	}
+}
