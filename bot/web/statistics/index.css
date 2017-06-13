@@ -1,3 +1,40 @@
-.test {
+html, body {
+  background: #f2f2f2;
+  height: 100%;
+  font-family: "Roboto Slab", "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+div.content {
+
+  flex-direction: column;
+
+  height: 100%;
+}
+.statistics-data table th {
   text-align: center;
+}
+
+.statistics-data .hbs-output div.user-statistics {
+  margin-top: 20px;
+}
+
+div.counters {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+div.counters .counter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+div.counters .counter i.fa {
+  font-size: 4em;
+  margin-right: 15px;
+}
+div.counters .counter .counter-value{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }

@@ -3,8 +3,20 @@ $(function($) {
 
   //For fullPage
   $("#fullpage").fullpage({
-    navigation: false,
-    responsiveWidth: 991
+    navigation: true,
+    navigationTooltips: ["Today", "Yesterday", "This week", "This month"],
+    responsiveWidth: 991,
+    onLeave: function(index, nextIndex, direction){
+      if (nextIndex == 1) {
+        ga('send', 'pageview', '/today');
+      } else if (nextIndex == 2) {
+        ga('send', 'pageview', '/yesterday');
+      } else if (nextIndex == 3) {
+        ga('send', 'pageview', '/week');
+      } else if (nextIndex == 4) {
+        ga('send', 'pageview', '/month');
+      }
+    }
   });
 
   // For Small Screens - We use normal scrooling instead of fullpage.js on small devices

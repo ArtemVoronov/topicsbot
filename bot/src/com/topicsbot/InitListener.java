@@ -27,7 +27,8 @@ public class InitListener implements ServletContextListener {
       final Configuration config = configs.properties(new File(configDir.getAbsolutePath() + File.separator + PROPERTIES_FILE_NAME));
       initLog4j(configDir);
       String appVersion = getAppVersion(config);
-      initBotContext(config, appVersion);
+      String googleAnalyticsId = getGoogleAnalyticsId(config);
+      initBotContext(config, appVersion, googleAnalyticsId);
     } catch (ConfigurationException cex) {
       throw new RuntimeException("Unable to read config");
     }
@@ -62,15 +63,25 @@ public class InitListener implements ServletContextListener {
     }
   }
 
+  private String getGoogleAnalyticsId(Configuration config) {
+    try {
+      boolean testMode = config.getBoolean("test.mode", false);
+      return config.getString(testMode ? "test.bot.google.analytics.id" : "bot.google.analytics.id");
+    }
+    catch(Exception ex) {
+      throw new RuntimeException("Parameter google analytics id is not found.", ex);
+    }
+  }
+
   private void initLog4j(File configDir) {
     final File log4jProps = new File(configDir, "log4j.properties");
     System.out.println("Log4j conf file: " + log4jProps.getAbsolutePath() + ", exists: " + log4jProps.exists());
     PropertyConfigurator.configureAndWatch(log4jProps.getAbsolutePath(), TimeUnit.MINUTES.toMillis(1));
   }
 
-  private void initBotContext(Configuration config, String version) {
+  private void initBotContext(Configuration config, String version, String googleAnalyticsId) {
     try {
-      BotContext.init(config, version);
+      BotContext.init(config, version, googleAnalyticsId);
     }
     catch(Exception e) {
       e.printStackTrace();

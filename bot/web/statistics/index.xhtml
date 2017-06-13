@@ -4,6 +4,7 @@
       xmlns:c="http://java.sun.com/jsp/jstl/core"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
 >
 
 <f:view contentType="text/html" encoding="utf-8">
@@ -34,27 +35,94 @@
     <link rel="shortcut icon" href="#{facesContext.externalContext.applicationContextPath}/statistics/images/topics-bot.ico" />
     <link rel="apple-touch-icon" href="#{facesContext.externalContext.applicationContextPath}/statistics/images/apple-touch-icon.png" />
 
-    <!-- Le styles -->
     <link href="#{facesContext.externalContext.applicationContextPath}/statistics/css/bootstrap/bootstrap.min.css" rel="stylesheet" />
     <link href="#{facesContext.externalContext.applicationContextPath}/statistics/css/bootstrap/bootstrap-theme.min.css" rel="stylesheet" />
+    <link href="#{facesContext.externalContext.applicationContextPath}/statistics/css/awesome/font-awesome.min.css" rel="stylesheet" />
+    <link href="#{facesContext.externalContext.applicationContextPath}/statistics/css/military/styles.css" rel="stylesheet" />
     <link href="#{facesContext.externalContext.applicationContextPath}/statistics/css/sree/vendor.css" rel="stylesheet" />
     <link href="#{facesContext.externalContext.applicationContextPath}/statistics/css/sree/main.css" rel="stylesheet" />
     <link href="#{facesContext.externalContext.applicationContextPath}/statistics/index.css" type="text/css" rel="stylesheet"/><!--TODO: min-->
 
+    <link href="#{facesContext.externalContext.applicationContextPath}/statistics/plugins/DataTables/datatables.min.css" rel="stylesheet" />
+
     <script src="#{facesContext.externalContext.applicationContextPath}/statistics/js/sree/vendor/modernizr.js"></script>
   </h:head>
 
-  <h:body styleClass="light-header animsition">
+  <h:body styleClass="animsition">
+    <h:inputHidden id="chat_id" value="#{chatStatisticsController.chatId}"/>
     <div class=""  id="fullpage">
-      <section class="content-section section" id="statistics">
+      <section class="content-section section" id="today">
         <div class="container">
 
           <div class="row">
             <div class="col-md-6 col-md-offset-3 text-center section-title">
-              <h3 class="underline longer-underline"> Welcome to Topics Bot!</h3>
-              <p>
-                Chat ${chatStatisticsController.chatId}
-              </p>
+              <h3 class="underline longer-underline">Statistics for today</h3>
+            </div>
+
+            <div id="today_statistics" class="row statistics-data" style="display: none">
+              <div class="col-lg-12 text-center section-title">
+                <ui:include src="today.hbs">
+                  <ui:param name="id" value="today_user_table_statistics"/>
+                </ui:include>
+                <div class="hbs-output"/>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+      <section class="content-section section" id="yesterday">
+        <div class="container">
+
+          <div class="row">
+            <div class="col-md-6 col-md-offset-3 text-center section-title">
+              <h3 class="underline longer-underline">Statistics for yesterday</h3>
+            </div>
+
+            <div id="yesterday_statistics" class="row statistics-data">
+              <div class="col-lg-12 text-center section-title">
+                <div>
+                  Coming soon...<!--TODO-->
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+      <section class="content-section section" id="week">
+        <div class="container">
+
+          <div class="row">
+            <div class="col-md-6 col-md-offset-3 text-center section-title">
+              <h3 class="underline longer-underline">Statistics for this week</h3>
+            </div>
+
+            <div id="week_statistics" class="row statistics-data">
+              <div class="col-lg-12 text-center section-title">
+                <div>
+                  Coming soon...<!--TODO-->
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+      <section class="content-section section" id="month">
+        <div class="container">
+
+          <div class="row">
+            <div class="col-md-6 col-md-offset-3 text-center section-title">
+              <h3 class="underline longer-underline">Statistics for this month</h3>
+            </div>
+
+            <div id="month_statistics" class="row statistics-data">
+              <div class="col-lg-12 text-center section-title">
+                <div>
+                  Coming soon...<!--TODO-->
+                </div>
+              </div>
             </div>
           </div>
 
@@ -62,12 +130,25 @@
       </section>
     </div>
 
-    <!--<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>-->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', "#{googleAnalyticsId}", 'auto');
+      ga('send', 'pageview');
+    </script>
+
     <script type="text/javascript" src="#{facesContext.externalContext.applicationContextPath}/statistics/js/jquery/jquery-1.12.4.min.js"></script>
+    <script type="text/javascript" src="#{facesContext.externalContext.applicationContextPath}/statistics/js/handlebars/handlebars-4.0.5.min.js"></script>
     <script type="text/javascript" src="#{facesContext.externalContext.applicationContextPath}/statistics/js/sree/vendor.js"></script>
     <script type="text/javascript" src="#{facesContext.externalContext.applicationContextPath}/statistics/js/sree/plugins.js"></script>
-    <script type="text/javascript" src="#{facesContext.externalContext.applicationContextPath}/statistics/js/sree/main.min.js"></script>
+    <script type="text/javascript" src="#{facesContext.externalContext.applicationContextPath}/statistics/js/sree/main-full.js"></script><!--TODO: min-->
     <script type="text/javascript" src="#{facesContext.externalContext.applicationContextPath}/statistics/index.js"></script><!--TODO: min-->
+
+    <script type="text/javascript" src="#{facesContext.externalContext.applicationContextPath}/statistics/plugins/DataTables/datatables.min.js"></script>
+
     <script type="application/javascript">
       $(function() {
         stat.ChatStatistics.apply();
