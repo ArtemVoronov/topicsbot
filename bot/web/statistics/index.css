@@ -38,3 +38,34 @@ div.counters .counter .counter-value{
   justify-content: center;
   align-items: center;
 }
+
+.user-statistics-and-keywords {
+  display: flex;
+}
+
+.user-statistics {
+  flex: 2;
+  padding-right: 30px;
+}
+
+.keywords {
+  flex: 1;
+  padding-left: 30px;
+  margin-top: 20px;
+}
+
+.keywords .badge {
+  margin-top: -4px;
+}
+
+.keywords table.table th,
+.keywords table.table td {
+  text-align: right;
+}
+
+.delimeter {
+  background: black;
+  width: 1px;
+  height: 60px;
+  align-self: center;
+}

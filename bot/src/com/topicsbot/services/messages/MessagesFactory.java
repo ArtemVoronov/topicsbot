@@ -23,6 +23,7 @@ import java.util.Set;
 public class MessagesFactory {
 
   private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+  private static final String STATISTICS_PATH = "http://www.topicsbot.com/chat/";
   private final ResourceBundleService resourceBundleService;
   private final AnalysisProvider analysisProvider;
   private final CacheService cacheService;
@@ -88,8 +89,7 @@ public class MessagesFactory {
 
   public String getStatisticsMessage(Chat chat, boolean extended) {
     ChatDayStatistics chatStatistics = cacheService.getChatStatistics(chat);
-    StringBuilder sb = new StringBuilder(resourceBundleService.getMessage(chat.getLanguageShort(), "statistics.header.message"));
-
+    StringBuilder sb = new StringBuilder(STATISTICS_PATH+chat.getExternalId() + "\n\n" + resourceBundleService.getMessage(chat.getLanguageShort(), "statistics.header.message"));
     if (chatStatistics == null) {
       sb.append(resourceBundleService.getMessage(chat.getLanguageShort(), "messages.count"))
           .append(0)

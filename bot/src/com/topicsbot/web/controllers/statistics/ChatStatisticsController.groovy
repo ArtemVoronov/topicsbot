@@ -3,10 +3,12 @@ package com.topicsbot.web.controllers.statistics
 import com.topicsbot.model.chat.Chat
 import com.topicsbot.model.statistics.ChatDayStatistics
 import com.topicsbot.model.statistics.UserDayStatistics
+import com.topicsbot.services.analysis.AnalysisProvider
 import com.topicsbot.services.cache.CacheService
 import com.topicsbot.services.db.DBService
 import com.topicsbot.services.db.query.ChatQuery
 import com.topicsbot.web.controllers.statistics.model.ChatStatistics
+import com.topicsbot.web.controllers.statistics.model.KeywordStatistics
 import com.topicsbot.web.controllers.statistics.model.UserStatistics
 import groovy.transform.CompileStatic
 import groovy.util.logging.Log4j
@@ -27,6 +29,7 @@ import javax.ws.rs.core.Context
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 import javax.ws.rs.core.SecurityContext
+import java.util.stream.Collectors
 
 /**
  * author: Artem Voronov
@@ -40,6 +43,9 @@ class ChatStatisticsController {
 
   @Inject
   private CacheService cache
+
+  @Inject
+  private AnalysisProvider analysisProvider
 
   @Inject
   private DBService db
@@ -115,6 +121,15 @@ class ChatStatisticsController {
         }
 
         result.userStatistics = userStatisticsList
+        Map<String, Long> keywords = analysisProvider.getChatKeywordsExtended(chat)
+
+        List<KeywordStatistics> keywordStatistics = keywords.entrySet().stream()
+          .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+          .limit(10)
+          .map{Map.Entry<String, Long> it -> new KeywordStatistics(word: it.key, count: it.value)}
+          .collect(Collectors.toList())
+
+        result.keywords = keywordStatistics
 
         return result
       }

@@ -28,7 +28,8 @@ public class InitListener implements ServletContextListener {
       initLog4j(configDir);
       String appVersion = getAppVersion(config);
       String googleAnalyticsId = getGoogleAnalyticsId(config);
-      initBotContext(config, appVersion, googleAnalyticsId);
+      String deployUrl = getDeployUrl(config);
+      initBotContext(config, appVersion, googleAnalyticsId, deployUrl);
     } catch (ConfigurationException cex) {
       throw new RuntimeException("Unable to read config");
     }
@@ -73,15 +74,25 @@ public class InitListener implements ServletContextListener {
     }
   }
 
+  private String getDeployUrl(Configuration config) {
+    try {
+      boolean testMode = config.getBoolean("test.mode", false);
+      return config.getString(testMode ? "test.deploy.url" : "deploy.url");
+    }
+    catch(Exception ex) {
+      throw new RuntimeException("Parameter deploy url is not found.", ex);
+    }
+  }
+
   private void initLog4j(File configDir) {
     final File log4jProps = new File(configDir, "log4j.properties");
     System.out.println("Log4j conf file: " + log4jProps.getAbsolutePath() + ", exists: " + log4jProps.exists());
     PropertyConfigurator.configureAndWatch(log4jProps.getAbsolutePath(), TimeUnit.MINUTES.toMillis(1));
   }
 
-  private void initBotContext(Configuration config, String version, String googleAnalyticsId) {
+  private void initBotContext(Configuration config, String version, String googleAnalyticsId, String deployUrl) {
     try {
-      BotContext.init(config, version, googleAnalyticsId);
+      BotContext.init(config, version, googleAnalyticsId, deployUrl);
     }
     catch(Exception e) {
       e.printStackTrace();

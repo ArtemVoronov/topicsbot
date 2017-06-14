@@ -14,8 +14,9 @@ stat.ChatStatistics = function() {
   $(document).ready(function() {
     var $todayStatistics = $("#today_statistics");
     var chatId = $("#chat_id").val();
+    var deployUrl = $("#deploy_url").val();
 
-    $.get("http://localhost:8080/rest/chat_statistics/today?chatId=" + chatId, function(result) {
+    $.get("http://" + deployUrl + "/rest/chat_statistics/today?chatId=" + chatId, function(result) {
       $todayStatistics.fadeIn(500);
 
       var source = $todayStatistics.find("script").html();
@@ -23,11 +24,19 @@ stat.ChatStatistics = function() {
       var template = Handlebars.compile(source);
       $destination.html(template(result));
       var disablePagination = result.userStatistics.length > 10;
-      $('#today_user_table_statistics').dataTable({
+      $('#today_user_statistics_table').dataTable({
         "ordering": false,
         "lengthChange": false,
         "searching": false,
+        "info": disablePagination,
         "paging": disablePagination
+      });
+      $('#today_keywords_table').dataTable({
+        "ordering": false,
+        "lengthChange": false,
+        "searching": false,
+        "paging": false,
+        "info": false
       });
 
     });

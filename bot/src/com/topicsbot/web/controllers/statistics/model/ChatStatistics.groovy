@@ -9,4 +9,5 @@ class ChatStatistics {
   int messages
   int words
   List<UserStatistics> userStatistics
+  List<KeywordStatistics> keywords
 }

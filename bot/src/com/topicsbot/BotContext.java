@@ -27,12 +27,14 @@ public class BotContext {
   private static Services services;
   private static String version;
   private static String googleAnalyticsId;
+  private static String deployUrl;
 
-  static synchronized void init(Configuration config, String version, String googleAnalyticsId) throws Exception {
+  static synchronized void init(Configuration config, String version, String googleAnalyticsId, String deployUrl) throws Exception {
     if (BotContext.services == null) {
       BotContext.services = new Services(config);
       BotContext.version = version;
       BotContext.googleAnalyticsId = googleAnalyticsId;
+      BotContext.deployUrl = deployUrl;
     }
   }
 
@@ -83,6 +85,12 @@ public class BotContext {
   @Named("googleAnalyticsId")
   public String getGoogleAnalyticsTargetingId() {
     return googleAnalyticsId;
+  }
+
+  @Produces
+  @Named("deployUrl")
+  public String getDeployUrl() {
+    return deployUrl;
   }
 
   @Produces

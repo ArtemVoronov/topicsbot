@@ -68,7 +68,7 @@ public class AnalysisService implements AnalysisProvider {
 
   @Override
   public List<String> getChatKeywords(Chat chat) {
-    return getChatKeywordsFrequency(chat.getExternalId(), chat.getRebirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE), false);
+    return getChatKeywordsFrequency(chat.getExternalId(), chat.getRebirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
   }
 
   @Override
@@ -78,12 +78,12 @@ public class AnalysisService implements AnalysisProvider {
 
   @Override
   public List<String> getChatHashTags(Chat chat) {
-    return getChatHashTagsFrequency(chat.getExternalId(), chat.getRebirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE), false);
+    return getChatHashTagsFrequency(chat.getExternalId(), chat.getRebirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
   }
 
   @Override
   public List<String> getWorldKeywords(String dateIsoFormatted, ChatLanguage language) {
-    return getWorldKeywordsFrequency(dateIsoFormatted, language, false);
+    return getWorldKeywordsFrequency(dateIsoFormatted, language);
   }
 
   @Override
@@ -93,50 +93,86 @@ public class AnalysisService implements AnalysisProvider {
 
   @Override
   public List<String> getWorldHashTags(String dateIsoFormatted, ChatLanguage language) {
-    return getWorldHashTagsFrequency(dateIsoFormatted, language, false);
+    return getWorldHashTagsFrequency(dateIsoFormatted, language);
   }
 
-  private List<String> getChatKeywordsFrequency(String chatId, String chatBirthday, boolean extended) {
+  @Override
+  public Map<String, Long> getChatKeywordsExtended(Chat chat) {
+    return getChatKeywordsFrequencyExtended(chat.getExternalId(), chat.getRebirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
+  }
+
+  private List<String> getChatKeywordsFrequency(String chatId, String chatBirthday) {
     String filename = pathToLuceneIndexesDir + "/" + chatId + "_" + chatBirthday;
     try {
-      return readTermFrequency(filename, extended, LUCENE_TEXT_FIELD, KEYWORDS_COUNT);
+      return readTermFrequency(filename, LUCENE_TEXT_FIELD, KEYWORDS_COUNT);
     } catch (IOException ex) {
       logger.error("unable to get chat keywords frequency: " + ex.getMessage(), ex);
       return null;
     }
   }
 
-  private List<String> getWorldKeywordsFrequency(String dateIsoFormatted, ChatLanguage language, boolean extended) {
+  private Map<String, Long> getChatKeywordsFrequencyExtended(String chatId, String chatBirthday) {
+    String filename = pathToLuceneIndexesDir + "/" + chatId + "_" + chatBirthday;
+    try {
+      return readTermFrequency(filename, LUCENE_TEXT_FIELD);
+    } catch (IOException ex) {
+      logger.error("unable to get chat keywords frequency: " + ex.getMessage(), ex);
+      return null;
+    }
+  }
+
+  private List<String> getWorldKeywordsFrequency(String dateIsoFormatted, ChatLanguage language) {
     String filename = pathToWorldLuceneIndexesDir + "/" + dateIsoFormatted + "_" + language;
     try {
-      return readTermFrequency(filename, extended, LUCENE_TEXT_FIELD, KEYWORDS_COUNT);
+      return readTermFrequency(filename, LUCENE_TEXT_FIELD, KEYWORDS_COUNT);
     } catch (IOException ex) {
       logger.error("unable to get world keywords frequency: " + ex.getMessage(), ex);
       return null;
     }
   }
 
-  private List<String> getChatHashTagsFrequency(String chatId, String chatBirthday, boolean extended) {
+  private List<String> getChatHashTagsFrequency(String chatId, String chatBirthday) {
     String filename = pathToLuceneIndexesDir + "/" + chatId + "_" + chatBirthday;
     try {
-      return readTermFrequency(filename, extended, LUCENE_CHAT_HASH_TAGS, HASHTAGS_COUNT);
+      return readTermFrequency(filename, LUCENE_CHAT_HASH_TAGS, HASHTAGS_COUNT);
     } catch (IOException ex) {
       logger.error("unable to get chat hashtags frequency: " + ex.getMessage(), ex);
       return null;
     }
   }
 
-  private List<String> getWorldHashTagsFrequency(String dateIsoFormatted, ChatLanguage language, boolean extended) {
+  private List<String> getWorldHashTagsFrequency(String dateIsoFormatted, ChatLanguage language) {
     String filename = pathToWorldLuceneIndexesDir + "/" + dateIsoFormatted + "_" + language;
     try {
-      return readTermFrequency(filename, extended, LUCENE_CHAT_HASH_TAGS, HASHTAGS_COUNT);
+      return readTermFrequency(filename, LUCENE_CHAT_HASH_TAGS, HASHTAGS_COUNT);
     } catch (IOException ex) {
       logger.error("unable to get world hashtags frequency: " + ex.getMessage(), ex);
       return null;
     }
   }
 
-  private static List<String> readTermFrequency(String filename, boolean extended, String luceneFieldName, int amount) throws IOException {
+  private static List<String> readTermFrequency(String filename, String luceneFieldName, int amount) throws IOException {
+
+    try {
+      Map<String, Long> freq = readTermFrequency(filename, luceneFieldName);
+
+      if (freq == null || freq.isEmpty())
+        return null;
+
+      List<String> keywords = new ArrayList<>(amount);
+      freq.entrySet().stream()
+          .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+          .limit(amount)
+          .map(e -> e.getKey())
+          .forEach(keywords::add);
+      return keywords;
+    } catch (Exception ex) {
+      logger.error("Error at reading terms ", ex);
+      return null;
+    }
+  }
+
+  private static Map<String, Long> readTermFrequency(String filename, String luceneFieldName) throws IOException {
     Directory directory = FSDirectory.open(Paths.get(filename));
 
     try {
@@ -147,28 +183,14 @@ public class AnalysisService implements AnalysisProvider {
         return null;
 
       TermsEnum it = terms.iterator();
-      Map<String, Long> freq = new HashMap<>();
+      Map<String, Long> result = new HashMap<>();
       while (it.next() != null) {
         String termName = it.term().utf8ToString();
         Term termInstance = new Term(luceneFieldName, termName);
         long termFreq = reader.totalTermFreq(termInstance);
-        freq.put(termName, termFreq);
+        result.put(termName, termFreq);
       }
-      List<String> keywords = new ArrayList<>(amount);
-      if (extended) {
-        freq.entrySet().stream()
-            .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-            .limit(amount)
-            .map(e -> e.getKey() + "(" + e.getValue() + ")")
-            .forEach(keywords::add);
-      } else {
-        freq.entrySet().stream()
-            .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-            .limit(amount)
-            .map(e -> e.getKey())
-            .forEach(keywords::add);
-      }
-      return keywords;
+      return result;
     } catch (IndexNotFoundException ex) {
       return null;
     } catch (Exception ex) {

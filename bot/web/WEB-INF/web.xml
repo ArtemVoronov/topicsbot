@@ -11,7 +11,7 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
   <!-- Change to "Production" when you are ready to deploy -->
   <context-param>
     <param-name>javax.faces.PROJECT_STAGE</param-name>
-    <param-value>Development</param-value>
+    <param-value>Production</param-value>
   </context-param>
 
   <!-- JSF mapping -->

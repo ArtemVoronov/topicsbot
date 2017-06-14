@@ -30,36 +30,57 @@
         </div>
       </div>
     </div>
-    <div class="user-statistics">
-      <table id="${id}" class="table">
-        <thead>
-        <tr>
-          <th>User</th>
-          <th>Flood</th>
-          <th>Messages</th>
-          <th>Words</th>
-        </tr>
-        </thead>
-        <tbody>
-        {{#each this.userStatistics}}
+    <div class="user-statistics-and-keywords">
+      <div class="user-statistics">
+        <table id="${userStatisticsTableId}" class="table">
+          <thead>
           <tr>
-            <td>
-              {{#if (eq @index 0)}}
-                <i class="rank rank-03-e5"></i>
-              {{else if (eq @index 1)}}
-                <i class="rank rank-03-e4-1"></i>
-              {{else if (eq @index 2)}}
-                <i class="rank rank-03-e2"></i>
-              {{/if}}
-              {{name}}
-            </td>
-            <td>{{floodPercent}} %</td>
-            <td>{{messages}}</td>
-            <td>{{words}}</td>
+            <th>User</th>
+            <th>Flood</th>
+            <th>Messages</th>
+            <th>Words</th>
           </tr>
-        {{/each}}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+          {{#each this.userStatistics}}
+            <tr>
+              <td>
+                {{#if (eq @index 0)}}
+                  <i class="rank rank-03-e5"></i>
+                {{else if (eq @index 1)}}
+                  <i class="rank rank-03-e4-1"></i>
+                {{else if (eq @index 2)}}
+                  <i class="rank rank-03-e2"></i>
+                {{/if}}
+                {{name}}
+              </td>
+              <td>{{floodPercent}} %</td>
+              <td>{{messages}}</td>
+              <td>{{words}}</td>
+            </tr>
+          {{/each}}
+          </tbody>
+        </table>
+      </div>
+      <div class="delimeter"></div>
+      <div class="keywords">
+        <table id="${keywordsTableId}" class="table">
+          <thead>
+          <tr>
+            <th>Keywords</th>
+          </tr>
+          </thead>
+          <tbody>
+          {{#each this.keywords}}
+            <tr>
+              <td><div>{{this.word}} <span class="badge">{{this.count}}</span></div></td>
+            </tr>
+          {{/each}}
+          </tbody>
+        </table>
+        <div>
+        </div>
+      </div>
     </div>
   {{else}}
     <div>
