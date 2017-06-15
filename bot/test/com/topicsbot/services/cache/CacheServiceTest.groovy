@@ -102,21 +102,21 @@ class CacheServiceTest extends DBTestBase {
     CacheService cache1 = new CacheService(p, db, scheduledExecutorService)
     cache1.createChatStatistics(chat1, CounterType.START_COMMAND, 1)
 
-    assertNotNull cache1.getChatStatistics(chat1)
+    assertNotNull cache1.getChatStatistics(chat1.externalId, chat1.rebirthDate)
 
     cache1.shutdown()
 
     Chat chat2 = ChatTest.createCorrectChat(externalId: "1231235")
     CacheService cache2 = new CacheService(p, db, scheduledExecutorService)
     cache2.createChatStatistics(chat2, CounterType.DONATE_COMMAND, 1)
-    assertNotNull cache2.getChatStatistics(chat1)
-    assertNotNull cache2.getChatStatistics(chat2)
+    assertNotNull cache2.getChatStatistics(chat1.externalId, chat1.rebirthDate)
+    assertNotNull cache2.getChatStatistics(chat2.externalId, chat2.rebirthDate)
 
     cache2.shutdown()
 
     CacheService cache3 = new CacheService(p, db, scheduledExecutorService)
-    assertNotNull cache3.getChatStatistics(chat1)
-    assertNotNull cache3.getChatStatistics(chat2)
+    assertNotNull cache3.getChatStatistics(chat1.externalId, chat1.rebirthDate)
+    assertNotNull cache3.getChatStatistics(chat2.externalId, chat2.rebirthDate)
   }
 
   void testCleaningChatStatistics() {
@@ -133,21 +133,21 @@ class CacheServiceTest extends DBTestBase {
     vtx{s -> s.save(chat)}
     CacheService cache = new CacheService(p, db, scheduledExecutorService)
     cache.createChatStatistics(chat, CounterType.START_COMMAND, 1)
-    def stat1 = cache.getChatStatistics(chat)
+    def stat1 = cache.getChatStatistics(chat.externalId, chat.rebirthDate)
     assertNotNull stat1
     vtx{s ->
       chat.rebirthDate = chat.rebirthDate.plusDays(1)
       s.saveOrUpdate(chat)
     }
     cache.createChatStatistics(chat, CounterType.DONATE_COMMAND, 1)
-    def stat2 = cache.getChatStatistics(chat)
+    def stat2 = cache.getChatStatistics(chat.externalId, chat.rebirthDate)
     assertNotNull stat2
     vtx{s ->
       chat.rebirthDate = chat.rebirthDate.plusDays(1)
       s.saveOrUpdate(chat)
     }
     cache.createChatStatistics(chat, CounterType.CANCEL_COMMAND, 1)
-    def stat3 = cache.getChatStatistics(chat)
+    def stat3 = cache.getChatStatistics(chat.externalId, chat.rebirthDate)
     assertNotNull stat3
 
     cache.statisticsCacheCleaner.run()
@@ -165,9 +165,9 @@ class CacheServiceTest extends DBTestBase {
 
 
     chat.rebirthDate = chat.rebirthDate.minusDays(1)
-    assertNull cache.getChatStatistics(chat)
+    assertNull cache.getChatStatistics(chat.externalId, chat.rebirthDate)
     chat.rebirthDate = chat.rebirthDate.minusDays(1)
-    assertNull cache.getChatStatistics(chat)
+    assertNull cache.getChatStatistics(chat.externalId, chat.rebirthDate)
   }
 
   void testSaveAndLoadUserStatistics() {

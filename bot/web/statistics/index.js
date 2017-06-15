@@ -11,35 +11,58 @@ Handlebars.registerHelper('eq', function(a, b) {
  */
 stat.ChatStatistics = function() {
 
+  function enableDataTables(userStatisticsTableId, keywordsTableId, chatStatistics) {
+    var disablePagination = chatStatistics.userStatistics.length > 10;
+    $('#'+userStatisticsTableId).dataTable({
+      "ordering": false,
+      "lengthChange": false,
+      "searching": false,
+      "info": disablePagination,
+      "paging": disablePagination
+    });
+    $('#'+keywordsTableId).dataTable({
+      "ordering": false,
+      "lengthChange": false,
+      "searching": false,
+      "paging": false,
+      "info": false
+    });
+  }
+
+
   $(document).ready(function() {
+    var $overlay = $("#overlay");
+    var $canvas = $("#canvas");
+
     var $todayStatistics = $("#today_statistics");
+    var $yesterdayStatistics = $("#yesterday_statistics");
     var chatId = $("#chat_id").val();
     var deployUrl = $("#deploy_url").val();
 
-    $.get("http://" + deployUrl + "/rest/chat_statistics/today?chatId=" + chatId, function(result) {
-      $todayStatistics.fadeIn(500);
-
+    var res1 = $.get("http://" + deployUrl + "/rest/chat_statistics/today?chatId=" + chatId, function(result) {
       var source = $todayStatistics.find("script").html();
       var $destination = $todayStatistics.find(".hbs-output").first();
       var template = Handlebars.compile(source);
       $destination.html(template(result));
-      var disablePagination = result.userStatistics.length > 10;
-      $('#today_user_statistics_table').dataTable({
-        "ordering": false,
-        "lengthChange": false,
-        "searching": false,
-        "info": disablePagination,
-        "paging": disablePagination
-      });
-      $('#today_keywords_table').dataTable({
-        "ordering": false,
-        "lengthChange": false,
-        "searching": false,
-        "paging": false,
-        "info": false
-      });
+      if (result.userStatistics)
+        enableDataTables ('today_user_statistics_table', 'today_keywords_table', result)
 
     });
+
+    //yesterday statistics
+    var res2 = $.get("http://" + deployUrl + "/rest/chat_statistics/yesterday?chatId=" + chatId, function(result) {
+      var source = $yesterdayStatistics.find("script").html();
+      var $destination = $yesterdayStatistics.find(".hbs-output").first();
+      var template = Handlebars.compile(source);
+      $destination.html(template(result));
+      if (result.userStatistics)
+        enableDataTables ('yesterday_user_statistics_table', 'yesterday_keywords_table', result);
+    });
+
+    $.when( res1, res2 ).done(function () {
+      $overlay.css("visibility", "hidden");
+      $canvas.css("visibility", "hidden");
+    })
 
   });
 };

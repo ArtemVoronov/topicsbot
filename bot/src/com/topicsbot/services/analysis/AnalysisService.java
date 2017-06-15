@@ -57,7 +57,7 @@ public class AnalysisService implements AnalysisProvider {
     this.pathToLuceneIndexesDir = pathToLuceneIndexesDir;
     this.pathToWorldLuceneIndexesDir = pathToWorldLuceneIndexesDir;
 
-    scheduledExecutorService.scheduleWithFixedDelay(new HistoryCleanerDaemon(2, pathToLuceneIndexesDir, pathToWorldLuceneIndexesDir), 60L, 432_000L, TimeUnit.SECONDS);//once per 5 days
+    scheduledExecutorService.scheduleWithFixedDelay(new HistoryCleanerDaemon(32, pathToLuceneIndexesDir, pathToWorldLuceneIndexesDir), 60L, 432_000L, TimeUnit.SECONDS);//once per 5 days
   }
 
   @Override
@@ -97,8 +97,8 @@ public class AnalysisService implements AnalysisProvider {
   }
 
   @Override
-  public Map<String, Long> getChatKeywordsExtended(Chat chat) {
-    return getChatKeywordsFrequencyExtended(chat.getExternalId(), chat.getRebirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
+  public Map<String, Long> getChatKeywordsExtended(String chatExternalId, LocalDate date) {
+    return getChatKeywordsFrequencyExtended(chatExternalId, date.format(DateTimeFormatter.ISO_LOCAL_DATE));
   }
 
   private List<String> getChatKeywordsFrequency(String chatId, String chatBirthday) {

@@ -170,10 +170,10 @@ public class CacheService {
     }
   }
 
-  public ChatDayStatistics getChatStatistics(Chat chat) {
+  public ChatDayStatistics getChatStatistics(String chatExternalId, LocalDate date) {
     try {
       statisticsRead.lock();
-      return chatStatistics.get(getChatKey(chat));
+      return chatStatistics.get(chatExternalId + "_" + date);
     } finally {
       statisticsRead.unlock();
     }
@@ -295,10 +295,10 @@ public class CacheService {
     }
   }
 
-  public Map<String, UserDayStatistics> getFlooders(Chat chat) {
+  public Map<String, UserDayStatistics> getFlooders(String chatExternalId, LocalDate date) {
     try {
       statisticsRead.lock();
-      return userStatistics.get(getChatKey(chat));
+      return userStatistics.get(chatExternalId + "_" + date);
     } finally {
       statisticsRead.unlock();
     }

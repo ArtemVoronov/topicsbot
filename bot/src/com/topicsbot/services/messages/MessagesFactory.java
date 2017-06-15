@@ -88,7 +88,7 @@ public class MessagesFactory {
   }
 
   public String getStatisticsMessage(Chat chat, boolean extended) {
-    ChatDayStatistics chatStatistics = cacheService.getChatStatistics(chat);
+    ChatDayStatistics chatStatistics = cacheService.getChatStatistics(chat.getExternalId(), chat.getRebirthDate());
     StringBuilder sb = new StringBuilder(STATISTICS_PATH+chat.getExternalId() + "\n\n" + resourceBundleService.getMessage(chat.getLanguageShort(), "statistics.header.message"));
     if (chatStatistics == null) {
       sb.append(resourceBundleService.getMessage(chat.getLanguageShort(), "messages.count"))
@@ -129,7 +129,7 @@ public class MessagesFactory {
       return "";
 
     StringBuilder sb = new StringBuilder();
-    Map<String, UserDayStatistics> flooders = cacheService.getFlooders(chat);
+    Map<String, UserDayStatistics> flooders = cacheService.getFlooders(chat.getExternalId(), chat.getRebirthDate());
 
     if (flooders == null) {
       return "";

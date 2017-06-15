@@ -27,7 +27,7 @@ public class CommonUserHandler {
   }
 
   protected void updateChatCounters(Chat chat, CounterType counterType, int counterValue) {
-    ChatDayStatistics statistics = cache.getChatStatistics(chat);
+    ChatDayStatistics statistics = cache.getChatStatistics(chat.getExternalId(), chat.getRebirthDate());
 
     if (statistics == null) {
       cache.createChatStatistics(chat, counterType, counterValue);
