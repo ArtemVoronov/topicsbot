@@ -31,7 +31,9 @@ import javax.ws.rs.core.Context
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 import javax.ws.rs.core.SecurityContext
+import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.temporal.TemporalAdjusters
 import java.util.stream.Collectors
 
 /**
@@ -101,15 +103,16 @@ class ChatStatisticsController {
         if (chatDayStatistics == null || flooders == null)
           return new ChatStatistics()
 
-        return convert(chatDayStatistics, flooders, chat.externalId, chat.rebirthDate)
+        Map<String, Long> keywords = analysisProvider.getChatKeywordsExtended(chat.externalId, chat.rebirthDate)
+
+        return convert(chatDayStatistics, flooders, keywords)
       }
     } catch (Exception ignored) {
       throw new WebApplicationException(Response.status(Response.Status.BAD_GATEWAY).type(MediaType.TEXT_PLAIN_TYPE).entity("UNKNOWN").build())
     }
   }
 
-  private ChatStatistics convert(ChatDayStatistics chatDayStatistics, Map<String, UserDayStatistics> flooders,
-                                 String chatExternalId, LocalDate date) {
+  private static ChatStatistics convert(ChatDayStatistics chatDayStatistics, Map<String, UserDayStatistics> flooders, Map<String, Long> keywords) {
     ChatStatistics result = new ChatStatistics()
 
     result.users = flooders.size()
@@ -134,8 +137,6 @@ class ChatStatisticsController {
     }
 
     result.userStatistics = userStatisticsList
-    Map<String, Long> keywords = analysisProvider.getChatKeywordsExtended(chatExternalId, date)
-
     List<KeywordStatistics> keywordStatistics = keywords.entrySet().stream()
       .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
       .limit(10)
@@ -180,11 +181,138 @@ class ChatStatisticsController {
         if (chatDayStatistics == null || flooders == null)
           return new ChatStatistics()
 
-        return convert(chatDayStatistics, flooders, chat.externalId, yesterday)
+        Map<String, Long> keywords = analysisProvider.getChatKeywordsExtended(chat.externalId, yesterday)
+
+        return convert(chatDayStatistics, flooders, keywords)
       }
     } catch (Exception ignored) {
       throw new WebApplicationException(Response.status(Response.Status.BAD_GATEWAY).type(MediaType.TEXT_PLAIN_TYPE).entity("UNKNOWN").build())
     }
+  }
+
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("/week")
+  ChatStatistics week(@QueryParam("chatId") String chatId, @Context SecurityContext ctx) {
+    try{
+      return db.tx { Session session ->
+        Chat chat = ChatQuery.byTelegramExternalId(chatId, session).uniqueResult() as Chat
+
+        if (!chat) {
+          throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).type(MediaType.TEXT_PLAIN_TYPE).entity("CHAT_NOT_FOUND").build())
+        }
+
+        LocalDate monday = chat.rebirthDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        LocalDate sunday = chat.rebirthDate.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
+
+        ChatDayStatistics chatDayStatistics = getChatStatisticsByPeriod(chat, monday, sunday, session)
+        Map<String, UserDayStatistics> flooders = getUserStatisticsByPeriod(chat, monday, sunday, session)
+
+        if (chatDayStatistics == null || flooders == null || flooders.isEmpty())
+          return new ChatStatistics()
+
+        Map<String, Long> keywords = analysisProvider.getChatKeywordsExtended(chat.externalId, monday, sunday)
+
+        return convert(chatDayStatistics, flooders, keywords)
+      }
+    } catch (Exception ignored) {
+      throw new WebApplicationException(Response.status(Response.Status.BAD_GATEWAY).type(MediaType.TEXT_PLAIN_TYPE).entity("UNKNOWN").build())
+    }
+  }
+
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("/month")
+  ChatStatistics month(@QueryParam("chatId") String chatId, @Context SecurityContext ctx) {
+    try{
+      return db.tx { Session session ->
+        Chat chat = ChatQuery.byTelegramExternalId(chatId, session).uniqueResult() as Chat
+
+        if (!chat) {
+          throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).type(MediaType.TEXT_PLAIN_TYPE).entity("CHAT_NOT_FOUND").build())
+        }
+
+        LocalDate startOfMonth = chat.rebirthDate.withDayOfMonth(1)
+        LocalDate endOfMonth = chat.rebirthDate.withDayOfMonth(chat.rebirthDate.lengthOfMonth())
+
+        ChatDayStatistics chatDayStatistics = getChatStatisticsByPeriod(chat, startOfMonth, endOfMonth, session)
+        Map<String, UserDayStatistics> flooders = getUserStatisticsByPeriod(chat, startOfMonth, endOfMonth, session)
+
+        if (chatDayStatistics == null || flooders == null || flooders.isEmpty())
+          return new ChatStatistics()
+
+        Map<String, Long> keywords = analysisProvider.getChatKeywordsExtended(chat.externalId, startOfMonth, endOfMonth)
+
+        return convert(chatDayStatistics, flooders, keywords)
+      }
+    } catch (Exception ignored) {
+      throw new WebApplicationException(Response.status(Response.Status.BAD_GATEWAY).type(MediaType.TEXT_PLAIN_TYPE).entity("UNKNOWN").build())
+    }
+  }
+
+  private ChatDayStatistics getChatStatisticsByPeriod(Chat chat, LocalDate from, LocalDate till, Session session) {
+    //TODO: clean
+//    List<ChatDayStatistics> result = new ArrayList<>()
+//    for (LocalDate dateIterator = from; !dateIterator.isAfter(till); dateIterator = dateIterator.plusDays(1)) {
+//      ChatDayStatistics chatDayStatistics = cache.getChatStatistics(chat.externalId, dateIterator)
+//
+//      if (chatDayStatistics == null)
+//        chatDayStatistics = ChatStatisticsQuery.byChat(chat, dateIterator, session).uniqueResult() as ChatDayStatistics
+//    }
+
+    List<ChatDayStatistics> chatDayStatisticsList = ChatStatisticsQuery.byChat(chat, from, till, session).list()
+    Set<LocalDate> loadedDates = chatDayStatisticsList.stream().map{it.createDate}.collect(Collectors.toSet())
+
+    for (LocalDate dateIterator = from; !dateIterator.isAfter(till); dateIterator = dateIterator.plusDays(1)) {
+      if (!loadedDates.contains(dateIterator)) {
+        ChatDayStatistics chatDayStatistics = cache.getChatStatistics(chat.externalId, dateIterator)
+        if (chatDayStatistics != null)
+          chatDayStatisticsList.add(chatDayStatistics)
+      }
+    }
+
+    if (chatDayStatisticsList == null || chatDayStatisticsList.isEmpty())
+      return null
+
+    ChatDayStatistics result = new ChatDayStatistics(chat: chat, floodSize: 0, messageCounter: 0, wordCounter: 0)
+    for (ChatDayStatistics stat : chatDayStatisticsList) {
+      result.floodSize += stat.floodSize
+      result.messageCounter += stat.messageCounter
+      result.wordCounter += stat.wordCounter
+    }
+    return result
+  }
+
+  private Map<String, UserDayStatistics> getUserStatisticsByPeriod(Chat chat, LocalDate from, LocalDate till, Session session) {
+    List<UserDayStatistics> flooders = UserStatisticsQuery.byChat(chat, from, till, session).list()
+    Set<LocalDate> loadedDates = flooders.stream().map{it.createDate}.collect(Collectors.toSet())
+
+    for (LocalDate dateIterator = from; !dateIterator.isAfter(till); dateIterator = dateIterator.plusDays(1)) {
+      if (!loadedDates.contains(dateIterator)) {
+        Map<String, UserDayStatistics> fromCache = cache.getFlooders(chat.externalId, dateIterator)
+        if (fromCache != null && !fromCache.isEmpty()) {
+          flooders.addAll(fromCache.values())
+        }
+      }
+    }
+
+    Map<String, UserDayStatistics> result = new HashMap<>()
+
+    if (flooders != null && !flooders.isEmpty()) {
+      for (UserDayStatistics loaded : flooders) {
+        UserDayStatistics stat = result.get(loaded.user.externalId)
+
+        if (stat == null)  {
+          stat = new UserDayStatistics(user: loaded.user, chat: loaded.chat, floodSize: 0, messageCounter: 0, wordCounter: 0)
+          result.put(loaded.user.externalId, stat)
+        }
+
+        stat.floodSize += loaded.floodSize
+        stat.messageCounter += loaded.messageCounter
+        stat.wordCounter += loaded.wordCounter
+      }
+    }
+    return result
   }
 
 }

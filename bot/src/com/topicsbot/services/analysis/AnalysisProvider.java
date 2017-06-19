@@ -15,6 +15,7 @@ public interface AnalysisProvider {
   void index(String text, Chat chat);
   List<String> getChatKeywords(Chat chat);
   Map<String, Long> getChatKeywordsExtended(String chatExternalId, LocalDate date);
+  Map<String, Long> getChatKeywordsExtended(String chatExternalId, LocalDate from, LocalDate till);
   Set<String> getChatTopics(List<String> keywords, ChatLanguage language);
   List<String> getChatHashTags(Chat chat);
   List<String> getWorldKeywords(String dateIsoFormatted, ChatLanguage chatLanguage);

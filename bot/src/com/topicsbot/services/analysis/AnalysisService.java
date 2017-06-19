@@ -25,6 +25,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -99,6 +100,21 @@ public class AnalysisService implements AnalysisProvider {
   @Override
   public Map<String, Long> getChatKeywordsExtended(String chatExternalId, LocalDate date) {
     return getChatKeywordsFrequencyExtended(chatExternalId, date.format(DateTimeFormatter.ISO_LOCAL_DATE));
+  }
+
+  @Override
+  public Map<String, Long> getChatKeywordsExtended(String chatExternalId, LocalDate from, LocalDate till) {
+    Map<String, Long> result = new HashMap<>();
+    for (LocalDate dateIterator = from; !dateIterator.isAfter(till); dateIterator = dateIterator.plusDays(1)) {
+      Map<String, Long> part = getChatKeywordsFrequencyExtended(chatExternalId, dateIterator.format(DateTimeFormatter.ISO_LOCAL_DATE));
+      if (part != null) {
+        result = Stream.concat(result.entrySet().stream(), part.entrySet().stream()).collect(Collectors.toMap(
+            entry -> entry.getKey(),
+            entry -> entry.getValue(),
+            (v1, v2) -> v1 + v2));
+      }
+    }
+    return result;
   }
 
   private List<String> getChatKeywordsFrequency(String chatId, String chatBirthday) {

@@ -36,6 +36,8 @@ stat.ChatStatistics = function() {
 
     var $todayStatistics = $("#today_statistics");
     var $yesterdayStatistics = $("#yesterday_statistics");
+    var $weekStatistics = $("#week_statistics");
+    var $monthStatistics = $("#month_statistics");
     var chatId = $("#chat_id").val();
     var deployUrl = $("#deploy_url").val();
 
@@ -59,7 +61,27 @@ stat.ChatStatistics = function() {
         enableDataTables ('yesterday_user_statistics_table', 'yesterday_keywords_table', result);
     });
 
-    $.when( res1, res2 ).done(function () {
+    //week statistics
+    var res3 = $.get("http://" + deployUrl + "/rest/chat_statistics/week?chatId=" + chatId, function(result) {
+      var source = $weekStatistics.find("script").html();
+      var $destination = $weekStatistics.find(".hbs-output").first();
+      var template = Handlebars.compile(source);
+      $destination.html(template(result));
+      if (result.userStatistics)
+        enableDataTables ('week_user_statistics_table', 'week_keywords_table', result);
+    });
+
+    //month statistics
+    var res4 = $.get("http://" + deployUrl + "/rest/chat_statistics/month?chatId=" + chatId, function(result) {
+      var source = $monthStatistics.find("script").html();
+      var $destination = $monthStatistics.find(".hbs-output").first();
+      var template = Handlebars.compile(source);
+      $destination.html(template(result));
+      if (result.userStatistics)
+        enableDataTables ('month_user_statistics_table', 'month_keywords_table', result);
+    });
+
+    $.when( res1, res2, res3, res4 ).done(function () {
       $overlay.css("visibility", "hidden");
       $canvas.css("visibility", "hidden");
     })

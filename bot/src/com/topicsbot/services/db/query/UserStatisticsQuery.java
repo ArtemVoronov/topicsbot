@@ -43,6 +43,13 @@ public class UserStatisticsQuery {
         .add(Restrictions.eq("createDate", date));
   }
 
+  public static Criteria byChat(Chat chat, LocalDate from, LocalDate till, Session s) {
+    return active(s)
+        .add(Restrictions.eq("chat", chat))
+        .add(Restrictions.ge("createDate", from))
+        .add(Restrictions.le("createDate", till));
+  }
+
   public static Criteria byUser(Chat chat, User user, LocalDate date, Session s) {
     return active(s)
         .add(Restrictions.eq("chat", chat))
