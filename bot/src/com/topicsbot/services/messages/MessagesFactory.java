@@ -89,14 +89,19 @@ public class MessagesFactory {
 
   public String getStatisticsMessage(Chat chat, boolean extended) {
     ChatDayStatistics chatStatistics = cacheService.getChatStatistics(chat.getExternalId(), chat.getRebirthDate());
-    StringBuilder sb = new StringBuilder(STATISTICS_PATH+chat.getExternalId() + "\n\n" + resourceBundleService.getMessage(chat.getLanguageShort(), "statistics.header.message"));
+    StringBuilder sb = new StringBuilder(resourceBundleService.getMessage(chat.getLanguageShort(), "statistics.header.message"));
     if (chatStatistics == null) {
       sb.append(resourceBundleService.getMessage(chat.getLanguageShort(), "messages.count"))
           .append(0)
           .append(resourceBundleService.getMessage(chat.getLanguageShort(), "words.count"))
           .append(0)
           .append(resourceBundleService.getMessage(chat.getLanguageShort(), "flood.size.count"))
-          .append(0);
+          .append(0)
+          .append("\n\n")
+          .append(resourceBundleService.getMessage(chat.getLanguageShort(), "more.details.here"))
+          .append("\n")
+          .append(STATISTICS_PATH+chat.getExternalId());
+
       return sb.toString();
     } else {
       sb.append(resourceBundleService.getMessage(chat.getLanguageShort(), "messages.count"))
@@ -119,6 +124,11 @@ public class MessagesFactory {
         String keywordStatistics = String.join(", ", keywords);
         sb.append(resourceBundleService.getMessage(chat.getLanguageShort(), "top.keywords")).append(keywordStatistics);
       }
+
+      sb.append("\n\n")
+          .append(resourceBundleService.getMessage(chat.getLanguageShort(), "more.details.here"))
+          .append("\n")
+          .append(STATISTICS_PATH+chat.getExternalId());
 
       return sb.toString();
     }

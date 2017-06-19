@@ -251,15 +251,6 @@ class ChatStatisticsController {
   }
 
   private ChatDayStatistics getChatStatisticsByPeriod(Chat chat, LocalDate from, LocalDate till, Session session) {
-    //TODO: clean
-//    List<ChatDayStatistics> result = new ArrayList<>()
-//    for (LocalDate dateIterator = from; !dateIterator.isAfter(till); dateIterator = dateIterator.plusDays(1)) {
-//      ChatDayStatistics chatDayStatistics = cache.getChatStatistics(chat.externalId, dateIterator)
-//
-//      if (chatDayStatistics == null)
-//        chatDayStatistics = ChatStatisticsQuery.byChat(chat, dateIterator, session).uniqueResult() as ChatDayStatistics
-//    }
-
     List<ChatDayStatistics> chatDayStatisticsList = ChatStatisticsQuery.byChat(chat, from, till, session).list()
     Set<LocalDate> loadedDates = chatDayStatisticsList.stream().map{it.createDate}.collect(Collectors.toSet())
 
