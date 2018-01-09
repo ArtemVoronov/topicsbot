@@ -231,6 +231,8 @@ public class CacheService {
         return stat.getHelpCommandCounter() == null ? 0 : stat.getHelpCommandCounter();
       case RATE_COMMAND:
         return stat.getRateCommandCounter() == null ? 0 : stat.getRateCommandCounter();
+      case RANK_COMMAND:
+        return stat.getRankCommandCounter() == null ? 0 : stat.getRankCommandCounter();
       case DONATE_COMMAND:
         return stat.getDonateCommandCounter() == null ? 0 : stat.getDonateCommandCounter();
       default:
@@ -275,6 +277,9 @@ public class CacheService {
         break;
       case RATE_COMMAND:
         stat.setRateCommandCounter(counterValue);
+        break;
+      case RANK_COMMAND:
+        stat.setRankCommandCounter(counterValue);
         break;
       case DONATE_COMMAND:
         stat.setDonateCommandCounter(counterValue);
@@ -343,9 +348,13 @@ public class CacheService {
     try {
       statisticsRead.lock();
 
-      Set<ChatDayStatistics> activeChats = chatStatistics.values().stream().filter(v-> v.getCreateDate().isEqual(localDate)).collect(Collectors.toSet());
-      Set<UserDayStatistics> activeUsers = userStatistics.values().stream().flatMap(map -> map.values().stream()).filter(v-> v.getCreateDate().isEqual(localDate)).collect(Collectors.toSet());
-
+      Set<ChatDayStatistics> activeChats = chatStatistics.values().stream()
+          .filter(v-> v.getCreateDate() != null && v.getCreateDate().isEqual(localDate))
+          .collect(Collectors.toSet());
+      Set<UserDayStatistics> activeUsers = userStatistics.values().stream()
+          .flatMap(map -> map.values().stream())
+          .filter(v-> v.getCreateDate() != null && v.getCreateDate().isEqual(localDate))
+          .collect(Collectors.toSet());
 
       Map<String, Integer> chatTypes = createEmptyChatTypesMap();
       Map<String, Integer> chatLanguages = createEmptyChatLanguagesMap();

@@ -31,7 +31,7 @@ public class UpdateProcessor {
 
       UpdateHandler handler = handlers.get(updateType);
       if (handler == null)
-        throw new IllegalArgumentException("Missed handler for update type: " + updateType);
+        return;
 
       handler.handle(update);
 

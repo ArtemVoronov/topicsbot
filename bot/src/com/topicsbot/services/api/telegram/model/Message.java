@@ -80,4 +80,15 @@ public class Message {
   public boolean hasText() {
     return text != null && !text.isEmpty();
   }
+
+  @Override
+  public String toString() {
+    return "Message{" +
+        "id=" + id +
+        ", from=" + from +
+        ", date=" + date +
+        ", chat=" + chat +
+        ", text='" + text + '\'' +
+        '}';
+  }
 }

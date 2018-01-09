@@ -54,6 +54,10 @@ public class Chat {
   @Column(name = "rebirth_date", unique = false, nullable = false)
   private LocalDate rebirthDate;
 
+  @Column(name = "average_flood", unique = false, nullable = false)
+  @NotNull(message = "Average flood is null")
+  private Double averageFlood = 0.0;
+
   public Integer getId() {
     return id;
   }
@@ -121,6 +125,14 @@ public class Chat {
 
   public void setRebirthDate(LocalDate rebirthDate) {
     this.rebirthDate = rebirthDate;
+  }
+
+  public Double getAverageFlood() {
+    return averageFlood;
+  }
+
+  public void setAverageFlood(Double averageFlood) {
+    this.averageFlood = averageFlood;
   }
 
   @Transient

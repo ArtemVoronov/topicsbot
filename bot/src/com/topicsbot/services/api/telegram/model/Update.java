@@ -35,4 +35,13 @@ public class Update {
   public void setInlineQuery(InlineQuery inlineQuery) {
     this.inlineQuery = inlineQuery;
   }
+
+  @Override
+  public String toString() {
+    return "Update{" +
+        "id=" + id +
+        ", message=" + message +
+        ", inlineQuery=" + inlineQuery +
+        '}';
+  }
 }

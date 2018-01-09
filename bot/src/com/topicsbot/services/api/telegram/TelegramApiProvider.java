@@ -16,4 +16,6 @@ public interface TelegramApiProvider {
   void answerInlineQuery(String inlineQueryId, List<InlineQueryResult> inlineQueryResults);
   int getChatMembersCount(String chatExternalId);
   Chat getChat(String externalId);
+  User getChatMember(String chatExternalId, String userExternalId);
+  void processUpdate(Update update);
 }

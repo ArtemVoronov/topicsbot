@@ -28,8 +28,6 @@ class DBTestBase extends GroovyTestCase {
     db?.shutdown()
   }
 
-
-
   protected <V> V tx(@ClosureParams(value = SimpleType, options = 'org.hibernate.Session') Closure<V> action) {
     def value = null
     Session s = db.openSession()

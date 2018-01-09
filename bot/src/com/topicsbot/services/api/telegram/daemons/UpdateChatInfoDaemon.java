@@ -7,7 +7,9 @@ import com.topicsbot.services.db.DBService;
 import com.topicsbot.services.db.query.ChatQuery;
 import org.apache.log4j.Logger;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Author: Artem Voronov
@@ -17,6 +19,7 @@ public class UpdateChatInfoDaemon implements Runnable {
 
   private final DBService db;
   private final TelegramApiProvider telegramApiProvider;
+  private final Set<String> ignored = new HashSet<>();
 
   public UpdateChatInfoDaemon(DBService db, TelegramApiProvider telegramApiProvider) {
     this.db = db;
@@ -31,12 +34,19 @@ public class UpdateChatInfoDaemon implements Runnable {
         List<Chat> allTelegramChats = ChatQuery.telegram(s).list();
 
         for (Chat chat : allTelegramChats) {
+
+          if (ignored.contains(chat.getExternalId()))
+            continue;
+
           com.topicsbot.services.api.telegram.model.Chat apiChat = telegramApiProvider.getChat(chat.getExternalId());
           if (apiChat == null) {
             if (logger.isDebugEnabled())
               logger.debug("Telegram chat cannot be loaded: " + chat.getExternalId());
+
+            ignored.add(chat.getExternalId());
             continue;
           }
+
           int size = apiChat.getType() == ChatType.PRIVATE ? 1 : telegramApiProvider.getChatMembersCount(chat.getExternalId());
           chat.setSize(size);
           chat.setTitle(apiChat.getTitle());

@@ -7,5 +7,7 @@
 
   <include file="2017-05-15.initial_schema.sql" relativeToChangelogFile="true"/>
   <include file="2017-06-08.update_stat_counters.sql" relativeToChangelogFile="true"/>
+  <include file="2018-01-08.add_average_flood.sql" relativeToChangelogFile="true"/>
+  <include file="2018-01-08.update_stat_counters.sql" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>

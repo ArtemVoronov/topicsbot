@@ -32,4 +32,13 @@ public class InlineQuery {
   public void setQuery(String query) {
     this.query = query;
   }
+
+  @Override
+  public String toString() {
+    return "InlineQuery{" +
+        "id='" + id + '\'' +
+        ", from=" + from +
+        ", query='" + query + '\'' +
+        '}';
+  }
 }

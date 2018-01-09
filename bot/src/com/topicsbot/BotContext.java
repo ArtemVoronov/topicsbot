@@ -6,7 +6,6 @@ import com.topicsbot.services.api.telegram.TelegramApiProvider;
 import com.topicsbot.services.cache.CacheService;
 import com.topicsbot.services.db.DBService;
 import com.topicsbot.services.i18n.ResourceBundleService;
-import com.topicsbot.services.template.TemplateService;
 import org.apache.commons.configuration2.Configuration;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -28,13 +27,15 @@ public class BotContext {
   private static String version;
   private static String googleAnalyticsId;
   private static String deployUrl;
+  private static String token;
 
-  static synchronized void init(Configuration config, String version, String googleAnalyticsId, String deployUrl) throws Exception {
+  static synchronized void init(Configuration config, String version, String googleAnalyticsId, String deployUrl, String token) throws Exception {
     if (BotContext.services == null) {
       BotContext.services = new Services(config);
       BotContext.version = version;
       BotContext.googleAnalyticsId = googleAnalyticsId;
       BotContext.deployUrl = deployUrl;
+      BotContext.token = token;
     }
   }
 
@@ -77,11 +78,6 @@ public class BotContext {
   }
 
   @Produces
-  public TemplateService getTemplateService() {
-    return services.getTemplateService();
-  }
-
-  @Produces
   @Named("googleAnalyticsId")
   public String getGoogleAnalyticsTargetingId() {
     return googleAnalyticsId;
@@ -91,6 +87,12 @@ public class BotContext {
   @Named("deployUrl")
   public String getDeployUrl() {
     return deployUrl;
+  }
+
+  @Produces
+  @Named("token")
+  public static String getToken() {
+    return token;
   }
 
   @Produces

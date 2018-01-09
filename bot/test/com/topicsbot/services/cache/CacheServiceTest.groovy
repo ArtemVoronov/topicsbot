@@ -37,6 +37,20 @@ class CacheServiceTest extends DBTestBase {
     return executor
   }
 
+  //TODO
+//  void testRestarting() {
+//    /*
+//    * 1. проверить что подгрузились кэши статистики и пользователям отправляются сообщения с актуальными циферками
+//    * */
+//    ScheduledExecutorService scheduledExecutorService = initScheduledExecutorService()
+//
+//    CacheService cache1 = new CacheService(db, scheduledExecutorService) //loading data from storage to cache
+//
+//    cache1.shutdown() // putting data from cache to storage
+//
+//    CacheService cache2 = new CacheService(db, scheduledExecutorService) //loading data from storage to cache again
+//  }
+
   void testSaveAndLoadWaiters() {
     ScheduledExecutorService scheduledExecutorService = initScheduledExecutorService()
     String p = CacheServiceTest.class.protectionDomain.codeSource.location.path + "/t1"
@@ -205,7 +219,6 @@ class CacheServiceTest extends DBTestBase {
     assertNotNull cache3.getUserStatistics(chat1, user2)
     assertNotNull cache3.getUserStatistics(chat2, user2)
   }
-
 
   void testCleaningUserStatistics() {
     ScheduledExecutorService scheduledExecutorService = initScheduledExecutorService()

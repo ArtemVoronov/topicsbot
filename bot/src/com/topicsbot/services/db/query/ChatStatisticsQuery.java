@@ -1,6 +1,5 @@
 package com.topicsbot.services.db.query;
 
-import com.topicsbot.model.ChannelType;
 import com.topicsbot.model.chat.Chat;
 import com.topicsbot.model.statistics.ChatDayStatistics;
 import org.hibernate.CacheMode;
@@ -35,6 +34,11 @@ public class ChatStatisticsQuery {
   public static Criteria deleted(Session s) {
     return all(s)
         .add(Restrictions.eq("deleted", true));
+  }
+
+  public static Criteria byChat(Chat chat, Session s) {
+    return active(s)
+        .add(Restrictions.eq("chat", chat));
   }
 
   public static Criteria byChat(Chat chat, LocalDate date, Session s) {

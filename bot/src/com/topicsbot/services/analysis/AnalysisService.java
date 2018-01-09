@@ -25,6 +25,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -43,6 +45,10 @@ public class AnalysisService implements AnalysisProvider {
   private final TopicsGenerator topicsGenerator;
   private final String pathToLuceneIndexesDir;
   private final String pathToWorldLuceneIndexesDir;
+
+  private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+  private final Lock read = lock.readLock();
+  private final Lock write = lock.writeLock();
 
   public AnalysisService(ScheduledExecutorService scheduledExecutorService,
                          String pathToStopWordsDir, String pathToLuceneIndexesDir, String pathToWorldLuceneIndexesDir) {
@@ -63,8 +69,8 @@ public class AnalysisService implements AnalysisProvider {
 
   @Override
   public void index(String text, Chat chat) {
-    indexMessage(chat.getExternalId(), text, chat.getRebirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
-    indexMessage(text, LocalDate.now().toString(), chat.getLanguage() );
+    indexMessageToChat(chat.getExternalId(), text, chat.getRebirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
+    indexMessageToWorld(text, LocalDate.now().toString(), chat.getLanguage() );
   }
 
   @Override
@@ -167,7 +173,7 @@ public class AnalysisService implements AnalysisProvider {
     }
   }
 
-  private static List<String> readTermFrequency(String filename, String luceneFieldName, int amount) throws IOException {
+  private List<String> readTermFrequency(String filename, String luceneFieldName, int amount) throws IOException {
 
     try {
       Map<String, Long> freq = readTermFrequency(filename, luceneFieldName);
@@ -188,10 +194,10 @@ public class AnalysisService implements AnalysisProvider {
     }
   }
 
-  private static Map<String, Long> readTermFrequency(String filename, String luceneFieldName) throws IOException {
-    Directory directory = FSDirectory.open(Paths.get(filename));
-
+  private Map<String, Long> readTermFrequency(String filename, String luceneFieldName) throws IOException {
     try {
+      read.lock();
+      Directory directory = FSDirectory.open(Paths.get(filename));
       IndexReader reader = DirectoryReader.open(directory);
       Terms terms = MultiFields.getTerms(reader, luceneFieldName);
 
@@ -212,10 +218,12 @@ public class AnalysisService implements AnalysisProvider {
     } catch (Exception ex) {
       logger.error("Error at reading terms ", ex);
       return null;
+    } finally {
+      read.unlock();
     }
   }
 
-  private void indexMessage(String chatId, String text, String chatBirthday) {
+  private void indexMessageToChat(String chatId, String text, String chatBirthday) {
     if (text == null || text.isEmpty())
       return;
 
@@ -227,7 +235,7 @@ public class AnalysisService implements AnalysisProvider {
     }
   }
 
-  private void indexMessage(String text, String dateIsoFormatted, ChatLanguage language) {
+  private void indexMessageToWorld(String text, String dateIsoFormatted, ChatLanguage language) {
     if (text == null || text.isEmpty())
       return;
 
@@ -240,11 +248,16 @@ public class AnalysisService implements AnalysisProvider {
   }
 
   private void createLuceneIndex(String filename, String text) throws IOException {
-    Directory directory = FSDirectory.open(Paths.get(filename));
-    IndexWriterConfig config = new IndexWriterConfig(analyzer);
-    IndexWriter writer = new IndexWriter(directory, config);
-    addDoc(writer, text);
-    writer.close();
+    try {
+      write.lock();
+      Directory directory = FSDirectory.open(Paths.get(filename));
+      IndexWriterConfig config = new IndexWriterConfig(analyzer);
+      IndexWriter writer = new IndexWriter(directory, config);
+      addDoc(writer, text);
+      writer.close();
+    } finally {
+      write.unlock();
+    }
   }
 
   private static void addDoc(IndexWriter writer, String text) throws IOException {

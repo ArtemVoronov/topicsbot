@@ -74,11 +74,25 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
   <servlet>
     <servlet-name>Admin Console Servlet</servlet-name>
     <servlet-class>com.topicsbot.web.servlets.AdminConsoleServlet</servlet-class>
+    <init-param>
+      <param-name>destination</param-name>
+      <param-value>/counters/index.faces</param-value>
+    </init-param>
   </servlet>
 
   <servlet-mapping>
     <servlet-name>Admin Console Servlet</servlet-name>
-    <url-pattern>/admin-console</url-pattern>
+    <url-pattern>*.counters</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>WebHook Servlet</servlet-name>
+    <servlet-class>com.topicsbot.web.servlets.WebHookServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>WebHook Servlet</servlet-name>
+    <url-pattern>*.update</url-pattern>
   </servlet-mapping>
 
   <!-- User console: redirects to chat statistics -->

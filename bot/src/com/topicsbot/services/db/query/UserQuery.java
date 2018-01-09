@@ -20,6 +20,10 @@ public class UserQuery {
     return c;
   }
 
+  public static Criteria telegram(Session s) {
+    return all(s).add(Restrictions.eq("channel", ChannelType.TELEGRAM));
+  }
+
   public static Criteria byId(Integer id, Session s) {
     return all(s).add(Restrictions.idEq(id));
   }

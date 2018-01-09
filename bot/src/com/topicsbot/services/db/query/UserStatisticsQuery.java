@@ -50,10 +50,9 @@ public class UserStatisticsQuery {
         .add(Restrictions.le("createDate", till));
   }
 
-  public static Criteria byUser(Chat chat, User user, LocalDate date, Session s) {
+  public static Criteria byUserOnlyOne(User user, Session s) {
     return active(s)
-        .add(Restrictions.eq("chat", chat))
         .add(Restrictions.eq("user", user))
-        .add(Restrictions.eq("createDate", date));
+        .setMaxResults(1);
   }
 }

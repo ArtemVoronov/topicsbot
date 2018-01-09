@@ -63,6 +63,10 @@ public abstract class Statistics {
   @NotNull(message = "Rate command counter is null")
   private Integer rateCommandCounter = 0;
 
+  @Column(name = "rank_command_counter", unique = false, nullable = false)
+  @NotNull(message = "Rank command counter is null")
+  private Integer rankCommandCounter = 0;
+
   @Column(name = "world_topics_command_counter", unique = false, nullable = false)
   @NotNull(message = "World topics command counter is null")
   private Integer worldTopicsCommandCounter = 0;
@@ -204,5 +208,13 @@ public abstract class Statistics {
 
   public void setDonateCommandCounter(Integer donateCommandCounter) {
     this.donateCommandCounter = donateCommandCounter;
+  }
+
+  public Integer getRankCommandCounter() {
+    return rankCommandCounter;
+  }
+
+  public void setRankCommandCounter(Integer rankCommandCounter) {
+    this.rankCommandCounter = rankCommandCounter;
   }
 }

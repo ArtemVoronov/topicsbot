@@ -29,7 +29,8 @@ public class InitListener implements ServletContextListener {
       String appVersion = getAppVersion(config);
       String googleAnalyticsId = getGoogleAnalyticsId(config);
       String deployUrl = getDeployUrl(config);
-      initBotContext(config, appVersion, googleAnalyticsId, deployUrl);
+      String token = getToken(config);
+      initBotContext(config, appVersion, googleAnalyticsId, deployUrl, token);
     } catch (ConfigurationException cex) {
       throw new RuntimeException("Unable to read config");
     }
@@ -84,15 +85,25 @@ public class InitListener implements ServletContextListener {
     }
   }
 
+  private String getToken(Configuration config) {
+    try {
+      boolean testMode = config.getBoolean("test.mode", false);
+      return config.getString(testMode ? "test.bot.token" : "bot.token");
+    }
+    catch(Exception ex) {
+      throw new RuntimeException("Parameter token is not found.", ex);
+    }
+  }
+
   private void initLog4j(File configDir) {
     final File log4jProps = new File(configDir, "log4j.properties");
     System.out.println("Log4j conf file: " + log4jProps.getAbsolutePath() + ", exists: " + log4jProps.exists());
     PropertyConfigurator.configureAndWatch(log4jProps.getAbsolutePath(), TimeUnit.MINUTES.toMillis(1));
   }
 
-  private void initBotContext(Configuration config, String version, String googleAnalyticsId, String deployUrl) {
+  private void initBotContext(Configuration config, String version, String googleAnalyticsId, String deployUrl, String token) {
     try {
-      BotContext.init(config, version, googleAnalyticsId, deployUrl);
+      BotContext.init(config, version, googleAnalyticsId, deployUrl, token);
     }
     catch(Exception e) {
       e.printStackTrace();

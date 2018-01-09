@@ -12,6 +12,7 @@ public enum UpdateType {
   ADD("add"),
   STATISTICS("statistics"),
   RATE("rate"),
+  RANK("rank"),
   WORLD_TOPICS("world_topics"),
   SETTINGS("settings"), //show keyboard 'settings'
   CANCEL("cancel"), //cancel previous action: adding topic
