@@ -28,5 +28,7 @@
     <orderEntry type="library" name="bot-lib" level="project" />
     <orderEntry type="module" module-name="model" />
     <orderEntry type="library" name="bot-libdev" level="project" />
+    <orderEntry type="library" name="bot-lib" level="project" />
+    <orderEntry type="library" name="bot-libdev" level="project" />
   </component>
 </module>

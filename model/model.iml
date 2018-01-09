@@ -10,5 +10,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="model-lib" level="project" />
     <orderEntry type="library" name="model-libdev" level="project" />
+    <orderEntry type="library" name="model-lib" level="project" />
+    <orderEntry type="library" name="model-libdev" level="project" />
   </component>
 </module>
