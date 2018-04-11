@@ -47,8 +47,15 @@ public class RankCommandUserHandler extends CommonUserHandler implements UpdateH
       return;
     }
 
-    double currentFloodProgress = chatStatistics.getFloodSize() / averageFlood * 100;
-    String rank = getFloodRank(chat, currentFloodProgress);
+    String rank;
+    double currentFloodProgress;
+    if (chatStatistics != null) {
+      currentFloodProgress = chatStatistics.getFloodSize() / averageFlood * 100;
+      rank = getFloodRank(chat, currentFloodProgress);
+    } else {
+      currentFloodProgress = 0;
+      rank = resourceBundleService.getMessage(chat.getLanguageShort(), "gods.cursing");
+    }
 
     String template = resourceBundleService.getMessage(chat.getLanguageShort(), "rank.message");
     String rankMessage = String.format(template, currentFloodProgress);

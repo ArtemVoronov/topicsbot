@@ -18,3 +18,39 @@
 .topics-bot-command {
   font-weight: bold;
 }
+
+.topics-bot-counters {
+  color: white;
+  margin-top: 30px;
+}
+.topics-bot-counters div.counters {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  margin-bottom: 40px;
+}
+.topics-bot-counters div.counters .counter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.topics-bot-counters div.counters .counter i.fa {
+  font-size: 4em;
+  margin-right: 15px;
+}
+.topics-bot-counters div.counters .counter .counter-value {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .topics-bot-counters div.counters {
+    flex-direction: column;
+    margin-bottom: 0;
+  }
+  .topics-bot-counters div.counters .counter {
+    padding: 10px;
+  }
+}

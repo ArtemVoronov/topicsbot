@@ -51,6 +51,52 @@
               </a>
             </div>
 
+            <script id="stat_script" type="text/x-handlebars-template">
+              {{#if this}}
+              <div class="topics-bot-counters">
+                <div class="counters">
+                  <div class="counter">
+                    <i class="fa fa-user-secret" aria-hidden="true"></i>
+                    <div class="counter-value">
+                      <span>ACTIVE USERS:</span>
+                      <span>{{activeUsers}}</span>
+                    </div>
+                  </div>
+                  <div class="counter">
+                    <i class="fa fa-users" aria-hidden="true"></i>
+                    <div class="counter-value">
+                      <span>ACTIVE CHATS:</span>
+                      <span>{{activeChats}}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="counters">
+                  <div class="counter">
+                    <i class="fa fa-area-chart" aria-hidden="true"></i>
+                    <div class="counter-value">
+                      <span>TODAY FLOOD:</span>
+                      <span>{{chatCounters.FLOOD}}</span>
+                    </div>
+                  </div>
+                  <div class="counter">
+                    <i class="fa fa-comments" aria-hidden="true"></i>
+                    <div class="counter-value">
+                      <span>TODAY MESSAGES:</span>
+                      <span>{{chatCounters.MESSAGES}}</span>
+                    </div>
+                  </div>
+                  <div class="counter">
+                    <i class="fa fa-font" aria-hidden="true"></i>
+                    <div class="counter-value">
+                      <span>TODAY WORDS:</span>
+                      <span>{{chatCounters.WORDS}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {{/if}}
+            </script>
+            <div id="stat_output" class="hbs-output" style="display: none"></div>
           </div>
         </div>
       </div>
@@ -182,6 +228,10 @@
             <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
             <img alt="" border="0" src="https://www.paypalobjects.com/ru_RU/i/scr/pixel.gif" width="1" height="1">
           </form>
+          <p style="margin-top: 20px">
+            You can send Ethereum or any ERC20 compatible token to:<br/>
+            <span style="padding: 12px; font-size: 1.2em; font-weight: bold;">0x66B227866668d8c28a101f2Bc3539d2d52479ECd</span>
+          </p>
         </div>
       </div>
 
@@ -199,6 +249,7 @@
   ga('send', 'pageview');
 </script>
 
+<script src="/home/js/handlebars/handlebars-4.0.5.min.js"></script>
 <script src="/home/js/vendor.js"></script>
 <script src="/home/js/plugins.js"></script>
 <script src="/home/js/main.min.js"></script>
