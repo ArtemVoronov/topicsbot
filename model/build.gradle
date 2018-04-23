@@ -1,0 +1,46 @@
+apply plugin: 'java'
+apply plugin: 'groovy'
+
+sourceCompatibility = 1.8
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
+
+dependencies {
+  testCompile 'junit:junit:4.12'
+  testCompile 'org.mockito:mockito-core:2.15.0'
+  compile 'org.codehaus.groovy:groovy-all:2.4.10'
+
+  compile 'org.slf4j:slf4j-api:1.7.25'
+  compile 'log4j:log4j:1.2.17'
+
+
+  compile 'org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final'
+  compile 'org.hibernate:hibernate-core:5.2.16.Final'
+  compile 'org.hibernate:hibernate-c3p0:5.2.16.Final'
+  compile 'org.hsqldb:hsqldb:2.3.1'
+  //нужно обязательно использовать версию 5.1.13, на более новых версиях не сохраняются emojicon!
+  compile 'mysql:mysql-connector-java:5.1.13'
+
+  compile 'com.google.guava:guava:23.0'
+
+}
+
+configurations {
+  testOutput.extendsFrom (testCompile)
+}
+
+task jarTest (type: Jar, dependsOn: testClasses) {
+  from sourceSets.test.output
+  classifier = 'test'
+}
+
+artifacts {
+  testOutput jarTest
+}
+
+test {
+  systemProperty "file.encoding", "utf-8"
+  testLogging {
+    events "PASSED", "FAILED", "SKIPPED"
+  }
+}

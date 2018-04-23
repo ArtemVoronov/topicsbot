@@ -1,0 +1,15 @@
+allprojects {
+  group 'topicsbot'
+  version '3.0'
+}
+
+
+subprojects {
+  ext {
+    distribDir = "${projectDir}/../.distr"
+  }
+
+  repositories {
+    mavenCentral()
+  }
+}
