@@ -7,7 +7,13 @@
 
   <session-factory>
 
+    <mapping class="com.topicsbot.model.db.config.ConfigParam"/>
     <mapping class="com.topicsbot.model.db.user.User"/>
+    <mapping class="com.topicsbot.model.db.chat.Chat"/>
+    <mapping class="com.topicsbot.model.db.topic.Topic"/>
+    <mapping class="com.topicsbot.model.db.statistics.Statistics"/>
+    <mapping class="com.topicsbot.model.db.statistics.ChatDayStatistics"/>
+    <mapping class="com.topicsbot.model.db.statistics.UserDayStatistics"/>
 
   </session-factory>
 

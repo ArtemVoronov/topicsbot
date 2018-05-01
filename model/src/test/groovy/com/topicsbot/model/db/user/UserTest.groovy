@@ -1,6 +1,8 @@
 package com.topicsbot.model.db.user
 
 import com.topicsbot.model.db.DBTestBase
+import com.topicsbot.model.db.chat.ChannelType
+import org.hibernate.exception.ConstraintViolationException
 import org.junit.Test
 
 import static org.junit.Assert.assertNotNull
@@ -10,16 +12,18 @@ import static org.junit.Assert.assertNotNull
  */
 class UserTest extends DBTestBase {
 
-  static User createCorrectUser(Map overrides = [:]) {
+  static User createUser(Map overrides = [:]) {
     def defaultFields = [
-        name : 'Bob'
+        externalId : 'test1234567890',
+        name : 'John Doe',
+        channel: ChannelType.TELEGRAM
     ]
     return new User(defaultFields + overrides)
   }
 
   @Test
   void testSaveAndLoad() {
-    def user = createCorrectUser()
+    def user = createUser()
 
     db.tx { s ->
       s.save(user)
@@ -27,14 +31,31 @@ class UserTest extends DBTestBase {
 
     assertNotNull(user.id)
 
-    def user1 = db.tx { s -> s.get(User, user.id) as User}
+    def loaded = db.tx { s -> s.get(User, user.id) as User}
 
-    assertNotNull(user1)
-    assertUsersEquals(user, user1)
+    assertNotNull(loaded)
+    assertUsersEquals(user, loaded)
+  }
+
+  @Test
+  void testDuplicate() {
+    def user = createUser()
+    def duplicate = createUser()
+
+    def msg = shouldFail(ConstraintViolationException) {
+      db.tx { s ->
+        s.save(user)
+        s.save(duplicate)
+      }
+    }
+
+    assertEquals "could not execute statement", msg
   }
 
   static void assertUsersEquals(User expected, User actual) {
     assertEquals expected.name, actual.name
+    assertEquals expected.externalId, actual.externalId
+    assertEquals expected.channel, actual.channel
   }
 
 }

@@ -1,5 +1,6 @@
 package com.topicsbot.model.services
 
+import com.topicsbot.model.db.config.ConfigParamsTest
 import org.hibernate.Session
 import org.hibernate.boot.MetadataSources
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder
@@ -67,6 +68,8 @@ class TestDBServiceFactory {
   }
 
   private static void preFillDb(Session s) {
-    //здесь можно описать операции инициализации тестовой БД
+    s.save(ConfigParamsTest.createConfigParam(paramName: "telegram.bot.token", paramValue: "123"))
+    s.save(ConfigParamsTest.createConfigParam(paramName: "db.results.batch.size", paramValue: "1"))
+    s.save(ConfigParamsTest.createConfigParam(paramName: "db.results.fetch.size", paramValue: "1"))
   }
 }
