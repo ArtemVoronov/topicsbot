@@ -1,10 +1,6 @@
-package com.topicsbot.core.services.analysis;
+package com.topicsbot.core.services.analysis.text;
 
-import com.topicsbot.core.services.analysis.analyzers.HashTagsAnalyzers;
-import com.topicsbot.core.services.analysis.analyzers.TopicBotAnalyzer;
-import com.topicsbot.core.services.analysis.daemons.HistoryCleanerDaemon;
-import com.topicsbot.core.services.analysis.generators.TopicsGenerator;
-import com.topicsbot.core.services.analysis.generators.WikiMediaClient;
+import com.topicsbot.core.services.analysis.text.analyzers.*;
 import com.topicsbot.model.entities.chat.Chat;
 import com.topicsbot.model.entities.chat.ChatLanguage;
 import org.apache.log4j.Logger;
@@ -23,8 +19,6 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
@@ -33,16 +27,16 @@ import java.util.stream.Stream;
 /**
  * Author: Artem Voronov
  */
-public class AnalysisService implements AnalysisProvider {
+public class LuceneAnalyzer implements TextAnalyzer {
 
-  private static final Logger logger = Logger.getLogger("ANALYSIS_SERVICE");
+  private static final Logger logger = Logger.getLogger("TEXT_ANALYZER");//TODO
+
   private static final String LUCENE_TEXT_FIELD = "text";
   private static final String LUCENE_CHAT_HASH_TAGS = "chat_hash_tags";
   private static final int KEYWORDS_COUNT = 10;
   private static final int HASHTAGS_COUNT = 10;
 
   private final Analyzer analyzer;
-  private final TopicsGenerator topicsGenerator;
   private final String pathToLuceneIndexesDir;
   private final String pathToWorldLuceneIndexesDir;
 
@@ -50,21 +44,15 @@ public class AnalysisService implements AnalysisProvider {
   private final Lock read = lock.readLock();
   private final Lock write = lock.writeLock();
 
-  public AnalysisService(ScheduledExecutorService scheduledExecutorService,
-                         String pathToStopWordsDir, String pathToLuceneIndexesDir, String pathToWorldLuceneIndexesDir) {
+  public LuceneAnalyzer(String pathToStopWordsDir, String pathToLuceneIndexesDir, String pathToWorldLuceneIndexesDir) {
     CharArraySet stopWords = getStopWords(pathToStopWordsDir);
-    TopicBotAnalyzer topicsBotAnalyzer = new TopicBotAnalyzer(stopWords);
+    KeywordsAnalyzer topicsBotAnalyzer = new KeywordsAnalyzer(stopWords);
     HashTagsAnalyzers hashTagsAnalyzer = new HashTagsAnalyzers(stopWords);
-
     Map<String, Analyzer> analyzerPerField = new HashMap<>();
     analyzerPerField.put(LUCENE_CHAT_HASH_TAGS, hashTagsAnalyzer);
-
     this.analyzer = new PerFieldAnalyzerWrapper(topicsBotAnalyzer, analyzerPerField);
-    this.topicsGenerator = new WikiMediaClient(KEYWORDS_COUNT);
     this.pathToLuceneIndexesDir = pathToLuceneIndexesDir;
     this.pathToWorldLuceneIndexesDir = pathToWorldLuceneIndexesDir;
-
-    scheduledExecutorService.scheduleWithFixedDelay(new HistoryCleanerDaemon(32, pathToLuceneIndexesDir, pathToWorldLuceneIndexesDir), 60L, 432_000L, TimeUnit.SECONDS);//once per 5 days
   }
 
   @Override
@@ -79,11 +67,6 @@ public class AnalysisService implements AnalysisProvider {
   }
 
   @Override
-  public Set<String> getChatTopics(List<String> keywords, ChatLanguage language) throws IOException {
-    return topicsGenerator.getTopics(keywords, language);
-  }
-
-  @Override
   public List<String> getChatHashTags(Chat chat) {
     return getChatHashTagsFrequency(chat.getExternalId(), chat.getRebirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
   }
@@ -91,11 +74,6 @@ public class AnalysisService implements AnalysisProvider {
   @Override
   public List<String> getWorldKeywords(String dateIsoFormatted, ChatLanguage language) {
     return getWorldKeywordsFrequency(dateIsoFormatted, language);
-  }
-
-  @Override
-  public Set<String> getWorldTopics(List<String> keywords, ChatLanguage language) throws IOException {
-    return topicsGenerator.getTopics(keywords, language);
   }
 
   @Override
@@ -121,6 +99,52 @@ public class AnalysisService implements AnalysisProvider {
       }
     }
     return result;
+  }
+
+
+
+  private void indexMessageToChat(String chatId, String text, String chatBirthday) {
+    if (text == null || text.isEmpty())
+      return;
+
+    String filename = pathToLuceneIndexesDir + "/" + chatId + "_" + chatBirthday;
+    try {
+      createLuceneIndex(filename, text);
+    } catch (IOException ex) {
+      logger.error("unable to add chat index: " + ex.getMessage(), ex);
+    }
+  }
+
+  private void indexMessageToWorld(String text, String dateIsoFormatted, ChatLanguage language) {
+    if (text == null || text.isEmpty())
+      return;
+
+    String filename = pathToWorldLuceneIndexesDir + "/" + dateIsoFormatted + "_" + language;
+    try {
+      createLuceneIndex(filename, text);
+    } catch (IOException ex) {
+      logger.error("unable to add world index: " + ex.getMessage(), ex);
+    }
+  }
+
+  private void createLuceneIndex(String filename, String text) throws IOException {
+    try {
+      write.lock();
+      Directory directory = FSDirectory.open(Paths.get(filename));
+      IndexWriterConfig config = new IndexWriterConfig(analyzer);
+      IndexWriter writer = new IndexWriter(directory, config);
+      addDoc(writer, text);
+      writer.close();
+    } finally {
+      write.unlock();
+    }
+  }
+
+  private static void addDoc(IndexWriter writer, String text) throws IOException {
+    org.apache.lucene.document.Document doc = new org.apache.lucene.document.Document();
+    doc.add(new TextField(LUCENE_TEXT_FIELD, text, Field.Store.YES));
+    doc.add(new TextField(LUCENE_CHAT_HASH_TAGS, text, Field.Store.YES));
+    writer.addDocument(doc);
   }
 
   private List<String> getChatKeywordsFrequency(String chatId, String chatBirthday) {
@@ -223,50 +247,6 @@ public class AnalysisService implements AnalysisProvider {
     }
   }
 
-  private void indexMessageToChat(String chatId, String text, String chatBirthday) {
-    if (text == null || text.isEmpty())
-      return;
-
-    String filename = pathToLuceneIndexesDir + "/" + chatId + "_" + chatBirthday;
-    try {
-      createLuceneIndex(filename, text);
-    } catch (IOException ex) {
-      logger.error("unable to add chat index: " + ex.getMessage(), ex);
-    }
-  }
-
-  private void indexMessageToWorld(String text, String dateIsoFormatted, ChatLanguage language) {
-    if (text == null || text.isEmpty())
-      return;
-
-    String filename = pathToWorldLuceneIndexesDir + "/" + dateIsoFormatted + "_" + language;
-    try {
-      createLuceneIndex(filename, text);
-    } catch (IOException ex) {
-      logger.error("unable to add world index: " + ex.getMessage(), ex);
-    }
-  }
-
-  private void createLuceneIndex(String filename, String text) throws IOException {
-    try {
-      write.lock();
-      Directory directory = FSDirectory.open(Paths.get(filename));
-      IndexWriterConfig config = new IndexWriterConfig(analyzer);
-      IndexWriter writer = new IndexWriter(directory, config);
-      addDoc(writer, text);
-      writer.close();
-    } finally {
-      write.unlock();
-    }
-  }
-
-  private static void addDoc(IndexWriter writer, String text) throws IOException {
-    org.apache.lucene.document.Document doc = new org.apache.lucene.document.Document();
-    doc.add(new TextField(LUCENE_TEXT_FIELD, text, Field.Store.YES));
-    doc.add(new TextField(LUCENE_CHAT_HASH_TAGS, text, Field.Store.YES));
-    writer.addDocument(doc);
-  }
-
   private static CharArraySet getStopWords(String pathToStopWordsDir) {
     String[] languages = Arrays.stream(ChatLanguage.values()).map(Enum::name).map(String::toLowerCase).toArray(String[]::new);
     List<String> files = new ArrayList<>(ChatLanguage.values().length);
@@ -280,7 +260,7 @@ public class AnalysisService implements AnalysisProvider {
       try (Stream<String> stream = Files.lines(Paths.get(path))) {
         stream.forEach(result::add);
       } catch (IOException ex) {
-        logger.error(ex.getMessage(), ex);
+        throw new IllegalStateException("unable to read stop words");
       }
     }
 

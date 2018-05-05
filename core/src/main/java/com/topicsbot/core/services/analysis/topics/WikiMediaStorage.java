@@ -1,4 +1,4 @@
-package com.topicsbot.core.services.analysis.generators;
+package com.topicsbot.core.services.analysis.topics;
 
 import com.topicsbot.core.utils.XmlUtil;
 import com.topicsbot.model.entities.chat.ChatLanguage;
@@ -33,9 +33,9 @@ import java.util.Set;
 /**
  * Author: Artem Voronov
  */
-public class WikiMediaClient implements TopicsGenerator {
+public class WikiMediaStorage implements TopicsAnalyzer {
 
-  private static final Logger logger = Logger.getLogger("WIKI_MEDIA_CLIENT");
+  private static final Logger logger = Logger.getLogger("TOPICS_GENERATOR");
 
   private static final String WIKI_EN = "https://en.wikipedia.org/w/api.php?";
   private static final String WIKI_RU = "https://ru.wikipedia.org/w/api.php?";
@@ -56,14 +56,14 @@ public class WikiMediaClient implements TopicsGenerator {
   private static final String paramHead = "action=query&list=search&srwhat=text&format=xml&srsearch=";
   private static final String paramTail = "&srlimit=";
 
-  private static final String USER_AGENT = "TopicsBot (Author: Artem Voronov voronov54@gmail.com)";
+  private static final String USER_AGENT = "Topics Bot (www.topicsbot.com, topicsbot@gmail.com)";
 
   private final CloseableHttpClient client;
   private final int keywordsCount;
 
-  public WikiMediaClient(int keywordsCount) {
+  public WikiMediaStorage() {
     this.client = initHttpClient(20, 2, 5000, 30000, 30000, 30000, USER_AGENT); //TODO: read from config
-    this.keywordsCount = keywordsCount;
+    this.keywordsCount = 10;
   }
 
   private String doGet(HttpGet httpGet, HttpContext context) throws IOException {
@@ -239,23 +239,24 @@ public class WikiMediaClient implements TopicsGenerator {
         .build();
   }
 
-  public static void main(String[] args) throws IOException {
-    TopicsGenerator generator = new WikiMediaClient(10);
-
-    List<String> keywords = new ArrayList<>();
-    keywords.add("bee");
-    keywords.add("ant");
-    keywords.add("honey");
-    keywords.add("football");
-    keywords.add("baseball");
-    keywords.add("friday");
-    keywords.add("hello");
-    keywords.add("car");
-    keywords.add("money");
-    keywords.add("car");
-
-    Set<String> res = generator.getTopics(keywords, ChatLanguage.EN);
-
-    res.forEach(System.out::println);
-  }
+  //TODO
+//  public static void main(String[] args) throws IOException {
+//    TopicsAnalyzer generator = new WikiMediaStorage(10);
+//
+//    List<String> keywords = new ArrayList<>();
+//    keywords.add("bee");
+//    keywords.add("ant");
+//    keywords.add("honey");
+//    keywords.add("football");
+//    keywords.add("baseball");
+//    keywords.add("friday");
+//    keywords.add("hello");
+//    keywords.add("car");
+//    keywords.add("money");
+//    keywords.add("car");
+//
+//    Set<String> res = generator.getTopics(keywords, ChatLanguage.EN);
+//
+//    res.forEach(System.out::println);
+//  }
 }

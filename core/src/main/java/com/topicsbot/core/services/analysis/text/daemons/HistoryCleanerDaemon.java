@@ -1,4 +1,4 @@
-package com.topicsbot.core.services.analysis.daemons;
+package com.topicsbot.core.services.analysis.text.daemons;
 
 import org.apache.log4j.Logger;
 import java.io.File;

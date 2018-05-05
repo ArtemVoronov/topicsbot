@@ -1,4 +1,4 @@
-package com.topicsbot.core.services.analysis.filters;
+package com.topicsbot.core.services.analysis.text.filters;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;

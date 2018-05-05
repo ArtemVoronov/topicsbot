@@ -1,8 +1,8 @@
-package com.topicsbot.core.services.analysis.analyzers;
+package com.topicsbot.core.services.analysis.text.analyzers;
 
-import com.topicsbot.core.services.analysis.filters.EmojiconFilter;
-import com.topicsbot.core.services.analysis.filters.HashTagFilter;
-import com.topicsbot.core.services.analysis.filters.PatternFilter;
+import com.topicsbot.core.services.analysis.text.filters.EmojiconFilter;
+import com.topicsbot.core.services.analysis.text.filters.HashTagFilter;
+import com.topicsbot.core.services.analysis.text.filters.PatternFilter;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;

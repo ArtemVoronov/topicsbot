@@ -1,7 +1,7 @@
-package com.topicsbot.core.services.analysis.analyzers;
+package com.topicsbot.core.services.analysis.text.analyzers;
 
-import com.topicsbot.core.services.analysis.filters.EmojiconFilter;
-import com.topicsbot.core.services.analysis.filters.PatternFilter;
+import com.topicsbot.core.services.analysis.text.filters.EmojiconFilter;
+import com.topicsbot.core.services.analysis.text.filters.PatternFilter;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
@@ -16,11 +16,11 @@ import java.io.StringReader;
 /**
  * Author: Artem Voronov
  */
-public class TopicBotAnalyzer extends Analyzer {
+public class KeywordsAnalyzer extends Analyzer {
   private final CharArraySet stopSet;
   private final int wordDelimiterConfig;
 
-  public TopicBotAnalyzer(CharArraySet stopSet) {
+  public KeywordsAnalyzer(CharArraySet stopSet) {
     this.stopSet = stopSet;
     wordDelimiterConfig = WordDelimiterFilter.GENERATE_WORD_PARTS;
   }
