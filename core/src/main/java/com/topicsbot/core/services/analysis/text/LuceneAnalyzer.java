@@ -1,6 +1,7 @@
 package com.topicsbot.core.services.analysis.text;
 
 import com.topicsbot.core.services.analysis.text.analyzers.*;
+import com.topicsbot.core.services.analysis.text.daemons.HistoryCleanerDaemon;
 import com.topicsbot.model.entities.chat.Chat;
 import com.topicsbot.model.entities.chat.ChatLanguage;
 import org.apache.log4j.Logger;
@@ -19,6 +20,8 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
@@ -29,7 +32,7 @@ import java.util.stream.Stream;
  */
 public class LuceneAnalyzer implements TextAnalyzer {
 
-  private static final Logger logger = Logger.getLogger("TEXT_ANALYZER");//TODO
+  private static final Logger logger = Logger.getLogger("TEXT_ANALYZER");
 
   private static final String LUCENE_TEXT_FIELD = "text";
   private static final String LUCENE_CHAT_HASH_TAGS = "chat_hash_tags";
@@ -44,7 +47,8 @@ public class LuceneAnalyzer implements TextAnalyzer {
   private final Lock read = lock.readLock();
   private final Lock write = lock.writeLock();
 
-  public LuceneAnalyzer(String pathToStopWordsDir, String pathToLuceneIndexesDir, String pathToWorldLuceneIndexesDir) {
+  public LuceneAnalyzer(ScheduledExecutorService scheduledExecutorService,
+                        String pathToStopWordsDir, String pathToLuceneIndexesDir, String pathToWorldLuceneIndexesDir) {
     CharArraySet stopWords = getStopWords(pathToStopWordsDir);
     KeywordsAnalyzer topicsBotAnalyzer = new KeywordsAnalyzer(stopWords);
     HashTagsAnalyzers hashTagsAnalyzer = new HashTagsAnalyzers(stopWords);
@@ -53,6 +57,8 @@ public class LuceneAnalyzer implements TextAnalyzer {
     this.analyzer = new PerFieldAnalyzerWrapper(topicsBotAnalyzer, analyzerPerField);
     this.pathToLuceneIndexesDir = pathToLuceneIndexesDir;
     this.pathToWorldLuceneIndexesDir = pathToWorldLuceneIndexesDir;
+
+    scheduledExecutorService.scheduleWithFixedDelay(new HistoryCleanerDaemon(32, pathToLuceneIndexesDir, pathToWorldLuceneIndexesDir), 60L, 432_000L, TimeUnit.SECONDS);//once per 5 days
   }
 
   @Override

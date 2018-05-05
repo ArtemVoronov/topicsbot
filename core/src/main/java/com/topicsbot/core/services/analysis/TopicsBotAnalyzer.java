@@ -2,7 +2,6 @@ package com.topicsbot.core.services.analysis;
 
 import com.topicsbot.core.services.analysis.text.TextAnalyzer;
 import com.topicsbot.core.services.analysis.text.LuceneAnalyzer;
-import com.topicsbot.core.services.analysis.text.daemons.HistoryCleanerDaemon;
 import com.topicsbot.core.services.analysis.topics.TopicsAnalyzer;
 import com.topicsbot.core.services.analysis.topics.WikiMediaStorage;
 import com.topicsbot.model.entities.chat.Chat;
@@ -14,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Author: Artem Voronov
@@ -25,11 +23,8 @@ public class TopicsBotAnalyzer implements TextAnalyzer, TopicsAnalyzer {
   private final TextAnalyzer textAnalyzer;
 
   public TopicsBotAnalyzer(ScheduledExecutorService scheduledExecutorService, String pathToStopWordsDir, String pathToLuceneIndexesDir, String pathToWorldLuceneIndexesDir) {
-
     this.topicsAnalyzer = new WikiMediaStorage();
-    this.textAnalyzer = new LuceneAnalyzer(pathToStopWordsDir, pathToLuceneIndexesDir, pathToWorldLuceneIndexesDir);
-
-    scheduledExecutorService.scheduleWithFixedDelay(new HistoryCleanerDaemon(32, pathToLuceneIndexesDir, pathToWorldLuceneIndexesDir), 60L, 432_000L, TimeUnit.SECONDS);//once per 5 days
+    this.textAnalyzer = new LuceneAnalyzer(scheduledExecutorService, pathToStopWordsDir, pathToLuceneIndexesDir, pathToWorldLuceneIndexesDir);
   }
 
   @Override

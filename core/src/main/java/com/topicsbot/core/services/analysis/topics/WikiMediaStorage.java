@@ -35,24 +35,8 @@ import java.util.Set;
  */
 public class WikiMediaStorage implements TopicsAnalyzer {
 
-  private static final Logger logger = Logger.getLogger("TOPICS_GENERATOR");
-
-  private static final String WIKI_EN = "https://en.wikipedia.org/w/api.php?";
-  private static final String WIKI_RU = "https://ru.wikipedia.org/w/api.php?";
-  private static final String WIKI_ES = "https://es.wikipedia.org/w/api.php?";
-  private static final String WIKI_JA = "https://ja.wikipedia.org/w/api.php?";
-  private static final String WIKI_DE = "https://de.wikipedia.org/w/api.php?";
-  private static final String WIKI_FR = "https://fr.wikipedia.org/w/api.php?";
-  private static final String WIKI_IT = "https://it.wikipedia.org/w/api.php?";
-  private static final String WIKI_PT = "https://pt.wikipedia.org/w/api.php?";
-  private static final String WIKI_PL = "https://pl.wikipedia.org/w/api.php?";
-  private static final String WIKI_ZH = "https://zh.wikipedia.org/w/api.php?";
-  private static final String WIKI_AR = "https://ar.wikipedia.org/w/api.php?";
-  private static final String WIKI_HI = "https://hi.wikipedia.org/w/api.php?";
-  private static final String WIKI_CS = "https://cs.wikipedia.org/w/api.php?";
-  private static final String WIKI_KO = "https://ko.wikipedia.org/w/api.php?";
-  private static final String WIKI_TR = "https://tr.wikipedia.org/w/api.php?";
-
+  private static final Logger logger = Logger.getLogger("TOPICS_ANALYZER");
+  private static final String WIKI_MEDIA_URL_TEMPLATE = "https://%s.wikipedia.org/w/api.php?";
   private static final String paramHead = "action=query&list=search&srwhat=text&format=xml&srsearch=";
   private static final String paramTail = "&srlimit=";
 
@@ -82,7 +66,7 @@ public class WikiMediaStorage implements TopicsAnalyzer {
   }
 
   @Override
-  public Set<String> getTopics(List<String> keywords, ChatLanguage language) throws IOException {
+  public Set<String> getTopics(List<String> keywords, ChatLanguage language) throws IOException {//TODO: need refactoring
     if (keywords != null && keywords.size() == keywordsCount) {//TODO: greater or equal
       String root = getTargetRoot(language);
 
@@ -160,46 +144,12 @@ public class WikiMediaStorage implements TopicsAnalyzer {
     }
   }
 
-  private static String getTargetRoot(ChatLanguage language) {
-    if (language == null) {
-      return WIKI_EN;
-    }
 
-    switch (language) {
-      case EN:
-        return WIKI_EN;
-      case RU:
-        return WIKI_RU;
-      case ES:
-        return WIKI_ES;
-      case JA:
-        return WIKI_JA;
-      case DE:
-        return WIKI_DE;
-      case FR:
-        return WIKI_FR;
-      case IT:
-        return WIKI_IT;
-      case PT:
-        return WIKI_PT;
-      case PL:
-        return WIKI_PL;
-      case ZH:
-        return WIKI_ZH;
-      case AR:
-        return WIKI_AR;
-      case HI:
-        return WIKI_HI;
-      case CS:
-        return WIKI_CS;
-      case TR:
-        return WIKI_TR;
-      case KO:
-        return WIKI_KO;
-      default:
-        logger.error("Unknown language: " + language);
-        return WIKI_EN;//try to find at English Wikipedia
-    }
+  private static String getTargetRoot(ChatLanguage language) {
+    if (language == null)
+      language = ChatLanguage.EN;
+
+    return String.format(WIKI_MEDIA_URL_TEMPLATE, language.name().toLowerCase());
   }
 
   private static CloseableHttpClient initHttpClient(int connectionPoolSize, int maxConnectionsPerRoute, long keepAliveMillis,
@@ -238,25 +188,4 @@ public class WikiMediaStorage implements TopicsAnalyzer {
         .setUserAgent(userAgent)
         .build();
   }
-
-  //TODO
-//  public static void main(String[] args) throws IOException {
-//    TopicsAnalyzer generator = new WikiMediaStorage(10);
-//
-//    List<String> keywords = new ArrayList<>();
-//    keywords.add("bee");
-//    keywords.add("ant");
-//    keywords.add("honey");
-//    keywords.add("football");
-//    keywords.add("baseball");
-//    keywords.add("friday");
-//    keywords.add("hello");
-//    keywords.add("car");
-//    keywords.add("money");
-//    keywords.add("car");
-//
-//    Set<String> res = generator.getTopics(keywords, ChatLanguage.EN);
-//
-//    res.forEach(System.out::println);
-//  }
 }
