@@ -1,14 +1,12 @@
 package com.topicsbot.model.services.db
 
-import com.topicsbot.model.services.db.KVStorageService
-
 class TestKVStorageServiceFactory {
 
-  synchronized static KVStorageService createKVStorageService() throws IOException {
-    return new KVStorageServiceMock()
+  synchronized static KeyValueStorageService createKVStorageService() throws IOException {
+    return new KeyValueStorageServiceMock()
   }
 
-  private static class KVStorageServiceMock implements KVStorageService {
+  private static class KeyValueStorageServiceMock implements KeyValueStorageService {
     private final Map<String, String> kvStorage = new HashMap<>()
 
     @Override

@@ -9,11 +9,11 @@ import java.time.Duration;
 /**
  * Author: Artem Voronov
  */
-public class KVStorageServiceImpl implements KVStorageService {
+public class KeyValueStorageServiceImpl implements KeyValueStorageService {
   private final JedisPoolConfig poolConfig;
   private final JedisPool jedisPool;
 
-  public KVStorageServiceImpl() {//TODO: add configurable constructor
+  public KeyValueStorageServiceImpl() {//TODO: add configurable constructor
     this.poolConfig = buildPoolConfig();
     this.jedisPool = new JedisPool(poolConfig, "localhost");
   }
@@ -44,7 +44,7 @@ public class KVStorageServiceImpl implements KVStorageService {
         3, true);
   }
 
-  //see hGenericObjectPool.class for details
+  //see GenericObjectPool.class for details
   private static JedisPoolConfig buildPoolConfig(int maxActive, int maxIdle, int minIdle,
                                                  boolean testOnBorrow, boolean testOnReturn, boolean testWhileIdle,
                                                  long minEvictableIdleTimeSeconds, long timeBetweenEvictionRunsSeconds,

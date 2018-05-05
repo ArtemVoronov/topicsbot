@@ -3,7 +3,7 @@ package com.topicsbot.model.services.db;
 /**
  * Author: Artem Voronov
  */
-public interface KVStorageService {
+public interface KeyValueStorageService {
   void destroy();
 
   String get(String key);
