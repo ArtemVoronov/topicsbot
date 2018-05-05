@@ -13,9 +13,9 @@ dependencies {
   compile 'org.slf4j:slf4j-api:1.7.25'
   compile 'log4j:log4j:1.2.17'
 
-  /*TODO: Log4j 2+*/
-//  compile 'org.apache.logging.log4j:log4j-api:2.11.0'
-//  compile 'org.apache.logging.log4j:log4j-core:2.11.0'
+  //TODO: Log4j 2+
+  //compile 'org.apache.logging.log4j:log4j-api:2.11.0'
+  //compile 'org.apache.logging.log4j:log4j-core:2.11.0'
 
 
   compile 'javax.validation:validation-api:1.1.0.Final'
@@ -27,6 +27,9 @@ dependencies {
   compile 'mysql:mysql-connector-java:5.1.13'  //нужно обязательно использовать версию 5.1.13, на более новых версиях не сохраняются emojicon!
 
   compile 'com.google.guava:guava:23.0'
+
+  compile 'redis.clients:jedis:2.9.0'
+
 
 }
 

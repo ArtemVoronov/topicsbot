@@ -123,8 +123,8 @@
 
 
   insert into config_params(param_name, param_value) values('telegram.bot.token', '123');
-  insert into config_params(param_name, param_value) values('db.results.batch.size', '100');
-  insert into config_params(param_name, param_value) values('db.results.fetch.size', 'INT_MIN');
+  insert into config_params(param_name, param_value) values('entities.results.batch.size', '100');
+  insert into config_params(param_name, param_value) values('entities.results.fetch.size', 'INT_MIN');
 
 -- rollback ALTER TABLE user_day_statistics             DROP FOREIGN KEY fk_user_day_stats_to_users
 -- rollback ALTER TABLE user_day_statistics             DROP FOREIGN KEY fk_user_day_stats_to_chats
