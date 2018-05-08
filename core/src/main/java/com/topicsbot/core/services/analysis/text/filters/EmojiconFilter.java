@@ -10,7 +10,7 @@ import java.io.IOException;
 /**
  * Author: Artem Voronov
  */
-public class EmojiconFilter extends TokenFilter {
+public final class EmojiconFilter extends TokenFilter {
   protected CharTermAttribute charTermAttribute = addAttribute(CharTermAttribute.class);
   protected PositionIncrementAttribute positionIncrementAttribute = addAttribute(PositionIncrementAttribute.class);
 

@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 /**
  * Author: Artem Voronov
  */
-public class DeleteJunkFilter extends TokenFilter {
+public final class DeleteJunkFilter extends TokenFilter {
   private static Pattern JUNK_PATTERN = Pattern.compile("^[^/]+", Pattern.CASE_INSENSITIVE);
   protected CharTermAttribute charTermAttribute = addAttribute(CharTermAttribute.class);
   protected PositionIncrementAttribute positionIncrementAttribute = addAttribute(PositionIncrementAttribute.class);

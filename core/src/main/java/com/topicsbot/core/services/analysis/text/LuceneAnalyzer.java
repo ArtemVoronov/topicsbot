@@ -14,7 +14,9 @@ import org.apache.lucene.index.*;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -47,9 +49,8 @@ public class LuceneAnalyzer implements TextAnalyzer {
   private final Lock read = lock.readLock();
   private final Lock write = lock.writeLock();
 
-  public LuceneAnalyzer(ScheduledExecutorService scheduledExecutorService,
-                        String pathToStopWordsDir, String pathToLuceneIndexesDir, String pathToWorldLuceneIndexesDir) {
-    CharArraySet stopWords = getStopWords(pathToStopWordsDir);
+  public LuceneAnalyzer(ScheduledExecutorService scheduledExecutorService, String pathToLuceneIndexesDir, String pathToWorldLuceneIndexesDir) {
+    CharArraySet stopWords = getStopWords();
     KeywordsAnalyzer topicsBotAnalyzer = new KeywordsAnalyzer(stopWords);
     HashTagsAnalyzers hashTagsAnalyzer = new HashTagsAnalyzers(stopWords);
     Map<String, Analyzer> analyzerPerField = new HashMap<>();
@@ -61,10 +62,22 @@ public class LuceneAnalyzer implements TextAnalyzer {
     scheduledExecutorService.scheduleWithFixedDelay(new HistoryCleanerDaemon(32, pathToLuceneIndexesDir, pathToWorldLuceneIndexesDir), 60L, 432_000L, TimeUnit.SECONDS);//once per 5 days
   }
 
+  //TODO: daemon starting
+  public LuceneAnalyzer(String pathToLuceneIndexesDir, String pathToWorldLuceneIndexesDir) {
+    CharArraySet stopWords = getStopWords();
+    KeywordsAnalyzer topicsBotAnalyzer = new KeywordsAnalyzer(stopWords);
+    HashTagsAnalyzers hashTagsAnalyzer = new HashTagsAnalyzers(stopWords);
+    Map<String, Analyzer> analyzerPerField = new HashMap<>();
+    analyzerPerField.put(LUCENE_CHAT_HASH_TAGS, hashTagsAnalyzer);
+    this.analyzer = new PerFieldAnalyzerWrapper(topicsBotAnalyzer, analyzerPerField);
+    this.pathToLuceneIndexesDir = pathToLuceneIndexesDir;
+    this.pathToWorldLuceneIndexesDir = pathToWorldLuceneIndexesDir;
+  }
+
   @Override
-  public void index(String text, Chat chat) {
+  public void index(String text, Chat chat) {//TODO: unify metods params
     indexMessageToChat(chat.getExternalId(), text, chat.getRebirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
-    indexMessageToWorld(text, LocalDate.now().toString(), chat.getLanguage() );
+    indexMessageToWorld(text, chat.getRebirthDate().toString(), chat.getLanguage() );
   }
 
   @Override
@@ -106,8 +119,6 @@ public class LuceneAnalyzer implements TextAnalyzer {
     }
     return result;
   }
-
-
 
   private void indexMessageToChat(String chatId, String text, String chatBirthday) {
     if (text == null || text.isEmpty())
@@ -181,7 +192,7 @@ public class LuceneAnalyzer implements TextAnalyzer {
       logger.error("unable to get world keywords frequency: " + ex.getMessage(), ex);
       return null;
     }
-  }
+  } //TODO: date iso formatted -> DateTimeFormatter.ISO_LOCAL_DATE
 
   private List<String> getChatHashTagsFrequency(String chatId, String chatBirthday) {
     String filename = pathToLuceneIndexesDir + "/" + chatId + "_" + chatBirthday;
@@ -253,13 +264,22 @@ public class LuceneAnalyzer implements TextAnalyzer {
     }
   }
 
-  private static CharArraySet getStopWords(String pathToStopWordsDir) {
+  private static CharArraySet getStopWords() {
+    URL url = LuceneAnalyzer.class.getClassLoader().getResource("stopwords");
+
+    if (url == null)
+      throw new IllegalStateException("unable to find stop words dir");
+
+    String pathToStopWordsDir = url.getPath();
+
+
     String[] languages = Arrays.stream(ChatLanguage.values()).map(Enum::name).map(String::toLowerCase).toArray(String[]::new);
     List<String> files = new ArrayList<>(ChatLanguage.values().length);
 
     for (String s : languages) {
       files.add(pathToStopWordsDir + "/" + s + ".txt");
     }
+
     CharArraySet result = new CharArraySet(2659, true);
 
     for (String path : files) {

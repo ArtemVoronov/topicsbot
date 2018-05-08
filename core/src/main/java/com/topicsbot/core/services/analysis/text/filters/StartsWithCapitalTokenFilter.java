@@ -9,7 +9,7 @@ import java.io.IOException;
 /**
  * Author: Artem Voronov
  */
-public class StartsWithCapitalTokenFilter extends FilteringTokenFilter {
+public final class StartsWithCapitalTokenFilter extends FilteringTokenFilter {
 
   private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
 

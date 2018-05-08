@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 /**
  * Author: Artem Voronov
  */
-public class PatternFilter extends FilteringTokenFilter {
+public final class PatternFilter extends FilteringTokenFilter {
   private static Pattern URI_PATTERN = Pattern.compile("^https?://[^/]+", Pattern.CASE_INSENSITIVE);
   private static Pattern DIGIT_JUNK = Pattern.compile("^\\d+.*\\d*", Pattern.CASE_INSENSITIVE);
 

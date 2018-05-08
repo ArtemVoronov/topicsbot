@@ -22,9 +22,9 @@ public class TopicsBotCoreBasic implements TopicsBotCore {
   private final TopicsAnalyzer topicsAnalyzer;
   private final TextAnalyzer textAnalyzer;
 
-  public TopicsBotCoreBasic(ScheduledExecutorService scheduledExecutorService, String pathToStopWordsDir, String pathToLuceneIndexesDir, String pathToWorldLuceneIndexesDir) {
+  public TopicsBotCoreBasic(ScheduledExecutorService scheduledExecutorService, String pathToLuceneIndexesDir, String pathToWorldLuceneIndexesDir) {
     this.topicsAnalyzer = new WikiMediaStorage();
-    this.textAnalyzer = new LuceneAnalyzer(scheduledExecutorService, pathToStopWordsDir, pathToLuceneIndexesDir, pathToWorldLuceneIndexesDir);
+    this.textAnalyzer = new LuceneAnalyzer(scheduledExecutorService, pathToLuceneIndexesDir, pathToWorldLuceneIndexesDir);
   }
 
   @Override

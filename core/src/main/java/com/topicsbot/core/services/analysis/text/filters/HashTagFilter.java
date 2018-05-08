@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 /**
  * Author: Artem Voronov
  */
-public class HashTagFilter extends FilteringTokenFilter {
+public final class HashTagFilter extends FilteringTokenFilter {
   private static Pattern HASHTAG_PATTERN = Pattern.compile("^#[^#]+$", Pattern.CASE_INSENSITIVE);
 
   public HashTagFilter(TokenStream in) {
