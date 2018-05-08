@@ -29,30 +29,27 @@ public class WikiMediaStorage implements TopicsAnalyzer {
   private static final String WIKI_MEDIA_URL_PARAMETERS = "%saction=query&list=search&srwhat=text&format=xml&srsearch=%s&srlimit=%s";
   private static final String USER_AGENT = "Topics Bot (www.topicsbot.com, topicsbot@gmail.com)";
 
-  private final CloseableHttpClient client;
+  private final CloseableHttpClient httpClient;
+  private final KeywordsConverter chainOfHandlers; //chain of converters
   private final int keywordsLimit; //min keywords amount required for getting of topics
 
   public WikiMediaStorage() {
-    this.client = HttpClientFactory.initHttpClient(20, 2, 5000, 30000, 30000, 30000, USER_AGENT); //TODO: read from config
+    this.httpClient = HttpClientFactory.initHttpClient(20, 2, 5000, 30000, 30000, 30000, USER_AGENT); //TODO: read from config
     this.keywordsLimit = 10;
+    this.chainOfHandlers = new BasicKeywordsConverter(new AlternateKeywordsConverter());
+  }
+  public WikiMediaStorage(CloseableHttpClient httpClient, int keywordsLimit) {
+    this.httpClient = httpClient;
+    this.keywordsLimit = keywordsLimit;
+    this.chainOfHandlers = new BasicKeywordsConverter(new AlternateKeywordsConverter());
   }
 
   @Override
   public Set<String> keywordsToTopics(List<String> keywords, ChatLanguage language) throws IOException {
     if (keywords == null || keywords.size() != keywordsLimit)
-      return null;
+      return Collections.emptySet();
 
-    Set<String> result = new HashSet<>(5);
-
-    result.addAll(keywordsToTopics(keywords, language, 0, 3, 3));
-    result.addAll(keywordsToTopics(keywords, language, 2, 6, 2));
-
-    if (result.isEmpty()) {//возможно так будет больше топиков
-      result.addAll(keywordsToTopics(keywords, language, 0, 4, 1));
-      result.addAll(keywordsToTopics(keywords, language, 6, 8, 2));
-    }
-
-    return result;
+    return chainOfHandlers.convertToTopics(keywords, language);
   }
 
   private List<String> keywordsToTopics(List<String> keywords, ChatLanguage language, int beginIndex, int endIndex, int maxTopics) throws IOException {
@@ -67,7 +64,7 @@ public class WikiMediaStorage implements TopicsAnalyzer {
     HttpContext context = HttpClientContext.create();
     HttpGet httpGet = new HttpGet(url);
 
-    try (CloseableHttpResponse response = client.execute(httpGet, context)) {
+    try (CloseableHttpResponse response = httpClient.execute(httpGet, context)) {
       int code = response.getStatusLine().getStatusCode();
       if (code != 200)
         throw new IllegalStateException("Wrong response code: " + code);
@@ -108,24 +105,47 @@ public class WikiMediaStorage implements TopicsAnalyzer {
     return String.format(WIKI_MEDIA_URL_PATH, language.name().toLowerCase());
   }
 
-  //TODO
-  public static void main(String[] args) throws IOException {
-    TopicsAnalyzer generator = new WikiMediaStorage();
+  private abstract class KeywordsConverter {
+    KeywordsConverter successor;
 
-    List<String> keywords = new ArrayList<>();
-    keywords.add("bee");
-    keywords.add("ant");
-    keywords.add("honey");
-    keywords.add("football");
-    keywords.add("baseball");
-    keywords.add("friday");
-    keywords.add("hello");
-    keywords.add("car");
-    keywords.add("money");
-    keywords.add("car");
+    KeywordsConverter(KeywordsConverter successor) {
+      this.successor = successor;
+    }
 
-    Set<String> res = generator.keywordsToTopics(keywords, ChatLanguage.EN);
+    abstract Set<String> convertToTopics(List<String> keywords, ChatLanguage language) throws IOException;
 
-    res.forEach(System.out::println);
+    protected void setSuccessor(KeywordsConverter successor) {
+      this.successor = successor;
+    }
+  }
+
+  private class BasicKeywordsConverter extends KeywordsConverter {
+    BasicKeywordsConverter(KeywordsConverter successor) {
+      super(successor);
+    }
+
+    Set<String> convertToTopics(List<String> keywords, ChatLanguage language) throws IOException {
+      Set<String> result = new HashSet<>(5);
+
+      result.addAll(keywordsToTopics(keywords, language, 0, 3, 3));
+      result.addAll(keywordsToTopics(keywords, language, 2, 6, 2));
+
+      return !result.isEmpty() ? result: successor.convertToTopics(keywords, language);
+    }
+  }
+
+  private class AlternateKeywordsConverter extends KeywordsConverter {
+    AlternateKeywordsConverter() {
+      super(null);
+    }
+
+    Set<String> convertToTopics(List<String> keywords, ChatLanguage language) throws IOException {
+      Set<String> result = new HashSet<>(3);
+
+      result.addAll(keywordsToTopics(keywords, language, 0, 4, 1));
+      result.addAll(keywordsToTopics(keywords, language, 6, 8, 2));
+
+      return result;
+    }
   }
 }

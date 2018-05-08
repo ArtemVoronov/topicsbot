@@ -1,6 +1,5 @@
-package com.topicsbot.core.services.analysis;
+package com.topicsbot.core;
 
-import com.topicsbot.core.TopicsBotCore;
 import com.topicsbot.core.services.analysis.text.TextAnalyzer;
 import com.topicsbot.core.services.analysis.text.LuceneAnalyzer;
 import com.topicsbot.core.services.analysis.topics.TopicsAnalyzer;
@@ -18,12 +17,12 @@ import java.util.concurrent.ScheduledExecutorService;
 /**
  * Author: Artem Voronov
  */
-public class TopicsBotAnalyzer implements TopicsBotCore {
+public class TopicsBotCoreBasic implements TopicsBotCore {
 
   private final TopicsAnalyzer topicsAnalyzer;
   private final TextAnalyzer textAnalyzer;
 
-  public TopicsBotAnalyzer(ScheduledExecutorService scheduledExecutorService, String pathToStopWordsDir, String pathToLuceneIndexesDir, String pathToWorldLuceneIndexesDir) {
+  public TopicsBotCoreBasic(ScheduledExecutorService scheduledExecutorService, String pathToStopWordsDir, String pathToLuceneIndexesDir, String pathToWorldLuceneIndexesDir) {
     this.topicsAnalyzer = new WikiMediaStorage();
     this.textAnalyzer = new LuceneAnalyzer(scheduledExecutorService, pathToStopWordsDir, pathToLuceneIndexesDir, pathToWorldLuceneIndexesDir);
   }
