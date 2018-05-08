@@ -10,5 +10,5 @@ import java.util.Set;
  * Author: Artem Voronov
  */
 public interface TopicsAnalyzer {
-  Set<String> getTopics(List<String> keywords, ChatLanguage language) throws IOException;
+  Set<String> keywordsToTopics(List<String> keywords, ChatLanguage language) throws IOException;
 }

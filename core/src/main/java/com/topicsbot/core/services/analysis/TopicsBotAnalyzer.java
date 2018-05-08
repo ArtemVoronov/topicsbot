@@ -1,5 +1,6 @@
 package com.topicsbot.core.services.analysis;
 
+import com.topicsbot.core.TopicsBotCore;
 import com.topicsbot.core.services.analysis.text.TextAnalyzer;
 import com.topicsbot.core.services.analysis.text.LuceneAnalyzer;
 import com.topicsbot.core.services.analysis.topics.TopicsAnalyzer;
@@ -17,7 +18,7 @@ import java.util.concurrent.ScheduledExecutorService;
 /**
  * Author: Artem Voronov
  */
-public class TopicsBotAnalyzer implements TextAnalyzer, TopicsAnalyzer {
+public class TopicsBotAnalyzer implements TopicsBotCore {
 
   private final TopicsAnalyzer topicsAnalyzer;
   private final TextAnalyzer textAnalyzer;
@@ -63,8 +64,8 @@ public class TopicsBotAnalyzer implements TextAnalyzer, TopicsAnalyzer {
   }
 
   @Override
-  public Set<String> getTopics(List<String> keywords, ChatLanguage language) throws IOException {
-    return topicsAnalyzer.getTopics(keywords, language);
+  public Set<String> keywordsToTopics(List<String> keywords, ChatLanguage language) throws IOException {
+    return topicsAnalyzer.keywordsToTopics(keywords, language);
   }
 
 }

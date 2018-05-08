@@ -1,21 +1,13 @@
 package com.topicsbot.core.services.analysis.topics;
 
+import com.topicsbot.core.utils.HttpClientFactory;
 import com.topicsbot.core.utils.XmlUtil;
 import com.topicsbot.model.entities.chat.ChatLanguage;
-import org.apache.http.HeaderElement;
-import org.apache.http.HeaderElementIterator;
 import org.apache.http.HttpEntity;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.conn.ConnectionKeepAliveStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.message.BasicHeaderElementIterator;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
@@ -24,10 +16,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -36,26 +25,49 @@ import java.util.Set;
 public class WikiMediaStorage implements TopicsAnalyzer {
 
   private static final Logger logger = Logger.getLogger("TOPICS_ANALYZER");
-  private static final String WIKI_MEDIA_URL_TEMPLATE = "https://%s.wikipedia.org/w/api.php?";
-  private static final String paramHead = "action=query&list=search&srwhat=text&format=xml&srsearch=";
-  private static final String paramTail = "&srlimit=";
-
+  private static final String WIKI_MEDIA_URL_PATH = "https://%s.wikipedia.org/w/api.php?";
+  private static final String WIKI_MEDIA_URL_PARAMETERS = "%saction=query&list=search&srwhat=text&format=xml&srsearch=%s&srlimit=%s";
   private static final String USER_AGENT = "Topics Bot (www.topicsbot.com, topicsbot@gmail.com)";
 
   private final CloseableHttpClient client;
-  private final int keywordsCount;
+  private final int keywordsLimit; //min keywords amount required for getting of topics
 
   public WikiMediaStorage() {
-    this.client = initHttpClient(20, 2, 5000, 30000, 30000, 30000, USER_AGENT); //TODO: read from config
-    this.keywordsCount = 10;
+    this.client = HttpClientFactory.initHttpClient(20, 2, 5000, 30000, 30000, 30000, USER_AGENT); //TODO: read from config
+    this.keywordsLimit = 10;
   }
 
-  private String doGet(HttpGet httpGet, HttpContext context) throws IOException {
-    return doHttpRequest(httpGet, context);
+  @Override
+  public Set<String> keywordsToTopics(List<String> keywords, ChatLanguage language) throws IOException {
+    if (keywords == null || keywords.size() != keywordsLimit)
+      return null;
+
+    Set<String> result = new HashSet<>(5);
+
+    result.addAll(keywordsToTopics(keywords, language, 0, 3, 3));
+    result.addAll(keywordsToTopics(keywords, language, 2, 6, 2));
+
+    if (result.isEmpty()) {//возможно так будет больше топиков
+      result.addAll(keywordsToTopics(keywords, language, 0, 4, 1));
+      result.addAll(keywordsToTopics(keywords, language, 6, 8, 2));
+    }
+
+    return result;
   }
 
-  private String doHttpRequest(HttpUriRequest httpRequest, HttpContext context) throws IOException {
-    try (CloseableHttpResponse response = client.execute(httpRequest, context)) {
+  private List<String> keywordsToTopics(List<String> keywords, ChatLanguage language, int beginIndex, int endIndex, int maxTopics) throws IOException {
+    String response = sendRequest(keywords, language, beginIndex, endIndex, maxTopics);
+    return parseResponse(response);
+  }
+
+  private String sendRequest(List<String> keywords, ChatLanguage language, int beginIndex, int endIndex, int maxTopics) throws IOException {
+    String root = getWikiRoot(language);
+    String keywordsParam = String.join("+", keywords.subList(beginIndex, endIndex));
+    String url = String.format(WIKI_MEDIA_URL_PARAMETERS, root, keywordsParam, maxTopics);
+    HttpContext context = HttpClientContext.create();
+    HttpGet httpGet = new HttpGet(url);
+
+    try (CloseableHttpResponse response = client.execute(httpGet, context)) {
       int code = response.getStatusLine().getStatusCode();
       if (code != 200)
         throw new IllegalStateException("Wrong response code: " + code);
@@ -65,127 +77,55 @@ public class WikiMediaStorage implements TopicsAnalyzer {
     }
   }
 
-  @Override
-  public Set<String> getTopics(List<String> keywords, ChatLanguage language) throws IOException {//TODO: need refactoring
-    if (keywords != null && keywords.size() == keywordsCount) {//TODO: greater or equal
-      String root = getTargetRoot(language);
-
-      //TODO: придумать какой-то другой способ выборки, чтобы хоть чёто возвращалось при "плохих" словах
-      String target1 = root + paramHead + String.join("+", keywords.subList(0, 3)) + paramTail + 3;
-      String target2 = root + paramHead + String.join("+", keywords.subList(2, 6)) + paramTail + 2;
-
-      HttpContext context1 = HttpClientContext.create();
-      HttpGet httpGet1 = new HttpGet(target1);
-      String res1 = doGet(httpGet1, context1);
-
-      HttpContext context2 = HttpClientContext.create();
-      HttpGet httpGet2 = new HttpGet(target2);
-      String res2 = doGet(httpGet2, context2);
-
-      Set<String> topics = new HashSet<>();
-
-      List<String> parsedTopics = parseTopics(res1);
-      collectTopics(topics, parsedTopics);
-      parsedTopics = parseTopics(res2);
-      collectTopics(topics, parsedTopics);
-
-      if (topics.isEmpty()) {//возможно так будет больше топиков
-        target1 = root + paramHead + String.join("+", keywords.get(0), keywords.get(4)) + paramTail + 1;
-        target2 = root + paramHead + String.join("+", keywords.subList(6, 8)) + paramTail + 2;
-
-        context1 = HttpClientContext.create();
-        httpGet1 = new HttpGet(target1);
-        res1 = doGet(httpGet1, context1);
-
-        context2 = HttpClientContext.create();
-        httpGet2 = new HttpGet(target2);
-        res2 = doGet(httpGet2, context2);
-
-        parsedTopics = parseTopics(res1);
-        collectTopics(topics, parsedTopics);
-        parsedTopics = parseTopics(res2);
-        collectTopics(topics, parsedTopics);
-      }
-
-      return topics;
-    } else {
-      return null;
-    }
-  }
-
-  private static void collectTopics(Set<String> topics, List<String> parsedTopics) {
-    if (parsedTopics != null && !parsedTopics.isEmpty()) {
-      topics.addAll(parsedTopics);
-    }
-  }
-
-  private static List<String> parseTopics(String entity) {
+  private static List<String> parseResponse(String response) {
     try {
+      List<String> result = new ArrayList<>();
+      Document doc = XmlUtil.string2xml(response);
 
-      Document doc = XmlUtil.string2xml(entity);
       XmlUtil.normalize(doc);
-      NodeList searchResult = doc.getElementsByTagName("search");//TODO: null pointer
+      NodeList searchResult = doc.getElementsByTagName("search");
 
-      if (searchResult == null || searchResult.getLength() < 1) {
-        return null;
-      }
+      if (searchResult == null || searchResult.getLength() < 1)
+        return  Collections.emptyList();
 
-      List<String> topics = new ArrayList<>();
       for (Node item : XmlUtil.asList(searchResult.item(0).getChildNodes())) {
         Node title = item.getAttributes().getNamedItem("title");
-        topics.add(title.getNodeValue());
+        result.add(title.getNodeValue());
       }
 
-      return topics;
+      return result;
 
     } catch (Exception ex) {
       logger.error("Error at parsing response from wikimedia", ex);
-      return null;
+      return Collections.emptyList();
     }
   }
 
-
-  private static String getTargetRoot(ChatLanguage language) {
+  private static String getWikiRoot(ChatLanguage language) {
     if (language == null)
       language = ChatLanguage.EN;
 
-    return String.format(WIKI_MEDIA_URL_TEMPLATE, language.name().toLowerCase());
+    return String.format(WIKI_MEDIA_URL_PATH, language.name().toLowerCase());
   }
 
-  private static CloseableHttpClient initHttpClient(int connectionPoolSize, int maxConnectionsPerRoute, long keepAliveMillis,
-                                                   int requestTimeoutInMillis, int connectionTimeoutInMillis, int socketTimeoutInMillis,
-                                                   String userAgent) {
-    PoolingHttpClientConnectionManager connectionPoolManager = new PoolingHttpClientConnectionManager();
-    connectionPoolManager.setMaxTotal(connectionPoolSize);
-    connectionPoolManager.setDefaultMaxPerRoute(maxConnectionsPerRoute);
+  //TODO
+  public static void main(String[] args) throws IOException {
+    TopicsAnalyzer generator = new WikiMediaStorage();
 
-    ConnectionKeepAliveStrategy keepAliveStrategy = (response, context) -> {
-      HeaderElementIterator it = new BasicHeaderElementIterator(response.headerIterator(HTTP.CONN_KEEP_ALIVE));
-      while (it.hasNext()) {
-        HeaderElement he = it.nextElement();
-        String param = he.getName();
-        String value = he.getValue();
-        if (value != null && param.equalsIgnoreCase("timeout")) {
-          try {
-            return Long.parseLong(value) * 1000;
-          } catch(NumberFormatException ignore) {
-          }
-        }
-      }
-      return keepAliveMillis;
-    };
+    List<String> keywords = new ArrayList<>();
+    keywords.add("bee");
+    keywords.add("ant");
+    keywords.add("honey");
+    keywords.add("football");
+    keywords.add("baseball");
+    keywords.add("friday");
+    keywords.add("hello");
+    keywords.add("car");
+    keywords.add("money");
+    keywords.add("car");
 
-    RequestConfig requestConfig = RequestConfig.custom().
-        setConnectionRequestTimeout(requestTimeoutInMillis)
-        .setConnectTimeout(connectionTimeoutInMillis)
-        .setSocketTimeout(socketTimeoutInMillis)
-        .build();
+    Set<String> res = generator.keywordsToTopics(keywords, ChatLanguage.EN);
 
-    return HttpClients.custom()
-        .setConnectionManager(connectionPoolManager)
-        .setKeepAliveStrategy(keepAliveStrategy)
-        .setDefaultRequestConfig(requestConfig)
-        .setUserAgent(userAgent)
-        .build();
+    res.forEach(System.out::println);
   }
 }

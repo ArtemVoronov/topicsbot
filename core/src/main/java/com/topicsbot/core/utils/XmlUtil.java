@@ -41,15 +41,13 @@ public class XmlUtil {
   public static Document string2xml(String xml) {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     DocumentBuilder builder;
-    try
-    {
+    try {
       builder = factory.newDocumentBuilder();
       Document doc = builder.parse( new InputSource( new StringReader( xml ) ) );
       return doc;
     } catch (Exception e) {
-      e.printStackTrace();
+      throw new IllegalArgumentException("error during parsing xml:\n" + xml);
     }
-    return null;
   }
 
   public static List<Node> asList(NodeList n) {
