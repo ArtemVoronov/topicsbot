@@ -1,0 +1,54 @@
+apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'com.bmuschko.tomcat'
+
+sourceCompatibility = 1.8
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
+
+war.baseName = 'ui-telegram'
+war.destinationDir = file "${distribDir}"
+
+buildscript {
+  repositories {
+    mavenCentral()
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.bmuschko:gradle-tomcat-plugin:2.4.2'
+  }
+}
+
+dependencies {
+  compile project(":core")
+  testCompile project(path: ':core', configuration: 'testOutput')
+  compile 'org.apache.commons:commons-configuration2:2.2'
+  compile 'javax.servlet:javax.servlet-api:3.1.0'
+  compile 'javax.enterprise:cdi-api:1.1'
+//  compile 'javax.inject:javax.inject:1'
+
+
+  compile 'org.jboss.weld:weld-api:3.0.SP3l'
+  compile 'org.jboss.weld:weld-spi:3.0.SP3'
+  compile 'org.jboss.weld:weld-core-impl:2.4.7.Final'
+  compile 'org.jboss.weld.servlet:weld-servlet-core:3.0.4.Final'
+
+  compile 'com.fasterxml.jackson.core:jackson-databind:2.9.4'
+  compile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.8.8'
+
+  def tomcatVersion = '8.0.18'
+  tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
+      "org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}",
+      "org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}"
+}
+
+tomcatRun.contextPath = '/'
+tomcatRunWar.contextPath = '/'
+
+test {
+  systemProperty "file.encoding", "utf-8"
+  testLogging {
+    events "PASSED", "FAILED", "SKIPPED"
+  }
+}

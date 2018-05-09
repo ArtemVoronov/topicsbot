@@ -1,2 +1,2 @@
 rootProject.name = 'topicsbot'
-include 'model', 'core'
+include 'model', 'core', 'ui-telegram'
