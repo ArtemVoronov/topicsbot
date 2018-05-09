@@ -17,10 +17,10 @@ public class HistoryCleanerDaemon implements Runnable {
 
   private final String chatLucenePath;
   private final String worldLucenePath;
-  private final int daysCount;
+  private final int historyTimeToLiveInDays;
 
-  public HistoryCleanerDaemon(int daysCount, String chatLucenePath, String worldLucenePath) {
-    this.daysCount = daysCount;
+  public HistoryCleanerDaemon(int historyTimeToLiveInDays, String chatLucenePath, String worldLucenePath) {
+    this.historyTimeToLiveInDays = historyTimeToLiveInDays;
     this.chatLucenePath = chatLucenePath;
     this.worldLucenePath = worldLucenePath;
   }
@@ -35,7 +35,7 @@ public class HistoryCleanerDaemon implements Runnable {
   }
 
   void cleanLuceneIndexes(Clock clock) {
-    LocalDate dateLimit = LocalDate.now(clock).minusDays(daysCount);
+    LocalDate dateLimit = LocalDate.now(clock).minusDays(historyTimeToLiveInDays);
 
     cleanChatLucene(dateLimit);
     cleanWorldLucene(dateLimit);

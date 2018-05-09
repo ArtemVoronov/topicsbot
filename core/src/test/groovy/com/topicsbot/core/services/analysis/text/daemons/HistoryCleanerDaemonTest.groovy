@@ -30,22 +30,22 @@ class HistoryCleanerDaemonTest extends GroovyTestCase {
   TextAnalyzer textAnalyzer
   HistoryCleanerDaemon historyCleanerDaemon
   String baseDir = HistoryCleanerDaemon.class.getClassLoader().getResource("").path
-  String pathToLuceneIndexesDir = "${baseDir}chat_lucene"
-  String pathToWorldLuceneIndexesDir = "${baseDir}world_lucene"
+  String chatLucenePath = "${baseDir}chat_lucene"
+  String worldLucenePath = "${baseDir}world_lucene"
   int historyTimeToLiveInDays = 0
 
   @Before
   void setUp() {
     super.setUp()
     MockitoAnnotations.initMocks(this)
-    historyCleanerDaemon = new HistoryCleanerDaemon(historyTimeToLiveInDays, pathToLuceneIndexesDir, pathToWorldLuceneIndexesDir)
-    textAnalyzer = new LuceneAnalyzer(pathToLuceneIndexesDir, pathToWorldLuceneIndexesDir)
+    historyCleanerDaemon = new HistoryCleanerDaemon(historyTimeToLiveInDays, chatLucenePath, worldLucenePath)
+    textAnalyzer = new LuceneAnalyzer(chatLucenePath, worldLucenePath)
   }
 
   @After
   void shutdown() {
-    new File(pathToLuceneIndexesDir).deleteDir()
-    new File(pathToWorldLuceneIndexesDir).deleteDir()
+    new File(chatLucenePath).deleteDir()
+    new File(worldLucenePath).deleteDir()
   }
 
   @Test
@@ -57,9 +57,9 @@ class HistoryCleanerDaemonTest extends GroovyTestCase {
     Clock tomorrowClock = DateTimeUtils.localDateTime2Clock(tomorrow)
     Chat chat = ChatTest.createChat(rebirthDate: today.toLocalDate())
 
-    textAnalyzer.index(messageToday, chat)
+    textAnalyzer.indexMessage(messageToday, chat)
     chat.rebirthDate = tomorrow.toLocalDate()
-    textAnalyzer.index(messageTomorrow, chat)
+    textAnalyzer.indexMessage(messageTomorrow, chat)
     historyCleanerDaemon.cleanLuceneIndexes(tomorrowClock)
 
     assertLuceneIndexesDoNotExists(chat, today.toLocalDate())
@@ -67,8 +67,8 @@ class HistoryCleanerDaemonTest extends GroovyTestCase {
   }
 
   private void assertLuceneIndexesExists(Chat chat, LocalDate localDate) {
-    File chatLuceneIndexes = new File(pathToLuceneIndexesDir + "/" + chat.externalId + "_" + localDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
-    File worldLuceneIndexes = new File(pathToWorldLuceneIndexesDir + "/" + localDate.format(DateTimeFormatter.ISO_LOCAL_DATE) + "_" + chat.language.name())
+    File chatLuceneIndexes = new File(chatLucenePath + "/" + chat.externalId + "_" + localDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
+    File worldLuceneIndexes = new File(worldLucenePath + "/" + localDate.format(DateTimeFormatter.ISO_LOCAL_DATE) + "_" + chat.language.name())
     assertTrue Files.exists(chatLuceneIndexes.toPath())
     assertTrue Files.exists(worldLuceneIndexes.toPath())
     assertTrue FileUtils.sizeOf(chatLuceneIndexes) > 0
@@ -76,8 +76,8 @@ class HistoryCleanerDaemonTest extends GroovyTestCase {
   }
 
   private void assertLuceneIndexesDoNotExists(Chat chat, LocalDate localDate) {
-    File chatLuceneIndexes = new File(pathToLuceneIndexesDir + "/" + chat.externalId + "_" + localDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
-    File worldLuceneIndexes = new File(pathToWorldLuceneIndexesDir + "/" + localDate.format(DateTimeFormatter.ISO_LOCAL_DATE) + "_" + chat.language.name())
+    File chatLuceneIndexes = new File(chatLucenePath + "/" + chat.externalId + "_" + localDate.format(DateTimeFormatter.ISO_LOCAL_DATE))
+    File worldLuceneIndexes = new File(worldLucenePath + "/" + localDate.format(DateTimeFormatter.ISO_LOCAL_DATE) + "_" + chat.language.name())
     assertFalse Files.exists(chatLuceneIndexes.toPath())
     assertFalse Files.exists(worldLuceneIndexes.toPath())
   }

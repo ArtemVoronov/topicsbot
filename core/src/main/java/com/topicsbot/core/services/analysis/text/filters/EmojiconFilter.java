@@ -48,7 +48,7 @@ public final class EmojiconFilter extends TokenFilter {
   }
 
   private static final char HIDDEN_CHAR = '\u2063';
-  private static final char VARIATION_SELECTOR_16 = '\ufe0f';//(char index 65039)
+  private static final char VARIATION_SELECTOR_16 = '\ufe0f';//(char indexMessage 65039)
 
   private static final String pattern = "[" +
       "\\x{1F601}-\\x{1F64F}" +   //Emoticons

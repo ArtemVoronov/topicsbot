@@ -13,17 +13,17 @@ import java.util.Map;
  */
 public interface TextAnalyzer {
 
-  void index(String message, Chat chat);
+  void indexMessage(String message, Chat chat);
 
   List<String> getChatKeywords(Chat chat);
 
-  Map<String, Long> getChatKeywordsExtended(String chatExternalId, LocalDate date);
-
-  Map<String, Long> getChatKeywordsExtended(String chatExternalId, LocalDate from, LocalDate till);
-
   List<String> getChatHashTags(Chat chat);
 
-  List<String> getWorldKeywords(String dateIsoFormatted, ChatLanguage chatLanguage);
+  List<String> getWorldKeywords(LocalDate date, ChatLanguage language);
 
-  List<String> getWorldHashTags(String dateIsoFormatted, ChatLanguage chatLanguage);
+  List<String> getWorldHashTags(LocalDate date, ChatLanguage language);
+
+  Map<String, Long> getChatKeywordsWithFrequency(Chat chat, LocalDate date);
+
+  Map<String, Long> getChatKeywordsWithFrequency(Chat chat, LocalDate from, LocalDate till);
 }

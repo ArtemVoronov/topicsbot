@@ -14,7 +14,6 @@ import org.apache.lucene.index.*;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -42,105 +41,92 @@ public class LuceneAnalyzer implements TextAnalyzer {
   private static final int HASHTAGS_COUNT = 10;
 
   private final Analyzer analyzer;
-  private final String pathToLuceneIndexesDir;
-  private final String pathToWorldLuceneIndexesDir;
+  private final String chatLucenePath;
+  private final String worldLucenePath;
 
   private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
   private final Lock read = lock.readLock();
   private final Lock write = lock.writeLock();
 
-  public LuceneAnalyzer(ScheduledExecutorService scheduledExecutorService, String pathToLuceneIndexesDir, String pathToWorldLuceneIndexesDir) {
-    CharArraySet stopWords = getStopWords();
-    KeywordsAnalyzer topicsBotAnalyzer = new KeywordsAnalyzer(stopWords);
-    HashTagsAnalyzers hashTagsAnalyzer = new HashTagsAnalyzers(stopWords);
-    Map<String, Analyzer> analyzerPerField = new HashMap<>();
-    analyzerPerField.put(LUCENE_CHAT_HASH_TAGS, hashTagsAnalyzer);
-    this.analyzer = new PerFieldAnalyzerWrapper(topicsBotAnalyzer, analyzerPerField);
-    this.pathToLuceneIndexesDir = pathToLuceneIndexesDir;
-    this.pathToWorldLuceneIndexesDir = pathToWorldLuceneIndexesDir;
+  public LuceneAnalyzer(String chatLucenePath, String worldLucenePath, ScheduledExecutorService scheduledExecutorService, int historyTimeToLiveInDays) {
+    this(chatLucenePath, worldLucenePath);
 
-    scheduledExecutorService.scheduleWithFixedDelay(new HistoryCleanerDaemon(32, pathToLuceneIndexesDir, pathToWorldLuceneIndexesDir), 60L, 432_000L, TimeUnit.SECONDS);//once per 5 days
+    scheduledExecutorService.scheduleWithFixedDelay(new HistoryCleanerDaemon(historyTimeToLiveInDays, chatLucenePath, worldLucenePath), 120L, 86400L, TimeUnit.SECONDS);
   }
 
-  //TODO: daemon starting
-  public LuceneAnalyzer(String pathToLuceneIndexesDir, String pathToWorldLuceneIndexesDir) {
+  public LuceneAnalyzer(String chatLucenePath, String worldLucenePath) {
     CharArraySet stopWords = getStopWords();
     KeywordsAnalyzer topicsBotAnalyzer = new KeywordsAnalyzer(stopWords);
     HashTagsAnalyzers hashTagsAnalyzer = new HashTagsAnalyzers(stopWords);
     Map<String, Analyzer> analyzerPerField = new HashMap<>();
     analyzerPerField.put(LUCENE_CHAT_HASH_TAGS, hashTagsAnalyzer);
     this.analyzer = new PerFieldAnalyzerWrapper(topicsBotAnalyzer, analyzerPerField);
-    this.pathToLuceneIndexesDir = pathToLuceneIndexesDir;
-    this.pathToWorldLuceneIndexesDir = pathToWorldLuceneIndexesDir;
+    this.chatLucenePath = chatLucenePath;
+    this.worldLucenePath = worldLucenePath;
   }
 
   @Override
-  public void index(String text, Chat chat) {//TODO: unify metods params
-    indexMessageToChat(chat.getExternalId(), text, chat.getRebirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
-    indexMessageToWorld(text, chat.getRebirthDate().toString(), chat.getLanguage() );
+  public void indexMessage(String message, Chat chat) {
+    if (message == null || message.isEmpty())
+      return;
+
+    indexMessageToChat(message, chat);
+    indexMessageToWorld(message, chat);
   }
 
   @Override
   public List<String> getChatKeywords(Chat chat) {
-    return getChatKeywordsFrequency(chat.getExternalId(), chat.getRebirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
+    return getChatKeywordsFrequency(chat.getExternalId(), chat.getRebirthDate());
   }
 
   @Override
   public List<String> getChatHashTags(Chat chat) {
-    return getChatHashTagsFrequency(chat.getExternalId(), chat.getRebirthDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
+    return getChatHashTagsFrequency(chat.getExternalId(), chat.getRebirthDate());
   }
 
   @Override
-  public List<String> getWorldKeywords(String dateIsoFormatted, ChatLanguage language) {
-    return getWorldKeywordsFrequency(dateIsoFormatted, language);
+  public List<String> getWorldKeywords(LocalDate date, ChatLanguage language) {
+    return getWorldKeywordsFrequency(date, language);
   }
 
   @Override
-  public List<String> getWorldHashTags(String dateIsoFormatted, ChatLanguage language) {
-    return getWorldHashTagsFrequency(dateIsoFormatted, language);
+  public List<String> getWorldHashTags(LocalDate date, ChatLanguage language) {
+    return getWorldHashTagsFrequency(date, language);
   }
 
   @Override
-  public Map<String, Long> getChatKeywordsExtended(String chatExternalId, LocalDate date) {
-    return getChatKeywordsFrequencyExtended(chatExternalId, date.format(DateTimeFormatter.ISO_LOCAL_DATE));
+  public Map<String, Long> getChatKeywordsWithFrequency(Chat chat, LocalDate date) {
+    return getChatKeywordsFrequencyExtended(chat.getExternalId(), date);
   }
 
   @Override
-  public Map<String, Long> getChatKeywordsExtended(String chatExternalId, LocalDate from, LocalDate till) {
+  public Map<String, Long> getChatKeywordsWithFrequency(Chat chat, LocalDate from, LocalDate till) {
     Map<String, Long> result = new HashMap<>();
     for (LocalDate dateIterator = from; !dateIterator.isAfter(till); dateIterator = dateIterator.plusDays(1)) {
-      Map<String, Long> part = getChatKeywordsFrequencyExtended(chatExternalId, dateIterator.format(DateTimeFormatter.ISO_LOCAL_DATE));
+      Map<String, Long> part = getChatKeywordsFrequencyExtended(chat.getExternalId(), dateIterator);
       if (part != null) {
-        result = Stream.concat(result.entrySet().stream(), part.entrySet().stream()).collect(Collectors.toMap(
-            entry -> entry.getKey(),
-            entry -> entry.getValue(),
-            (v1, v2) -> v1 + v2));
+        result = Stream.concat(result.entrySet().stream(), part.entrySet().stream()).
+            collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (v1, v2) -> v1 + v2));
       }
     }
     return result;
   }
 
-  private void indexMessageToChat(String chatId, String text, String chatBirthday) {
-    if (text == null || text.isEmpty())
-      return;
-
-    String filename = pathToLuceneIndexesDir + "/" + chatId + "_" + chatBirthday;
+  private void indexMessageToChat(String message, Chat chat) {
+    String filename = chatLucenePath + "/" + chat.getExternalId() + "_" + format(chat.getRebirthDate());
     try {
-      createLuceneIndex(filename, text);
+      createLuceneIndex(filename, message);
     } catch (IOException ex) {
-      logger.error("unable to add chat index: " + ex.getMessage(), ex);
+      logger.error("unable to index message to chat: " + ex.getMessage(), ex);
     }
   }
 
-  private void indexMessageToWorld(String text, String dateIsoFormatted, ChatLanguage language) {
-    if (text == null || text.isEmpty())
-      return;
-
-    String filename = pathToWorldLuceneIndexesDir + "/" + dateIsoFormatted + "_" + language;
+  private void indexMessageToWorld(String message, Chat chat) {
+    String filename = getWorldLuceneIndexesPathDir(chat.getLanguage(), chat.getRebirthDate());
     try {
-      createLuceneIndex(filename, text);
+      createLuceneIndex(filename, message);
     } catch (IOException ex) {
-      logger.error("unable to add world index: " + ex.getMessage(), ex);
+      logger.error("unable to index message to world: " + ex.getMessage(), ex);
     }
   }
 
@@ -164,86 +150,63 @@ public class LuceneAnalyzer implements TextAnalyzer {
     writer.addDocument(doc);
   }
 
-  private List<String> getChatKeywordsFrequency(String chatId, String chatBirthday) {
-    String filename = pathToLuceneIndexesDir + "/" + chatId + "_" + chatBirthday;
-    try {
-      return readTermFrequency(filename, LUCENE_TEXT_FIELD, KEYWORDS_COUNT);
-    } catch (IOException ex) {
-      logger.error("unable to get chat keywords frequency: " + ex.getMessage(), ex);
-      return null;
-    }
+  private List<String> getChatKeywordsFrequency(String chatExternalId, LocalDate date) {
+    String filename = getChatLuceneIndexesPathDir(chatExternalId, date);
+    return readTermFrequency(filename, LUCENE_TEXT_FIELD, KEYWORDS_COUNT);
   }
 
-  private Map<String, Long> getChatKeywordsFrequencyExtended(String chatId, String chatBirthday) {
-    String filename = pathToLuceneIndexesDir + "/" + chatId + "_" + chatBirthday;
-    try {
-      return readTermFrequency(filename, LUCENE_TEXT_FIELD);
-    } catch (IOException ex) {
-      logger.error("unable to get chat keywords frequency: " + ex.getMessage(), ex);
-      return null;
-    }
+  private Map<String, Long> getChatKeywordsFrequencyExtended(String chatExternalId, LocalDate date) {
+    String filename = getChatLuceneIndexesPathDir(chatExternalId, date);
+    return readTermFrequency(filename, LUCENE_TEXT_FIELD);
   }
 
-  private List<String> getWorldKeywordsFrequency(String dateIsoFormatted, ChatLanguage language) {
-    String filename = pathToWorldLuceneIndexesDir + "/" + dateIsoFormatted + "_" + language;
-    try {
-      return readTermFrequency(filename, LUCENE_TEXT_FIELD, KEYWORDS_COUNT);
-    } catch (IOException ex) {
-      logger.error("unable to get world keywords frequency: " + ex.getMessage(), ex);
-      return null;
-    }
-  } //TODO: date iso formatted -> DateTimeFormatter.ISO_LOCAL_DATE
-
-  private List<String> getChatHashTagsFrequency(String chatId, String chatBirthday) {
-    String filename = pathToLuceneIndexesDir + "/" + chatId + "_" + chatBirthday;
-    try {
-      return readTermFrequency(filename, LUCENE_CHAT_HASH_TAGS, HASHTAGS_COUNT);
-    } catch (IOException ex) {
-      logger.error("unable to get chat hashtags frequency: " + ex.getMessage(), ex);
-      return null;
-    }
+  private List<String> getChatHashTagsFrequency(String chatExternalId, LocalDate date) {
+    String filename = getChatLuceneIndexesPathDir(chatExternalId, date);
+    return readTermFrequency(filename, LUCENE_CHAT_HASH_TAGS, HASHTAGS_COUNT);
   }
 
-  private List<String> getWorldHashTagsFrequency(String dateIsoFormatted, ChatLanguage language) {
-    String filename = pathToWorldLuceneIndexesDir + "/" + dateIsoFormatted + "_" + language;
-    try {
-      return readTermFrequency(filename, LUCENE_CHAT_HASH_TAGS, HASHTAGS_COUNT);
-    } catch (IOException ex) {
-      logger.error("unable to get world hashtags frequency: " + ex.getMessage(), ex);
-      return null;
-    }
+  private List<String> getWorldKeywordsFrequency(LocalDate date, ChatLanguage language) {
+    String filename = getWorldLuceneIndexesPathDir(language, date);
+    return readTermFrequency(filename, LUCENE_TEXT_FIELD, KEYWORDS_COUNT);
   }
 
-  private List<String> readTermFrequency(String filename, String luceneFieldName, int amount) throws IOException {
-
-    try {
-      Map<String, Long> freq = readTermFrequency(filename, luceneFieldName);
-
-      if (freq == null || freq.isEmpty())
-        return null;
-
-      List<String> keywords = new ArrayList<>(amount);
-      freq.entrySet().stream()
-          .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
-          .limit(amount)
-          .map(e -> e.getKey())
-          .forEach(keywords::add);
-      return keywords;
-    } catch (Exception ex) {
-      logger.error("Error at reading terms ", ex);
-      return null;
-    }
+  private List<String> getWorldHashTagsFrequency(LocalDate date, ChatLanguage language) {
+    String filename = getWorldLuceneIndexesPathDir(language, date);
+    return readTermFrequency(filename, LUCENE_CHAT_HASH_TAGS, HASHTAGS_COUNT);
   }
 
-  private Map<String, Long> readTermFrequency(String filename, String luceneFieldName) throws IOException {
+  private String getChatLuceneIndexesPathDir(String chatExternalId, LocalDate date) {
+    return chatLucenePath + "/" + chatExternalId + "_" + format(date);
+  }
+
+  private String getWorldLuceneIndexesPathDir(ChatLanguage language, LocalDate date) {
+    return worldLucenePath + "/" + format(date) + "_" + language.name();
+  }
+
+  private List<String> readTermFrequency(String filename, String luceneFieldName, int amount) {
+    Map<String, Long> frequency = readTermFrequency(filename, luceneFieldName);
+
+    if (frequency == null || frequency.isEmpty())
+      return Collections.emptyList();
+
+    List<String> result = new ArrayList<>(amount);
+    frequency.entrySet().stream()
+        .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+        .limit(amount)
+        .map(Map.Entry::getKey)
+        .forEach(result::add);
+    return result;
+  }
+
+  private Map<String, Long> readTermFrequency(String luceneIndexesPathDir, String luceneFieldName) {
     try {
       read.lock();
-      Directory directory = FSDirectory.open(Paths.get(filename));
+      Directory directory = FSDirectory.open(Paths.get(luceneIndexesPathDir));
       IndexReader reader = DirectoryReader.open(directory);
       Terms terms = MultiFields.getTerms(reader, luceneFieldName);
 
       if (terms == null)
-        return null;
+        return Collections.emptyMap();
 
       TermsEnum it = terms.iterator();
       Map<String, Long> result = new HashMap<>();
@@ -255,10 +218,10 @@ public class LuceneAnalyzer implements TextAnalyzer {
       }
       return result;
     } catch (IndexNotFoundException ex) {
-      return null;
+      return Collections.emptyMap();
     } catch (Exception ex) {
       logger.error("Error at reading terms ", ex);
-      return null;
+      return Collections.emptyMap();
     } finally {
       read.unlock();
     }
@@ -291,5 +254,9 @@ public class LuceneAnalyzer implements TextAnalyzer {
     }
 
     return result;
+  }
+
+  private static String format(LocalDate date) {
+    return date.format(DateTimeFormatter.ISO_LOCAL_DATE);
   }
 }

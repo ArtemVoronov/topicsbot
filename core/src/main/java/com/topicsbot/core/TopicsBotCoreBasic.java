@@ -22,14 +22,14 @@ public class TopicsBotCoreBasic implements TopicsBotCore {
   private final TopicsAnalyzer topicsAnalyzer;
   private final TextAnalyzer textAnalyzer;
 
-  public TopicsBotCoreBasic(ScheduledExecutorService scheduledExecutorService, String pathToLuceneIndexesDir, String pathToWorldLuceneIndexesDir) {
+  public TopicsBotCoreBasic(String chatLucenePath, String worldLucenePath, ScheduledExecutorService scheduledExecutorService, int historyTimeToLiveInDays) {
     this.topicsAnalyzer = new WikiMediaStorage();
-    this.textAnalyzer = new LuceneAnalyzer(scheduledExecutorService, pathToLuceneIndexesDir, pathToWorldLuceneIndexesDir);
+    this.textAnalyzer = new LuceneAnalyzer(chatLucenePath, worldLucenePath, scheduledExecutorService, historyTimeToLiveInDays);
   }
 
   @Override
-  public void index(String text, Chat chat) {
-    textAnalyzer.index(text, chat);
+  public void indexMessage(String message, Chat chat) {
+    textAnalyzer.indexMessage(message, chat);
   }
 
   @Override
@@ -43,28 +43,28 @@ public class TopicsBotCoreBasic implements TopicsBotCore {
   }
 
   @Override
-  public List<String> getWorldKeywords(String dateIsoFormatted, ChatLanguage language) {
-    return textAnalyzer.getWorldKeywords(dateIsoFormatted, language);
+  public List<String> getWorldKeywords(LocalDate date, ChatLanguage language) {
+    return textAnalyzer.getWorldKeywords(date, language);
   }
 
   @Override
-  public List<String> getWorldHashTags(String dateIsoFormatted, ChatLanguage language) {
-    return textAnalyzer.getWorldHashTags(dateIsoFormatted, language);
-  }
-
-  @Override
-  public Map<String, Long> getChatKeywordsExtended(String chatExternalId, LocalDate date) {
-    return textAnalyzer.getChatKeywordsExtended(chatExternalId, date);
-  }
-
-  @Override
-  public Map<String, Long> getChatKeywordsExtended(String chatExternalId, LocalDate from, LocalDate till) {
-    return textAnalyzer.getChatKeywordsExtended(chatExternalId, from, till);
+  public List<String> getWorldHashTags(LocalDate date, ChatLanguage language) {
+    return textAnalyzer.getWorldHashTags(date, language);
   }
 
   @Override
   public Set<String> keywordsToTopics(List<String> keywords, ChatLanguage language) throws IOException {
     return topicsAnalyzer.keywordsToTopics(keywords, language);
+  }
+
+  @Override
+  public Map<String, Long> getChatKeywordsWithFrequency(Chat chat, LocalDate date) {
+    return textAnalyzer.getChatKeywordsWithFrequency(chat, date);
+  }
+
+  @Override
+  public Map<String, Long> getChatKeywordsWithFrequency(Chat chat, LocalDate from, LocalDate till) {
+    return textAnalyzer.getChatKeywordsWithFrequency(chat, from, till);
   }
 
 }

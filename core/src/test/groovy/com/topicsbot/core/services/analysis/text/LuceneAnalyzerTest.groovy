@@ -13,7 +13,6 @@ import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
 
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 /**
  * Author: Artem Voronov
@@ -45,7 +44,7 @@ class LuceneAnalyzerTest extends GroovyTestCase {
     String message = "hello world"
     Chat chat = ChatTest.createChat()
 
-    textAnalyzer.index(message, chat)
+    textAnalyzer.indexMessage(message, chat)
 
     assertWasMessageIndexed()
   }
@@ -56,7 +55,7 @@ class LuceneAnalyzerTest extends GroovyTestCase {
     List<String> expectedKeywords = ["hello", "world", "hunt" , "wumpus"]
     Chat chat = ChatTest.createChat()
 
-    textAnalyzer.index(message, chat)
+    textAnalyzer.indexMessage(message, chat)
     List<String> actualKeywords = textAnalyzer.getChatKeywords(chat)
 
     assertEquals expectedKeywords, actualKeywords
@@ -69,8 +68,8 @@ class LuceneAnalyzerTest extends GroovyTestCase {
     Map<String, Long> expectedKeywords = [hello: 4L, world: 3L, hunt: 2L, wumpus:1L] as Map
     Chat chat = ChatTest.createChat()
 
-    textAnalyzer.index(message, chat)
-    Map<String, Long> actualKeywords = textAnalyzer.getChatKeywordsExtended(chat.externalId, chat.rebirthDate)
+    textAnalyzer.indexMessage(message, chat)
+    Map<String, Long> actualKeywords = textAnalyzer.getChatKeywordsWithFrequency(chat, chat.rebirthDate)
 
     assertEquals expectedKeywords, actualKeywords
   }
@@ -84,10 +83,10 @@ class LuceneAnalyzerTest extends GroovyTestCase {
     LocalDate tomorrow = today.plusDays(1L)
     Chat chat = ChatTest.createChat(rebirthDate: today)
 
-    textAnalyzer.index(messageToday, chat)
+    textAnalyzer.indexMessage(messageToday, chat)
     chat.rebirthDate = tomorrow
-    textAnalyzer.index(messageTomorrow, chat)
-    Map<String, Long> actualKeywords = textAnalyzer.getChatKeywordsExtended(chat.externalId, today, tomorrow)
+    textAnalyzer.indexMessage(messageTomorrow, chat)
+    Map<String, Long> actualKeywords = textAnalyzer.getChatKeywordsExtended(chat, today, tomorrow)
 
     assertEquals expectedKeywords, actualKeywords
   }
@@ -98,7 +97,7 @@ class LuceneAnalyzerTest extends GroovyTestCase {
     List<String> expectedHashTags = ["#hashtagone", "#hastagtwo", "#hastagthree"]
     Chat chat = ChatTest.createChat()
 
-    textAnalyzer.index(message, chat)
+    textAnalyzer.indexMessage(message, chat)
     List<String> actualHashTags = textAnalyzer.getChatHashTags(chat)
 
     assertEquals expectedHashTags, actualHashTags
@@ -116,11 +115,11 @@ class LuceneAnalyzerTest extends GroovyTestCase {
     Chat chat2 = ChatTest.createChat(externalId: "-630123892092", rebirthDate: rebirthDate, language: ChatLanguage.EN)
     Chat chat3 = ChatTest.createChat(externalId: "-630123892093", rebirthDate: rebirthDate, language: ChatLanguage.RU)
 
-    textAnalyzer.index(messageFromChat1, chat1)
-    textAnalyzer.index(messageFromChat2, chat2)
-    textAnalyzer.index(messageFromChat3, chat3)
-    List<String> actualKeywordsEnglish = textAnalyzer.getWorldKeywords(rebirthDate.format(DateTimeFormatter.ISO_DATE), ChatLanguage.EN)
-    List<String> actualKeywordsRussian = textAnalyzer.getWorldKeywords(rebirthDate.format(DateTimeFormatter.ISO_DATE), ChatLanguage.RU)
+    textAnalyzer.indexMessage(messageFromChat1, chat1)
+    textAnalyzer.indexMessage(messageFromChat2, chat2)
+    textAnalyzer.indexMessage(messageFromChat3, chat3)
+    List<String> actualKeywordsEnglish = textAnalyzer.getWorldKeywords(rebirthDate, ChatLanguage.EN)
+    List<String> actualKeywordsRussian = textAnalyzer.getWorldKeywords(rebirthDate, ChatLanguage.RU)
 
     assertEquals expectedKeywordsEnglish, actualKeywordsEnglish
     assertEquals expectedKeywordsRussian, actualKeywordsRussian
@@ -138,11 +137,11 @@ class LuceneAnalyzerTest extends GroovyTestCase {
     Chat chat2 = ChatTest.createChat(externalId: "-630123892092", rebirthDate: rebirthDate, language: ChatLanguage.EN)
     Chat chat3 = ChatTest.createChat(externalId: "-630123892093", rebirthDate: rebirthDate, language: ChatLanguage.RU)
 
-    textAnalyzer.index(messageFromChat1, chat1)
-    textAnalyzer.index(messageFromChat2, chat2)
-    textAnalyzer.index(messageFromChat3, chat3)
-    List<String> actualHashTagsEnglish = textAnalyzer.getWorldHashTags(rebirthDate.format(DateTimeFormatter.ISO_DATE), ChatLanguage.EN)
-    List<String> actualHashTagsRussian = textAnalyzer.getWorldHashTags(rebirthDate.format(DateTimeFormatter.ISO_DATE), ChatLanguage.RU)
+    textAnalyzer.indexMessage(messageFromChat1, chat1)
+    textAnalyzer.indexMessage(messageFromChat2, chat2)
+    textAnalyzer.indexMessage(messageFromChat3, chat3)
+    List<String> actualHashTagsEnglish = textAnalyzer.getWorldHashTags(rebirthDate, ChatLanguage.EN)
+    List<String> actualHashTagsRussian = textAnalyzer.getWorldHashTags(rebirthDate, ChatLanguage.RU)
 
     assertEquals expectedHashTagsEnglish , actualHashTagsEnglish
     assertEquals expectedHashTagsRussian , actualHashTagsRussian
