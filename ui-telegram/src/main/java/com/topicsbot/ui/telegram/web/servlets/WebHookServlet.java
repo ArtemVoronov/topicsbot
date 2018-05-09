@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 /**
  * Author: Artem Voronov
@@ -44,7 +45,7 @@ public class WebHookServlet extends HttpServlet {
 //
 //    StringBuilder jb = new StringBuilder();
 //    String line = null;
-//    try (final BufferedReader reader = request.getReader()) { //TODO: find better choice
+//    try (final BufferedReader reader = request.getReader()) { //TODO: better choice: String body = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
 //      while ((line = reader.readLine()) != null)
 //        jb.append(line);
 //    }
