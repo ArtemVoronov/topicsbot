@@ -19,8 +19,8 @@ public class InitListener implements ServletContextListener {
 
   private static final String PROPERTY_CONFIG_DIR     = "config.dir";
   private static final String DEFAULT_CONFIG_DIR      = "conf";
-  private static final String PROPERTIES_FILE_NAME    = "config.xml";
-  private static final String LOG4J_FILE_NAME         = "log4j-topics-bot-ui-telegram.properties";
+  private static final String PROPERTIES_FILE_NAME    = "ui-telegram.properties";
+  private static final String LOG4J_FILE_NAME         = "log4j-ui-telegram.properties";
 
   @Override
   public void contextInitialized(ServletContextEvent sce) {

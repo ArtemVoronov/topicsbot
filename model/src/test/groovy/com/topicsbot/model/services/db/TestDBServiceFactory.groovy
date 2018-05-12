@@ -1,6 +1,7 @@
 package com.topicsbot.model.services.db
 
 import com.topicsbot.model.entities.config.ConfigParamsTest
+import com.topicsbot.model.services.config.TestConfigParams
 import org.hibernate.Session
 import org.hibernate.boot.MetadataSources
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder
@@ -11,11 +12,11 @@ class TestDBServiceFactory {
 
   protected static Properties hibernateProperties
 
-  synchronized static DBServiceImpl createDBService() throws IOException {
+  synchronized static HibernateDBService createDBService() throws IOException {
     if (hibernateProperties == null) {
       hibernateProperties = load("test_db.properties")
     }
-    final DBServiceImpl db = new DBServiceImpl(hibernateProperties)
+    final HibernateDBService db = new HibernateDBService(hibernateProperties)
 
     createEmptyDB(hibernateProperties)
 
@@ -68,8 +69,8 @@ class TestDBServiceFactory {
   }
 
   private static void preFillDb(Session s) {
-    s.save(ConfigParamsTest.createConfigParam(paramName: "telegram.bot.token", paramValue: "123"))
-    s.save(ConfigParamsTest.createConfigParam(paramName: "entities.results.batch.size", paramValue: "1"))
-    s.save(ConfigParamsTest.createConfigParam(paramName: "entities.results.fetch.size", paramValue: "1"))
+    s.save(ConfigParamsTest.createConfigParam(paramName: TestConfigParams.TELEGRAM_BOT_TOKEN.key,             paramValue: TestConfigParams.TELEGRAM_BOT_TOKEN.value))
+    s.save(ConfigParamsTest.createConfigParam(paramName: "hibernate.query.batch.size",                        paramValue: "1"))
+    s.save(ConfigParamsTest.createConfigParam(paramName: "hibernate.query.fetch.size",                        paramValue: "1"))
   }
 }

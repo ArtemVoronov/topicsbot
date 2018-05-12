@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * author: Artem Voronov
  */
-public class ConfigParamsHolderBasic implements ConfigParamsHolder {//TODO: add unit test
+public class ConfigParamsHolderBasic implements ConfigParamsHolder {
 
   private final ScheduledExecutorService executor;
   private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
@@ -25,24 +25,25 @@ public class ConfigParamsHolderBasic implements ConfigParamsHolder {//TODO: add 
   private final ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
 
   private final DBService db;
+  private final ConfigParamsReader configParamsReader;
   private final Logger logger;
   private final Map<String, String> configParams;
 
-  public ConfigParamsHolderBasic(DBService db, Logger logger, long rereadConfigParamsDelayInSeconds) throws ModelServicesException {
-    this(db, logger, 60L, rereadConfigParamsDelayInSeconds);
+  public ConfigParamsHolderBasic(DBService db, Logger logger, long initialDelay, long rereadServiceParamsDelayInSeconds) throws ModelServicesException {
+    this(db, logger);
+    executor.scheduleWithFixedDelay(configParamsReader, initialDelay, rereadServiceParamsDelayInSeconds, TimeUnit.SECONDS);
   }
 
-  public ConfigParamsHolderBasic(DBService db, Logger logger, long initialDelay, long rereadServiceParamsDelayInSeconds) throws ModelServicesException {
+  ConfigParamsHolderBasic(DBService db, Logger logger) throws ModelServicesException {
     this.db = db;
     this.logger = logger;
     this.executor = ModelServicesFactory.initScheduledExecutorService("CONFIG_PARAMS_HOLDER-");
+    this.configParamsReader = new ConfigParamsReader();
 
     configParams = readConfigParams();
 
     if (logger.isInfoEnabled())
       logger.info("config params initiated:\n" + prettyFormat(configParams));
-
-    executor.scheduleWithFixedDelay(new ConfigParamsReader(), initialDelay, rereadServiceParamsDelayInSeconds, TimeUnit.SECONDS);
   }
 
   @Override
@@ -64,7 +65,7 @@ public class ConfigParamsHolderBasic implements ConfigParamsHolder {//TODO: add 
   @SuppressWarnings("unchecked")
   private Map<String, String> readConfigParams() {
     return db.tx( s -> {
-      List<ConfigParam> configParams = ConfigParamsQuery.all(s).getResultList();
+      List<ConfigParam> configParams = ConfigParamsQuery.all(s).list();
       return configParams.stream().collect(Collectors.toMap(ConfigParam::getParamName, ConfigParam::getParamValue));
     });
   }
@@ -105,5 +106,9 @@ public class ConfigParamsHolderBasic implements ConfigParamsHolder {//TODO: add 
       updateConfigParams();
     }
 
+  }
+
+  ConfigParamsReader getConfigParamsReader() {
+    return configParamsReader;
   }
 }

@@ -23,7 +23,6 @@ buildscript {
 dependencies {
   compile project(":core")
   testCompile project(path: ':core', configuration: 'testOutput')
-  compile 'org.apache.commons:commons-configuration2:2.2'
   compile 'javax.servlet:javax.servlet-api:3.1.0'
   compile 'javax.enterprise:cdi-api:1.1'
 //  compile 'javax.inject:javax.inject:1'

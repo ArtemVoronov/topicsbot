@@ -2,23 +2,25 @@ package com.topicsbot.model.query;
 
 import com.topicsbot.model.entities.config.ConfigParam;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import org.hibernate.*;
-import org.hibernate.query.Query;
+import org.hibernate.criterion.Restrictions;
 
 /**
  * author: Artem Voronov
  */
 public class ConfigParamsQuery {
 
-  public static Query<ConfigParam> all(Session s) {
-    CriteriaBuilder builder = s.getCriteriaBuilder();
-    CriteriaQuery<ConfigParam> query = builder.createQuery(ConfigParam.class);
-    Root<ConfigParam> root = query.from(ConfigParam.class);
-    query.select(root);
-    return s.createQuery(query);
+  public static Criteria all(Session s) {
+    Criteria c = s.createCriteria(ConfigParam.class);
+    return c;
+  }
+
+  public static Criteria byId(Integer id, Session s) {
+    return all(s).add(Restrictions.idEq(id));
+  }
+
+  public static Criteria byParamName(String paramName, Session s) {
+    return all(s).add(Restrictions.eq("paramName", paramName));
   }
 
 }

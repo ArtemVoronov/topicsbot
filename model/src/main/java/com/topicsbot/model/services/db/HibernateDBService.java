@@ -6,14 +6,15 @@ import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
+import java.util.Map;
 import java.util.Properties;
 
 @SuppressWarnings("Duplicates")
-public class DBServiceImpl implements DBService {
+public class HibernateDBService implements DBService {
 
   private SessionFactory sf;
 
-  public DBServiceImpl(Properties hibernateProperties) {
+  public HibernateDBService(Properties hibernateProperties) {
     StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder();
     builder.configure("hibernate-model.cfg.xml");
     StandardServiceRegistry registry = builder.applySettings(Maps.fromProperties(hibernateProperties)).build();
