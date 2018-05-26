@@ -1,5 +1,6 @@
 package com.topicsbot.ui.telegram.services.communication;
 
+import com.topicsbot.model.services.config.ConfigParamsHolder;
 import com.topicsbot.ui.telegram.services.communication.model.Updates;
 
 /**
@@ -8,12 +9,20 @@ import com.topicsbot.ui.telegram.services.communication.model.Updates;
 public class TelegramBotApiProviderBasic implements TelegramBotApiProvider {
 
 
-  private final String getUpdatesUrl;
+  private final ConfigParamsHolder configParamsHolder;
 
-  public TelegramBotApiProviderBasic(String botToken) {
+  public TelegramBotApiProviderBasic(ConfigParamsHolder configParamsHolder) {
+    this.configParamsHolder = configParamsHolder;
+//    final String apiTelegramUrl = "https://api.telegram.org/bot"+configParamsHolder.getConfigParam("telegram.bot.token"); //TODO: use editable config
+//    this.getUpdatesUrl = getUpdatesUrl();
+  }
 
-    final String apiTelegramUrl = "https://api.telegram.org/bot"+botToken; //TODO: use editable config
-    this.getUpdatesUrl = apiTelegramUrl + "/getUpdates";
+  private String getApiTelegramUrl() {
+    return "https://api.telegram.org/bot"+configParamsHolder.getConfigParam("telegram.bot.token");
+  }
+
+  private String getUpdatesUrl() {
+    return getApiTelegramUrl() + "/getUpdates";
   }
 
   @Override

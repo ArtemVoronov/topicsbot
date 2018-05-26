@@ -42,7 +42,7 @@ public class RedisClient implements KeyValueStorageService {
         jedisPoolProperties.getInt("jedis.pool.max.active"),
         jedisPoolProperties.getInt("jedis.pool.max.idle"),
         jedisPoolProperties.getInt("jedis.pool.min.idle"),
-        jedisPoolProperties.getBoolean("jedis.pool.test.on.borrow "),
+        jedisPoolProperties.getBoolean("jedis.pool.test.on.borrow"),
         jedisPoolProperties.getBoolean("jedis.pool.test.on.return"),
         jedisPoolProperties.getBoolean("jedis.pool.test.while.idle"),
         jedisPoolProperties.getLong("jedis.pool.mine.victable.idle.time.seconds"),
