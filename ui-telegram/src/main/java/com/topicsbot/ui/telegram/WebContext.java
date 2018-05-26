@@ -2,6 +2,7 @@ package com.topicsbot.ui.telegram;
 
 import com.topicsbot.model.services.ModelServicesException;
 import com.topicsbot.ui.telegram.services.Services;
+import com.topicsbot.ui.telegram.services.UiTelegramServicesException;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -14,7 +15,7 @@ public class WebContext {
 
   private static Services services;
 
-  static synchronized void init() throws ModelServicesException, ConfigurationException {
+  static synchronized void init() throws ModelServicesException, ConfigurationException, UiTelegramServicesException {
     if (WebContext.services == null) {
       WebContext.services = new Services();
     }

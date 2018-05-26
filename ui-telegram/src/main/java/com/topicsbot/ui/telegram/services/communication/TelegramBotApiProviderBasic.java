@@ -11,6 +11,7 @@ public class TelegramBotApiProviderBasic implements TelegramBotApiProvider {
 
   private final ConfigParamsHolder configParamsHolder;
 
+  //TODO: 2 режима работы: web hooks & long polling
   public TelegramBotApiProviderBasic(ConfigParamsHolder configParamsHolder) {
     this.configParamsHolder = configParamsHolder;
 //    final String apiTelegramUrl = "https://api.telegram.org/bot"+configParamsHolder.getConfigParam("telegram.bot.token"); //TODO: use editable config
