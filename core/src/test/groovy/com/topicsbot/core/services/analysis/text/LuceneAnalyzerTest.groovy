@@ -86,7 +86,7 @@ class LuceneAnalyzerTest extends GroovyTestCase {
     textAnalyzer.indexMessage(messageToday, chat)
     chat.rebirthDate = tomorrow
     textAnalyzer.indexMessage(messageTomorrow, chat)
-    Map<String, Long> actualKeywords = textAnalyzer.getChatKeywordsExtended(chat, today, tomorrow)
+    Map<String, Long> actualKeywords = textAnalyzer.getChatKeywordsWithFrequency(chat, today, tomorrow)
 
     assertEquals expectedKeywords, actualKeywords
   }
