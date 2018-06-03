@@ -1,12 +1,8 @@
 package com.topicsbot.services;
 
-import com.topicsbot.services.analysis.AnalysisProvider;
-import com.topicsbot.services.analysis.AnalysisService;
 import com.topicsbot.services.api.telegram.TelegramApiService;
 import com.topicsbot.services.api.telegram.TelegramApiProvider;
-import com.topicsbot.services.cache.CacheService;
 import com.topicsbot.services.db.DBService;
-import com.topicsbot.services.i18n.ResourceBundleService;
 import com.topicsbot.utils.ThreadFactoryWithCounter;
 import org.apache.commons.configuration2.Configuration;
 
@@ -20,17 +16,11 @@ public class Services {
   private final DBService dbService;
   private final ScheduledExecutorService scheduledExecutorService;
   private final TelegramApiProvider telegramApiProvider;
-  private final ResourceBundleService resourceBundleService;
-  private final AnalysisProvider analysisProvider;
-  private final CacheService cacheService;
 
   public Services(Configuration config) throws ServicesException {
-    this.resourceBundleService = new ResourceBundleService();
     this.dbService = initDBService(config);
     this.scheduledExecutorService = initScheduledExecutorService(config);
-    this.analysisProvider = initAnalysisService(config, scheduledExecutorService);
-    this.cacheService = initCacheService(config, dbService, scheduledExecutorService);
-    this.telegramApiProvider = initTelegramApiProvider(config, dbService, scheduledExecutorService, resourceBundleService, analysisProvider, cacheService);
+    this.telegramApiProvider = initTelegramApiProvider(config, dbService, scheduledExecutorService);
   }
 
   private DBService initDBService(Configuration config) throws ServicesException {
@@ -75,40 +65,15 @@ public class Services {
   }
 
   private TelegramApiProvider initTelegramApiProvider(Configuration config, DBService db,
-                                                      ScheduledExecutorService scheduledExecutorService,
-                                                      ResourceBundleService resourceBundleService,
-                                                      AnalysisProvider analysisProvider, CacheService cacheService) throws ServicesException {
+                                                      ScheduledExecutorService scheduledExecutorService) throws ServicesException {
     try {
       boolean testMode = config.getBoolean("test.mode", false);
       int connectTimeout = config.getInt("telegram.api.client.connect.timeout.millis");
       int requestTimeout = config.getInt("telegram.api.client.request.timeout.millis");
       String botToken = config.getString(testMode ? "test.bot.token" : "bot.token");
-      String botUserName = config.getString(testMode ? "test.bot.username" : "bot.username");
-      return new TelegramApiService(db, scheduledExecutorService, resourceBundleService, analysisProvider, cacheService, connectTimeout, requestTimeout, botToken, botUserName);
+      return new TelegramApiService(db, scheduledExecutorService, connectTimeout, requestTimeout, botToken);
     } catch (Exception e) {
       throw new ServicesException("Error during TelegramApiProvider initialization", e);
-    }
-  }
-
-  private AnalysisService initAnalysisService(Configuration config, ScheduledExecutorService scheduledExecutorService) throws ServicesException {
-    try {
-      String pathToStopWordsDir = config.getString("path.to.stop.words");
-      String pathToLuceneIndexesDir = config.getString("path.to.lucene.indexes");
-      String pathToWorldLuceneIndexesDir = config.getString("path.to.world.lucene.indexes");
-      return new AnalysisService(scheduledExecutorService, pathToStopWordsDir, pathToLuceneIndexesDir, pathToWorldLuceneIndexesDir);
-    } catch (Exception e) {
-      throw new ServicesException("Error during AnalysisService initialization", e);
-    }
-  }
-
-  private CacheService initCacheService(Configuration config, DBService db, ScheduledExecutorService scheduledExecutorService) throws ServicesException {
-    try {
-      String pathToCacheDir = config.getString("path.cache");
-      if (pathToCacheDir == null)
-        throw new IllegalArgumentException("missed path cache param");
-      return new CacheService(pathToCacheDir, db, scheduledExecutorService);
-    } catch (Exception e) {
-      throw new ServicesException("Error during CacheService initialization", e);
     }
   }
 
@@ -120,22 +85,9 @@ public class Services {
     return telegramApiProvider;
   }
 
-  public ResourceBundleService getResourceBundleService() {
-    return resourceBundleService;
-  }
-
-  public AnalysisProvider getAnalysisProvider() {
-    return analysisProvider;
-  }
-
-  public CacheService getCacheService() {
-    return cacheService;
-  }
-
   public void shutdown() {
     dbService.shutdown();
     scheduledExecutorService.shutdown();
-    cacheService.shutdown();
   }
 
 }

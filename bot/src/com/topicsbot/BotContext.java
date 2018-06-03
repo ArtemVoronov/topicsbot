@@ -1,11 +1,8 @@
 package com.topicsbot;
 
 import com.topicsbot.services.Services;
-import com.topicsbot.services.analysis.AnalysisProvider;
 import com.topicsbot.services.api.telegram.TelegramApiProvider;
-import com.topicsbot.services.cache.CacheService;
 import com.topicsbot.services.db.DBService;
-import com.topicsbot.services.i18n.ResourceBundleService;
 import org.apache.commons.configuration2.Configuration;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -60,21 +57,6 @@ public class BotContext {
   @Produces
   public TelegramApiProvider getTelegramApiProvider() {
     return services.getTelegramApiProvider();
-  }
-
-  @Produces
-  public ResourceBundleService getResourceBundleService() {
-    return services.getResourceBundleService();
-  }
-
-  @Produces
-  public AnalysisProvider getAnalysisProvider() {
-    return services.getAnalysisProvider();
-  }
-
-  @Produces
-  public CacheService getCacheService() {
-    return services.getCacheService();
   }
 
   @Produces

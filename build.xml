@@ -58,7 +58,7 @@
     <mkdir dir="bot/lib"/>
     <mkdir dir="bot/libdev"/>
 
-    <ivy:settings file="${user.home}/.ivy2/ivysettings.xml"/>
+    <!--<ivy:settings file="${user.home}/.ivy2/ivysettings.xml"/>-->
     <ivy:resolve file="ivy.xml"/>
     <ivy:retrieve type="jar,bundle" pattern="model/lib/[artifact]-[revision].[ext]" conf="model-prod" haltonfailure="true"/>
     <ivy:retrieve type="jar,bundle" pattern="model/libdev/[artifact]-[revision].[ext]" conf="model-dev" haltonfailure="true"/>
