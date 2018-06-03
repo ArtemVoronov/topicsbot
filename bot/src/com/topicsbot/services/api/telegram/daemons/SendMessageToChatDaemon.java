@@ -16,7 +16,7 @@ import java.util.Set;
  */
 public class SendMessageToChatDaemon implements Runnable {
   private static final Logger logger = Logger.getLogger("SendMessageToChatDaemon");
-  private static final String text = "test close message";
+  private static final String text = "Hello everyone! This project suspends its work for an indefinite period, perhaps forever, perhaps until the future, where it will be reborn. Thank you for using Topics Bot! Enjoy the last 7 days of bot working!";
 
   private final DBService db;
   private final TelegramApiProvider telegramApiProvider;
@@ -31,10 +31,15 @@ public class SendMessageToChatDaemon implements Runnable {
   public void run() {
     try {
       db.vtx(s -> {
-//        List<Chat> allTelegramChats = ChatQuery.telegram(s).list();
-        List<Chat> allTelegramChats = ChatQuery.byTelegramExternalId("193062503", s).list();
+//        List<Chat> me = ChatQuery.byTelegramExternalId("193062503", s).list();
+        List<Chat> allTelegramChats = ChatQuery.groups(s).list();
+
+//        for (Chat chat : me) {
+//          telegramApiProvider.sendMessage(chat.getExternalId(), text);
+//        }
 
         for (Chat chat : allTelegramChats) {
+          logger.info("chat id: " + chat.getExternalId() + ", title: " + chat.getTitle());
           telegramApiProvider.sendMessage(chat.getExternalId(), text);
         }
       });
